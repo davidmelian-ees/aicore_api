@@ -1,0 +1,9 @@
+---
+applications:
+  - name: ai_core_api
+    memory: 256M
+    buildpacks:
+      - nodejs_buildpack
+    command: node server.js
+    services:
+      - aicore-app-auth

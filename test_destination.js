@@ -1,0 +1,3 @@
+import { setTestDestination } from '@sap-cloud-sdk/test-util';
+
+setTestDestination({"Name":"genai-dest","Type":"HTTP","Description":"","URL":"https://api.ai.prod.eu-central-1.aws.ml.hana.ondemand.com/v2","ProxyType":"Internet","Authentication":"OAuth2ClientCredentials","clientId":"sb-5db76073-2c42-4bd7-9ee0-ed3ac373b2b2!b593090|aicore!b540","clientSecret":"<removed>","tokenServiceURL":"https://dev-environment-auo8uoen.authentication.eu10.hana.ondemand.com/oauth/token","tokenServiceURLType":"Dedicated","HTML5.DynamicDestination":"true"});

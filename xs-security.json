@@ -1,0 +1,20 @@
+{
+  "xsappname": "aicore-app-auth",
+  "tenant-mode": "dedicated",
+  "description": "Security profile",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.read",
+      "description": "Read access"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Viewer",
+      "description": "Can view data",
+      "scope-references": [
+        "$XSAPPNAME.read"
+      ]
+    }
+  ]
+}

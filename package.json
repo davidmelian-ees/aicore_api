@@ -1,0 +1,31 @@
+{
+  "name": "aicore_api",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "@sap-ai-sdk/foundation-models": "^2.0.0",
+    "@sap/xsenv": "^6.0.0",
+    "@sap/xssec": "^4.10.0",
+    "express": "^5.1.0",
+    "passport": "^0.7.0",
+    "passport-oauth": "^1.0.0"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "cds": {
+    "requires": {
+      "[production]": {
+        "auth": "xsuaa"
+      }
+    }
+  }
+}
