@@ -14,7 +14,9 @@
     "@sap-ai-sdk/foundation-models": "^2.0.0",
     "@sap/xsenv": "^6.0.0",
     "@sap/xssec": "^4.10.0",
+    "chromadb": "^3.0.17",
     "express": "^5.1.0",
+    "langchain": "^0.3.35",
     "passport": "^0.7.0",
     "passport-oauth": "^1.0.0"
   },

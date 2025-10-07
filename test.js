@@ -1,15 +1,23 @@
-import xsenv from "@sap/xsenv";
-import { AzureOpenAiChatClient } from "@sap-ai-sdk/foundation-models";
+import { createCollection, listCollections, addDocument } from "./Utils/chromadb.js";
 
-xsenv.loadEnv();
+async function main() {
+  // 1. Crear colección (si no existe ya)
+  /*await createCollection("demodos", 3);
 
-const client = new AzureOpenAiChatClient('gpt-4o');
-const response = await client.run({
-  messages: [
-    {
-      role: 'user',
-      content: 'Where is the deepest place on earth located?'
-    }
-  ]
-});
-console.log(response.getContent());
+  // 2. Listar colecciones
+  const collections = await listCollections();
+
+  // 3. Buscar la colección que acabamos de crear
+  const myCol = collections?.collections?.find(c => c.name === "demodos");
+  if (!myCol) {
+    console.error("❌ No se encontró la colección 'demodos'");
+    return;
+  }*/
+
+  console.log("➡️ Usando colección:", "7e15392b-b107-4d0c-95d0-b971040f914e");
+
+  // 4. Insertar documento
+  await addDocument("7e15392b-b107-4d0c-95d0-b971040f914e");
+}
+
+main();
