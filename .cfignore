@@ -28,9 +28,11 @@ scripts/start-cf.js
 setup_*.bat
 start_simple.bat
 
-# Documentación de desarrollo
+# Documentación de desarrollo (excluir archivos innecesarios)
 docs/CHROMADB_SETUP.md
 docs/DEPLOYMENT_ISSUE.md
+docs/DOCUMENTACION_COMPLETA_RAG_SYSTEM.md
+docs/INDEX.md
 
 # Postman collections
 postman/

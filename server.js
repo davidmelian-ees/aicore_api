@@ -23,6 +23,9 @@ if (isProduction) {
 
 app.use(express.json());
 
+// Servir archivos estáticos de documentación
+app.use('/docs', express.static('docs'));
+
 // Ruta de salud para Cloud Foundry
 app.get('/health', (req, res) => {
   res.json({
@@ -44,9 +47,16 @@ app.get('/', (req, res) => {
       chat: '/api/chat',
       rag: '/api/rag',
       ragHealth: '/api/rag/health',
-      ragDocs: '/api/rag/documents'
+      ragDocs: '/api/rag/documents',
+      documentation: '/docs/RAG_SYSTEM_DOCUMENTATION.html'
     },
-    vectorStore: process.env.VECTOR_STORE_TYPE || 'auto'
+    vectorStore: process.env.VECTOR_STORE_TYPE || 'auto',
+    documentation: {
+      html: '/docs/RAG_SYSTEM_DOCUMENTATION.html',
+      readme: '/docs/README.md',
+      ragGuide: '/docs/README_RAG.md',
+      deployGuide: '/docs/DEPLOY_CF_FINAL.md'
+    }
   });
 });
 
