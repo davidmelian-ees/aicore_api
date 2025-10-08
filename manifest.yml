@@ -1,9 +1,12 @@
 ---
 applications:
   - name: ai_core_api
-    memory: 256M
+    memory: 512M
     buildpacks:
       - nodejs_buildpack
     command: node server.js
     services:
       - aicore-app-auth
+    env:
+      VECTOR_STORE_TYPE: chroma
+      NODE_ENV: production

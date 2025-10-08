@@ -1,0 +1,238 @@
+{
+  "documento": "Procedimientos de Seguridad Informática",
+  "version": "3.2",
+  "fecha_actualizacion": "2024-10-01",
+  "departamento": "Seguridad IT",
+  "procedimientos": {
+    "acceso_sistemas": {
+      "titulo": "Control de Acceso a Sistemas",
+      "descripcion": "Procedimientos para gestionar el acceso a sistemas críticos",
+      "pasos": [
+        {
+          "paso": 1,
+          "accion": "Solicitud de acceso",
+          "descripcion": "El empleado debe completar el formulario IT-SEC-001",
+          "responsable": "Empleado solicitante",
+          "tiempo_estimado": "5 minutos"
+        },
+        {
+          "paso": 2,
+          "accion": "Aprobación del supervisor",
+          "descripcion": "El supervisor directo debe aprobar la solicitud",
+          "responsable": "Supervisor directo",
+          "tiempo_estimado": "24 horas"
+        },
+        {
+          "paso": 3,
+          "accion": "Revisión de seguridad",
+          "descripcion": "El equipo de seguridad IT revisa los permisos solicitados",
+          "responsable": "Equipo de Seguridad IT",
+          "tiempo_estimado": "48 horas"
+        },
+        {
+          "paso": 4,
+          "accion": "Implementación de accesos",
+          "descripcion": "Se configuran los accesos en los sistemas correspondientes",
+          "responsable": "Administrador de sistemas",
+          "tiempo_estimado": "2 horas"
+        },
+        {
+          "paso": 5,
+          "accion": "Notificación al usuario",
+          "descripcion": "Se notifica al usuario que sus accesos están listos",
+          "responsable": "Sistema automatizado",
+          "tiempo_estimado": "Inmediato"
+        }
+      ],
+      "documentos_requeridos": [
+        "Formulario IT-SEC-001",
+        "Justificación de negocio",
+        "Aprobación del supervisor"
+      ],
+      "sistemas_afectados": [
+        "Active Directory",
+        "SAP ERP",
+        "Sistema de gestión documental",
+        "VPN corporativa"
+      ]
+    },
+    "incidentes_seguridad": {
+      "titulo": "Gestión de Incidentes de Seguridad",
+      "descripcion": "Protocolo para reportar y gestionar incidentes de seguridad",
+      "clasificacion_incidentes": {
+        "critico": {
+          "descripcion": "Compromiso de datos sensibles o sistemas críticos",
+          "tiempo_respuesta": "15 minutos",
+          "escalacion": "CISO y CEO inmediatamente"
+        },
+        "alto": {
+          "descripcion": "Intento de acceso no autorizado detectado",
+          "tiempo_respuesta": "1 hora",
+          "escalacion": "Equipo de seguridad IT"
+        },
+        "medio": {
+          "descripcion": "Anomalías en el comportamiento del sistema",
+          "tiempo_respuesta": "4 horas",
+          "escalacion": "Administrador de sistemas"
+        },
+        "bajo": {
+          "descripcion": "Violaciones menores de políticas",
+          "tiempo_respuesta": "24 horas",
+          "escalacion": "Supervisor directo"
+        }
+      },
+      "pasos_respuesta": [
+        {
+          "fase": "Detección",
+          "acciones": [
+            "Identificar el incidente",
+            "Clasificar la severidad",
+            "Documentar evidencias iniciales"
+          ]
+        },
+        {
+          "fase": "Contención",
+          "acciones": [
+            "Aislar sistemas afectados",
+            "Preservar evidencias",
+            "Implementar medidas temporales"
+          ]
+        },
+        {
+          "fase": "Erradicación",
+          "acciones": [
+            "Eliminar la causa raíz",
+            "Aplicar parches de seguridad",
+            "Actualizar configuraciones"
+          ]
+        },
+        {
+          "fase": "Recuperación",
+          "acciones": [
+            "Restaurar servicios",
+            "Monitorear sistemas",
+            "Validar funcionamiento normal"
+          ]
+        },
+        {
+          "fase": "Lecciones aprendidas",
+          "acciones": [
+            "Documentar el incidente",
+            "Actualizar procedimientos",
+            "Capacitar al personal"
+          ]
+        }
+      ]
+    },
+    "backup_recuperacion": {
+      "titulo": "Procedimientos de Backup y Recuperación",
+      "descripcion": "Protocolos para respaldo y recuperación de datos críticos",
+      "tipos_backup": {
+        "completo": {
+          "frecuencia": "Semanal - Domingos 2:00 AM",
+          "retencion": "3 meses",
+          "ubicacion": "Datacenter principal + Cloud"
+        },
+        "incremental": {
+          "frecuencia": "Diario - 11:00 PM",
+          "retencion": "30 días",
+          "ubicacion": "Datacenter principal"
+        },
+        "diferencial": {
+          "frecuencia": "Miércoles - 11:30 PM",
+          "retencion": "2 semanas",
+          "ubicacion": "Datacenter principal"
+        }
+      },
+      "sistemas_criticos": [
+        {
+          "sistema": "Base de datos ERP",
+          "rto": "4 horas",
+          "rpo": "1 hora",
+          "prioridad": "Crítica"
+        },
+        {
+          "sistema": "Sistema de email",
+          "rto": "8 horas",
+          "rpo": "4 horas",
+          "prioridad": "Alta"
+        },
+        {
+          "sistema": "Aplicaciones web",
+          "rto": "12 horas",
+          "rpo": "8 horas",
+          "prioridad": "Media"
+        }
+      ],
+      "procedimiento_recuperacion": [
+        "Evaluar el alcance del problema",
+        "Determinar el punto de recuperación",
+        "Notificar a stakeholders",
+        "Ejecutar plan de recuperación",
+        "Validar integridad de datos",
+        "Comunicar restauración completa"
+      ]
+    },
+    "auditoria_logs": {
+      "titulo": "Auditoría y Monitoreo de Logs",
+      "descripcion": "Procedimientos para el monitoreo y análisis de logs de seguridad",
+      "tipos_logs": {
+        "autenticacion": {
+          "descripcion": "Logs de inicio y cierre de sesión",
+          "retencion": "1 año",
+          "revision": "Diaria"
+        },
+        "acceso_datos": {
+          "descripcion": "Acceso a datos sensibles",
+          "retencion": "2 años",
+          "revision": "Tiempo real"
+        },
+        "cambios_configuracion": {
+          "descripcion": "Modificaciones en sistemas críticos",
+          "retencion": "3 años",
+          "revision": "Inmediata"
+        },
+        "transacciones": {
+          "descripcion": "Operaciones financieras y comerciales",
+          "retencion": "7 años",
+          "revision": "Diaria"
+        }
+      },
+      "alertas_automaticas": [
+        "Múltiples intentos fallidos de login",
+        "Acceso fuera del horario laboral",
+        "Descarga masiva de datos",
+        "Cambios en cuentas privilegiadas",
+        "Acceso desde ubicaciones inusuales"
+      ],
+      "herramientas_monitoreo": [
+        "SIEM - Splunk Enterprise",
+        "IDS/IPS - Snort",
+        "Monitoreo de red - Nagios",
+        "Análisis de vulnerabilidades - Nessus"
+      ]
+    }
+  },
+  "contactos_emergencia": {
+    "ciso": {
+      "nombre": "María González",
+      "telefono": "+34 600 123 456",
+      "email": "maria.gonzalez@empresa.com"
+    },
+    "administrador_sistemas": {
+      "nombre": "Carlos Rodríguez",
+      "telefono": "+34 600 789 012",
+      "email": "carlos.rodriguez@empresa.com"
+    },
+    "soporte_24x7": {
+      "telefono": "+34 900 555 000",
+      "email": "soporte@empresa.com"
+    }
+  },
+  "revision_documento": {
+    "proxima_revision": "2025-04-01",
+    "responsable_revision": "Equipo de Seguridad IT",
+    "aprobado_por": "CISO - María González",
+    "fecha_aprobacion": "2024-10-01"
+  }
+}
