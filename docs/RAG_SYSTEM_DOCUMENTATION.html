@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema RAG - Documentación Completa</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; line-height: 1.6; }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; margin-top: 30px; }
+        h3 { color: #7f8c8d; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .section { margin-bottom: 30px; }
+        .code { background-color: #f8f9fa; padding: 15px; border-left: 4px solid #3498db; font-family: 'Courier New', monospace; }
+        .table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        .table th, .table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .table th { background-color: #3498db; color: white; }
+        .highlight { background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; }
+        .success { background-color: #d4edda; padding: 10px; border-left: 4px solid #28a745; }
+        .architecture { text-align: center; margin: 20px 0; }
+        ul { margin-left: 20px; }
+        li { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🤖 Sistema RAG con SAP AI Core y ChromaDB</h1>
+    <p><strong>Documentación Técnica Completa</strong></p>
+    <p>Versión 1.0.0 | Octubre 2024</p>
+</div>
+
+<div class="section">
+    <h2>📋 Resumen Ejecutivo</h2>
+    <p>El <strong>Sistema RAG (Retrieval-Augmented Generation)</strong> es una solución empresarial que integra <strong>SAP AI Core</strong> con <strong>ChromaDB</strong> para proporcionar capacidades avanzadas de búsqueda semántica y chat conversacional basado en documentos corporativos.</p>
+    
+    <h3>🎯 Características Principales</h3>
+    <ul>
+        <li>✅ <strong>Integración completa con SAP AI Core</strong> para embeddings y generación de texto</li>
+        <li>✅ <strong>ChromaDB embebido</strong> para persistencia vectorial en Cloud Foundry</li>
+        <li>✅ <strong>Procesamiento multi-formato</strong>: TXT, DOCX, MD, JSON, CSV</li>
+        <li>✅ <strong>API REST completa</strong> con endpoints para gestión de documentos</li>
+        <li>✅ <strong>Chat conversacional</strong> usando contexto de documentos indexados</li>
+        <li>✅ <strong>Fallback automático</strong> a almacenamiento en memoria</li>
+        <li>✅ <strong>Autenticación XSUAA</strong> para entornos de producción</li>
+        <li>✅ <strong>Despliegue en Cloud Foundry</strong> con configuración automática</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2>🏗️ Arquitectura del Sistema</h2>
+    
+    <div class="architecture">
+        <div class="code">
+┌─────────────────────────────────────────────────────────────┐<br>
+│                    SAP BTP Cloud Foundry                    │<br>
+├─────────────────────────────────────────────────────────────┤<br>
+│  ┌─────────────────┐    ┌─────────────────┐                │<br>
+│  │   Node.js API   │    │   SAP AI Core   │                │<br>
+│  │   (Express)     │◄──►│   (Embeddings   │                │<br>
+│  │                 │    │   & Chat LLM)   │                │<br>
+│  └─────────────────┘    └─────────────────┘                │<br>
+│           │                                                 │<br>
+│           ▼                                                 │<br>
+│  ┌─────────────────┐    ┌─────────────────┐                │<br>
+│  │   ChromaDB      │    │   XSUAA Auth    │                │<br>
+│  │   (Embebido)    │    │   Service       │                │<br>
+│  │   Persistente   │    │                 │                │<br>
+│  └─────────────────┘    └─────────────────┘                │<br>
+└─────────────────────────────────────────────────────────────┘
+        </div>
+    </div>
+
+    <h3>🔄 Flujo de Datos</h3>
+    <table class="table">
+        <tr>
+            <th>Proceso</th>
+            <th>Flujo</th>
+        </tr>
+        <tr>
+            <td><strong>Ingesta de Documentos</strong></td>
+            <td>Documento → Procesamiento → Chunking → Embeddings (SAP AI Core) → ChromaDB</td>
+        </tr>
+        <tr>
+            <td><strong>Búsqueda Semántica</strong></td>
+            <td>Query → Embedding (SAP AI Core) → Búsqueda Vectorial (ChromaDB) → Resultados Rankeados</td>
+        </tr>
+        <tr>
+            <td><strong>Chat RAG</strong></td>
+            <td>Pregunta → Búsqueda Contexto → Prompt + Contexto → LLM (SAP AI Core) → Respuesta</td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <h2>⚙️ Configuración y Despliegue</h2>
+    
+    <h3>🔧 Configuración Local</h3>
+    <div class="code">
+# Instalar dependencias<br>
+npm install<br><br>
+
+# Configurar variables de entorno<br>
+cp default-env.json.example default-env.json<br><br>
+
+# Iniciar ChromaDB local<br>
+cd chroma_service<br>
+start_service.bat<br><br>
+
+# Iniciar servidor<br>
+npm start
+    </div>
+
+    <h3>☁️ Despliegue en Cloud Foundry</h3>
+    <div class="code">
+# Login en Cloud Foundry<br>
+cf login -a https://api.cf.eu10.hana.ondemand.com<br><br>
+
+# Configurar target<br>
+cf target -o "ORGANIZACION" -s "ESPACIO"<br><br>
+
+# Desplegar aplicación<br>
+cf push<br><br>
+
+# Verificar estado<br>
+cf apps<br>
+cf logs ai_core_api --recent
+    </div>
+
+    <h3>📊 Configuración manifest.yml</h3>
+    <div class="code">
+---<br>
+applications:<br>
+  - name: ai_core_api<br>
+    memory: 512M<br>
+    buildpacks:<br>
+      - nodejs_buildpack<br>
+    command: node server.js<br>
+    services:<br>
+      - aicore-app-auth<br>
+    env:<br>
+      VECTOR_STORE_TYPE: chroma<br>
+      NODE_ENV: production
+    </div>
+</div>
+
+<div class="section">
+    <h2>📡 API Reference</h2>
+    
+    <h3>🏥 Health Checks</h3>
+    <table class="table">
+        <tr>
+            <th>Endpoint</th>
+            <th>Método</th>
+            <th>Descripción</th>
+        </tr>
+        <tr>
+            <td>/health</td>
+            <td>GET</td>
+            <td>Estado general de la aplicación</td>
+        </tr>
+        <tr>
+            <td>/api/rag/health</td>
+            <td>GET</td>
+            <td>Estado específico del sistema RAG</td>
+        </tr>
+        <tr>
+            <td>/api/rag/stats</td>
+            <td>GET</td>
+            <td>Estadísticas detalladas del sistema</td>
+        </tr>
+    </table>
+
+    <h3>📄 Gestión de Documentos</h3>
+    <table class="table">
+        <tr>
+            <th>Endpoint</th>
+            <th>Método</th>
+            <th>Descripción</th>
+        </tr>
+        <tr>
+            <td>/api/rag/documents</td>
+            <td>GET</td>
+            <td>Listar todos los documentos indexados</td>
+        </tr>
+        <tr>
+            <td>/api/rag/upload</td>
+            <td>POST</td>
+            <td>Subir y procesar un documento</td>
+        </tr>
+        <tr>
+            <td>/api/rag/documents/{id}</td>
+            <td>DELETE</td>
+            <td>Eliminar documento específico</td>
+        </tr>
+    </table>
+
+    <h3>🔍 Búsqueda y Chat</h3>
+    <table class="table">
+        <tr>
+            <th>Endpoint</th>
+            <th>Método</th>
+            <th>Descripción</th>
+        </tr>
+        <tr>
+            <td>/api/rag/search</td>
+            <td>POST</td>
+            <td>Búsqueda semántica en documentos</td>
+        </tr>
+        <tr>
+            <td>/api/rag/chat</td>
+            <td>POST</td>
+            <td>Chat conversacional con contexto RAG</td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <h2>📖 Ejemplos de Uso</h2>
+    
+    <h3>🔍 Búsqueda Semántica</h3>
+    <div class="code">
+curl -X POST https://tu-app.cfapps.sap.hana.ondemand.com/api/rag/search \<br>
+  -H "Content-Type: application/json" \<br>
+  -d '{<br>
+    "query": "políticas de vacaciones",<br>
+    "topK": 5,<br>
+    "minSimilarity": 0.3<br>
+  }'
+    </div>
+
+    <h3>💬 Chat RAG</h3>
+    <div class="code">
+curl -X POST https://tu-app.cfapps.sap.hana.ondemand.com/api/rag/chat \<br>
+  -H "Content-Type: application/json" \<br>
+  -d '{<br>
+    "message": "¿Cuáles son las políticas de vacaciones?",<br>
+    "maxTokens": 500,<br>
+    "temperature": 0.7<br>
+  }'
+    </div>
+
+    <h3>📄 Subir Documento</h3>
+    <div class="code">
+curl -X POST https://tu-app.cfapps.sap.hana.ondemand.com/api/rag/upload \<br>
+  -F "document=@documento.pdf" \<br>
+  -F "tags=politicas,empresa" \<br>
+  -F "description=Políticas corporativas"
+    </div>
+</div>
+
+<div class="section">
+    <h2>🧪 Testing y Validación</h2>
+    
+    <h3>📋 Estructura de Tests</h3>
+    <ul>
+        <li><strong>tests/test_python_chroma.js</strong> - Test integración ChromaDB</li>
+        <li><strong>tests/test_rag.js</strong> - Test sistema RAG completo</li>
+        <li><strong>tests/test_service.js</strong> - Test servicios individuales</li>
+        <li><strong>postman/RAG_API_Postman_Collection.json</strong> - Colección Postman completa</li>
+    </ul>
+
+    <h3>🚀 Ejecutar Tests</h3>
+    <div class="code">
+# Test completo del sistema<br>
+node tests/test_python_chroma.js<br><br>
+
+# Test específico RAG<br>
+node tests/test_rag.js<br><br>
+
+# Importar colección Postman<br>
+# File → Import → postman/RAG_API_Postman_Collection.json
+    </div>
+</div>
+
+<div class="section">
+    <h2>📊 Monitoreo y Mantenimiento</h2>
+    
+    <h3>📈 Métricas de Performance</h3>
+    <table class="table">
+        <tr>
+            <th>Operación</th>
+            <th>Tiempo Esperado</th>
+            <th>Uso de Memoria</th>
+        </tr>
+        <tr>
+            <td>Health Check</td>
+            <td>&lt; 100ms</td>
+            <td>Mínimo</td>
+        </tr>
+        <tr>
+            <td>Búsqueda semántica</td>
+            <td>200-500ms</td>
+            <td>Moderado</td>
+        </tr>
+        <tr>
+            <td>Chat RAG</td>
+            <td>1-3 segundos</td>
+            <td>Alto</td>
+        </tr>
+        <tr>
+            <td>Upload documento</td>
+            <td>2-10 segundos</td>
+            <td>Variable</td>
+        </tr>
+    </table>
+
+    <h3>🔧 Comandos de Monitoreo</h3>
+    <div class="code">
+# Ver estado de la aplicación<br>
+cf app ai_core_api<br><br>
+
+# Ver logs en tiempo real<br>
+cf logs ai_core_api<br><br>
+
+# Escalar aplicación<br>
+cf scale ai_core_api -i 2 -m 1G<br><br>
+
+# Health check automático<br>
+curl https://tu-app.cfapps.sap.hana.ondemand.com/health
+    </div>
+</div>
+
+<div class="section">
+    <h2>🚨 Troubleshooting</h2>
+    
+    <h3>❌ Problemas Comunes</h3>
+    <table class="table">
+        <tr>
+            <th>Error</th>
+            <th>Causa</th>
+            <th>Solución</th>
+        </tr>
+        <tr>
+            <td>ChromaDB no disponible</td>
+            <td>Servicio no inicializado</td>
+            <td>Verificar VECTOR_STORE_TYPE, reiniciar servicio</td>
+        </tr>
+        <tr>
+            <td>SAP AI Core no responde</td>
+            <td>Credenciales incorrectas</td>
+            <td>Verificar default-env.json, servicios bindeados</td>
+        </tr>
+        <tr>
+            <td>Memory limit exceeded</td>
+            <td>Insuficiente RAM</td>
+            <td>Aumentar memoria: cf scale ai_core_api -m 1G</td>
+        </tr>
+        <tr>
+            <td>No documents found</td>
+            <td>Documentos no cargados</td>
+            <td>Verificar inicialización, re-ejecutar ingesta</td>
+        </tr>
+    </table>
+
+    <div class="highlight">
+        <strong>💡 Tip:</strong> Para diagnóstico completo, ejecutar: <code>node tests/test_python_chroma.js</code>
+    </div>
+</div>
+
+<div class="section">
+    <h2>📁 Estructura del Proyecto</h2>
+    
+    <div class="code">
+aicore_api/<br>
+├── 📁 auth/                    # Autenticación SAP<br>
+├── 📁 chroma_service/          # ChromaDB local<br>
+├── 📁 docs/                    # 📚 Documentación<br>
+├── 📁 postman/                 # 📮 Colecciones API<br>
+├── 📁 routes/                  # Rutas Express<br>
+├── 📁 sample_documents/        # Docs de ejemplo<br>
+├── 📁 scripts/                 # 🛠️ Scripts utilidades<br>
+├── 📁 services/                # Servicios core<br>
+├── 📁 tests/                   # 🧪 Testing completo<br>
+├── server.js                   # Servidor principal<br>
+├── manifest.yml               # Config Cloud Foundry<br>
+└── package.json               # Dependencias
+    </div>
+</div>
+
+<div class="section success">
+    <h2>✅ Estado del Proyecto</h2>
+    <p><strong>Sistema completamente funcional y desplegado en Cloud Foundry</strong></p>
+    <ul>
+        <li>✅ Integración SAP AI Core operativa</li>
+        <li>✅ ChromaDB con persistencia completa</li>
+        <li>✅ API REST documentada y testeada</li>
+        <li>✅ Chat RAG funcionando</li>
+        <li>✅ Autenticación XSUAA habilitada</li>
+        <li>✅ Monitoreo y logs configurados</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2>📞 Contacto y Soporte</h2>
+    <p><strong>Equipo de Desarrollo:</strong> [equipo@empresa.com]</p>
+    <p><strong>Documentación:</strong> /docs/</p>
+    <p><strong>Testing:</strong> /postman/ y /tests/</p>
+    <p><strong>Versión:</strong> 1.0.0 | <strong>Fecha:</strong> Octubre 2024</p>
+</div>
+
+</body>
+</html>

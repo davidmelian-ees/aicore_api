@@ -3,7 +3,8 @@ import { AzureOpenAiChatClient } from "@sap-ai-sdk/foundation-models";
 
 xsenv.loadEnv();
 
-const client = new AzureOpenAiChatClient('gpt-4o');
+const client = new AzureOpenAiChatClient('gpt-4o', 'genai-dest');
+console.log(client)
 const response = await client.run({
   messages: [
     {

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación - Sistema RAG</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 40px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #2c3e50; 
+            text-align: center; 
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            border-left: 5px solid #3498db;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.4em;
+        }
+        .card p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        .card a {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+        .card a:hover {
+            background: #2980b9;
+        }
+        .status {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .status strong {
+            color: #155724;
+        }
+        .api-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .api-info h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .endpoint {
+            font-family: 'Courier New', monospace;
+            background: #f1f2f6;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 5px 0;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Sistema RAG</h1>
+        <p class="subtitle">Documentación Técnica Completa | SAP AI Core + ChromaDB</p>
+        
+        <div class="status">
+            <strong>✅ Sistema Operativo</strong> - Desplegado en Cloud Foundry con persistencia completa
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>📚 Documentación Completa</h3>
+                <p>Documentación técnica completa del sistema RAG con arquitectura, configuración, API reference y troubleshooting.</p>
+                <a href="RAG_SYSTEM_DOCUMENTATION.html">Ver Documentación HTML</a>
+            </div>
+
+            <div class="card">
+                <h3>🚀 Guía de Despliegue</h3>
+                <p>Guía paso a paso para desplegar el sistema en Cloud Foundry con todos los comandos y configuraciones necesarias.</p>
+                <a href="DEPLOY_CF_FINAL.md">Ver Guía de Despliegue</a>
+            </div>
+
+            <div class="card">
+                <h3>🤖 Sistema RAG</h3>
+                <p>Documentación específica del sistema RAG con funcionalidades, endpoints y ejemplos de uso detallados.</p>
+                <a href="README_RAG.md">Ver Documentación RAG</a>
+            </div>
+
+            <div class="card">
+                <h3>📖 README Principal</h3>
+                <p>Información general del proyecto, instalación, configuración inicial y primeros pasos.</p>
+                <a href="README.md">Ver README</a>
+            </div>
+
+            <div class="card">
+                <h3>📮 Colección Postman</h3>
+                <p>Colección completa de Postman con todos los endpoints del sistema para testing y validación.</p>
+                <a href="../postman/RAG_API_Postman_Collection.json" download>Descargar Colección</a>
+            </div>
+
+            <div class="card">
+                <h3>🧪 Scripts de Testing</h3>
+                <p>Scripts automatizados para probar el sistema completo, incluyendo integración con ChromaDB y SAP AI Core.</p>
+                <a href="../tests/">Ver Tests</a>
+            </div>
+        </div>
+
+        <div class="api-info">
+            <h3>🔗 Enlaces Rápidos de la API</h3>
+            <p><strong>Endpoints principales del sistema:</strong></p>
+            <span class="endpoint">GET /health - Estado del sistema</span>
+            <span class="endpoint">GET /api/rag/health - Estado RAG específico</span>
+            <span class="endpoint">GET /api/rag/documents - Listar documentos</span>
+            <span class="endpoint">POST /api/rag/search - Búsqueda semántica</span>
+            <span class="endpoint">POST /api/rag/chat - Chat conversacional</span>
+            <span class="endpoint">POST /api/rag/upload - Subir documentos</span>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; color: #7f8c8d;">
+            <p><strong>Sistema RAG v1.0.0</strong> | Octubre 2025</p>
+            <p>Integración SAP AI Core + ChromaDB | Cloud Foundry | Equip RPA/IA</p>
+        </div>
+    </div>
+</body>
+</html>

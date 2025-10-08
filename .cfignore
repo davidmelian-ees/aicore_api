@@ -1,0 +1,65 @@
+# Archivos y carpetas a ignorar en Cloud Foundry
+
+# Dependencias locales
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de desarrollo
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ChromaDB Python service (no necesario en CF, usamos ChromaDB directo)
+chroma_service/start_service.bat
+chroma_service/simple_server.py
+chroma_service/venv/
+chroma_data/
+*.db
+*.sqlite
+
+# Scripts de desarrollo local
+tests/
+scripts/ingest-documents.js
+scripts/start-cf.js
+setup_*.bat
+start_simple.bat
+
+# Documentación de desarrollo (excluir archivos innecesarios)
+docs/CHROMADB_SETUP.md
+docs/DEPLOYMENT_ISSUE.md
+docs/DOCUMENTACION_COMPLETA_RAG_SYSTEM.md
+docs/INDEX.md
+
+# Postman collections
+postman/
+
+# Archivos temporales
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de backup
+*.bak
+*.backup
+
+# Documentación de desarrollo (opcional)
+CHROMADB_SETUP.md
+DEPLOYMENT_ISSUE.md
+
+# Archivos de testing local
+curl_commands.bat

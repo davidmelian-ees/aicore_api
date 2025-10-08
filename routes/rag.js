@@ -1,0 +1,411 @@
+import express from "express";
+import multer from "multer";
+import path from "path";
+import fs from "fs/promises";
+import { 
+  indexDocument, 
+  searchContext, 
+  generateRAGResponse,
+  listDocuments,
+  getDocumentInfo,
+  deleteDocument,
+  getRAGStats,
+  clearRAGIndex
+} from "../services/ragService.js";
+
+const router = express.Router();
+
+// Configurar multer para subida de archivos
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const uploadDir = './uploads';
+    try {
+      await fs.mkdir(uploadDir, { recursive: true });
+      cb(null, uploadDir);
+    } catch (error) {
+      cb(error);
+    }
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+    cb(null, `${uniqueSuffix}-${sanitizedName}`);
+  }
+});
+
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024 // 50MB límite
+  },
+  fileFilter: (req, file, cb) => {
+    // Tipos de archivo permitidos
+    const allowedTypes = [
+      'text/plain',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/markdown',
+      'application/json',
+      'text/csv'
+    ];
+    
+    const allowedExtensions = ['.txt', '.docx', '.md', '.json', '.csv'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Tipo de archivo no soportado: ${file.mimetype}. Permitidos: txt, docx, md, json, csv`));
+    }
+  }
+});
+
+/**
+ * POST /api/rag/upload
+ * Sube y indexa un documento usando SAP AI Core
+ */
+router.post("/upload", upload.single('document'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ 
+        success: false,
+        error: "No se proporcionó ningún archivo" 
+      });
+    }
+
+    console.log(`[RAG API] Procesando archivo: ${req.file.originalname}`);
+
+    // Indexar el documento usando SAP AI Core
+    const result = await indexDocument(
+      req.file.path,
+      req.file.mimetype,
+      {
+        originalName: req.file.originalname,
+        uploadedBy: req.body.uploadedBy || 'anonymous',
+        uploadedAt: new Date().toISOString(),
+        tags: req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : []
+      }
+    );
+
+    // Opcional: eliminar el archivo temporal después de indexarlo
+    try {
+      await fs.unlink(req.file.path);
+    } catch (unlinkError) {
+      console.warn(`[RAG API] No se pudo eliminar archivo temporal: ${unlinkError.message}`);
+    }
+
+    res.json({
+      success: true,
+      message: "Documento indexado exitosamente con SAP AI Core",
+      document: result
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /upload:", error);
+    
+    // Limpiar archivo en caso de error
+    if (req.file?.path) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.warn(`[RAG API] No se pudo limpiar archivo tras error: ${unlinkError.message}`);
+      }
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      error: "Error procesando el documento",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * POST /api/rag/chat
+ * Chat con contexto RAG usando SAP AI Core
+ */
+router.post("/chat", async (req, res) => {
+  try {
+    const { 
+      message, 
+      topK = 5, 
+      includeContext = true,
+      documentId = null,
+      model = "gpt-4o"
+    } = req.body;
+
+    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        error: "El mensaje es requerido y debe ser un texto válido" 
+      });
+    }
+
+    console.log(`[RAG API] Consulta RAG: "${message.substring(0, 100)}..."`);
+
+    // Generar respuesta con RAG usando SAP AI Core
+    const result = await generateRAGResponse(message, {
+      topK: Math.min(Math.max(topK, 1), 20), // Limitar entre 1 y 20
+      includeContext,
+      documentId,
+      model
+    });
+
+    res.json({
+      success: true,
+      query: message,
+      answer: result.answer,
+      context: result.context,
+      metadata: result.metadata
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /chat:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error generando respuesta",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * POST /api/rag/search
+ * Busca contexto relevante sin generar respuesta
+ */
+router.post("/search", async (req, res) => {
+  try {
+    const { 
+      query, 
+      topK = 5,
+      documentId = null,
+      minSimilarity = 0.1
+    } = req.body;
+
+    if (!query || typeof query !== 'string' || query.trim().length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        error: "La consulta es requerida y debe ser un texto válido" 
+      });
+    }
+
+    const results = await searchContext(query, {
+      topK: Math.min(Math.max(topK, 1), 50),
+      documentId,
+      minSimilarity: Math.max(minSimilarity, 0)
+    });
+
+    res.json({
+      success: true,
+      query,
+      results,
+      count: results.length,
+      metadata: {
+        searchedAt: new Date().toISOString(),
+        parameters: { topK, documentId, minSimilarity }
+      }
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /search:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error buscando contexto",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/rag/documents
+ * Lista todos los documentos indexados
+ */
+router.get("/documents", async (req, res) => {
+  try {
+    const documents = await listDocuments();
+
+    res.json({
+      success: true,
+      documents,
+      count: documents.length,
+      retrievedAt: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /documents:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error listando documentos",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/rag/documents/:documentId
+ * Obtiene información detallada de un documento específico
+ */
+router.get("/documents/:documentId", async (req, res) => {
+  try {
+    const { documentId } = req.params;
+
+    if (!documentId) {
+      return res.status(400).json({
+        success: false,
+        error: "ID de documento requerido"
+      });
+    }
+
+    const documentInfo = await getDocumentInfo(documentId);
+
+    if (!documentInfo) {
+      return res.status(404).json({
+        success: false,
+        error: "Documento no encontrado",
+        documentId
+      });
+    }
+
+    res.json({
+      success: true,
+      document: documentInfo
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en GET /documents/:id:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error obteniendo información del documento",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * DELETE /api/rag/documents/:documentId
+ * Elimina un documento del índice
+ */
+router.delete("/documents/:documentId", async (req, res) => {
+  try {
+    const { documentId } = req.params;
+
+    if (!documentId) {
+      return res.status(400).json({
+        success: false,
+        error: "ID de documento requerido"
+      });
+    }
+
+    const result = await deleteDocument(documentId);
+
+    if (result.deleted) {
+      res.json({
+        success: true,
+        message: "Documento eliminado exitosamente",
+        result
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        error: "Documento no encontrado",
+        documentId
+      });
+    }
+
+  } catch (error) {
+    console.error("[RAG API] Error en DELETE /documents:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error eliminando documento",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/rag/stats
+ * Obtiene estadísticas del sistema RAG
+ */
+router.get("/stats", async (req, res) => {
+  try {
+    const stats = await getRAGStats();
+
+    res.json({
+      success: true,
+      stats
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /stats:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error obteniendo estadísticas",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * DELETE /api/rag/clear
+ * Limpia todo el índice RAG (usar con precaución)
+ */
+router.delete("/clear", async (req, res) => {
+  try {
+    const { confirm } = req.body;
+
+    if (confirm !== 'DELETE_ALL') {
+      return res.status(400).json({
+        success: false,
+        error: "Para confirmar la eliminación, envía { \"confirm\": \"DELETE_ALL\" }"
+      });
+    }
+
+    const result = await clearRAGIndex();
+
+    res.json({
+      success: true,
+      message: "Índice RAG limpiado completamente",
+      result
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /clear:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error limpiando índice RAG",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/rag/health
+ * Endpoint de salud del sistema RAG
+ */
+router.get("/health", async (req, res) => {
+  try {
+    const stats = await getRAGStats();
+    
+    res.json({
+      success: true,
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      summary: {
+        totalDocuments: stats.totalDocuments,
+        totalChunks: stats.totalChunks,
+        embeddingDimension: stats.embeddingDimension,
+        integrityCheck: stats.integrity?.isValid || false
+      }
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /health:", error);
+    res.status(500).json({ 
+      success: false,
+      status: "unhealthy",
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+export default router;

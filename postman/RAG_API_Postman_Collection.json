@@ -1,0 +1,719 @@
+{
+	"info": {
+		"_postman_id": "rag-api-collection-2024",
+		"name": "RAG API - SAP AI Core + ChromaDB",
+		"description": "Colección completa para testear el sistema RAG con SAP AI Core y ChromaDB desplegado en Cloud Foundry",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "rag-system"
+	},
+	"item": [
+		{
+			"name": "🏥 Health Checks",
+			"item": [
+				{
+					"name": "Health Check General",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/health",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Verificar estado general de la aplicación"
+					},
+					"response": []
+				},
+				{
+					"name": "Health Check RAG System",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/health",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"health"
+							]
+						},
+						"description": "Verificar estado del sistema RAG específicamente"
+					},
+					"response": []
+				},
+				{
+					"name": "RAG Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/stats",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"stats"
+							]
+						},
+						"description": "Obtener estadísticas detalladas del sistema RAG"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para verificar el estado del sistema"
+		},
+		{
+			"name": "📄 Document Management",
+			"item": [
+				{
+					"name": "List All Documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/documents",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"documents"
+							]
+						},
+						"description": "Listar todos los documentos indexados en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Document Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/documents/{{DOCUMENT_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"documents",
+								"{{DOCUMENT_ID}}"
+							]
+						},
+						"description": "Obtener información detallada de un documento específico"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Document - Text File",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "tags",
+									"value": "test,documento,ejemplo",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Documento de prueba subido desde Postman",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/upload",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"upload"
+							]
+						},
+						"description": "Subir un archivo de texto (.txt, .md, .json, etc.)"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Document - Word File",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "tags",
+									"value": "word,documento,corporativo",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Documento Word corporativo",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/upload",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"upload"
+							]
+						},
+						"description": "Subir un archivo Word (.docx)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Document",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/documents/{{DOCUMENT_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"documents",
+								"{{DOCUMENT_ID}}"
+							]
+						},
+						"description": "Eliminar un documento específico del índice"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestión de documentos: subir, listar, obtener info y eliminar"
+		},
+		{
+			"name": "🔍 Search & Retrieval",
+			"item": [
+				{
+					"name": "Search - Políticas Vacaciones",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"políticas de vacaciones\",\n  \"topK\": 5,\n  \"minSimilarity\": 0.3\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/search",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"search"
+							]
+						},
+						"description": "Buscar información sobre políticas de vacaciones"
+					},
+					"response": []
+				},
+				{
+					"name": "Search - Trabajo Remoto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"trabajo remoto desde casa\",\n  \"topK\": 3,\n  \"minSimilarity\": 0.4\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/search",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"search"
+							]
+						},
+						"description": "Buscar información sobre políticas de trabajo remoto"
+					},
+					"response": []
+				},
+				{
+					"name": "Search - Seguridad",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"políticas de seguridad contraseñas\",\n  \"topK\": 4,\n  \"minSimilarity\": 0.2\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/search",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"search"
+							]
+						},
+						"description": "Buscar información sobre políticas de seguridad"
+					},
+					"response": []
+				},
+				{
+					"name": "Search - Procedimientos",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"procedimiento onboarding nuevos empleados\",\n  \"topK\": 5\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/search",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"search"
+							]
+						},
+						"description": "Buscar información sobre procedimientos de onboarding"
+					},
+					"response": []
+				},
+				{
+					"name": "Search in Specific Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"beneficios empleados\",\n  \"topK\": 3,\n  \"documentId\": \"{{DOCUMENT_ID}}\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/search",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"search"
+							]
+						},
+						"description": "Buscar solo dentro de un documento específico"
+					},
+					"response": []
+				}
+			],
+			"description": "Búsquedas semánticas en los documentos indexados"
+		},
+		{
+			"name": "💬 RAG Chat",
+			"item": [
+				{
+					"name": "Chat - Pregunta sobre Vacaciones",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"¿Cuántos días de vacaciones tengo al año y cómo puedo solicitarlas?\",\n  \"maxTokens\": 500,\n  \"temperature\": 0.7\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/chat",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"chat"
+							]
+						},
+						"description": "Pregunta sobre políticas de vacaciones usando RAG"
+					},
+					"response": []
+				},
+				{
+					"name": "Chat - Pregunta sobre Trabajo Remoto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"¿Puedo trabajar desde casa? ¿Cuáles son las reglas para el trabajo remoto?\",\n  \"maxTokens\": 400,\n  \"temperature\": 0.5\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/chat",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"chat"
+							]
+						},
+						"description": "Pregunta sobre políticas de trabajo remoto"
+					},
+					"response": []
+				},
+				{
+					"name": "Chat - Pregunta sobre Seguridad",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"¿Con qué frecuencia debo cambiar mi contraseña y qué medidas de seguridad debo seguir?\",\n  \"maxTokens\": 300\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/chat",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"chat"
+							]
+						},
+						"description": "Pregunta sobre políticas de seguridad"
+					},
+					"response": []
+				},
+				{
+					"name": "Chat - Pregunta sobre Onboarding",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"Soy un nuevo empleado, ¿cuál es el proceso de onboarding que debo seguir?\",\n  \"maxTokens\": 600,\n  \"temperature\": 0.3\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/chat",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"chat"
+							]
+						},
+						"description": "Pregunta sobre procedimientos de onboarding"
+					},
+					"response": []
+				},
+				{
+					"name": "Chat - Pregunta sobre Beneficios",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"¿Qué beneficios tengo como empleado? ¿Hay seguro médico y plan de pensiones?\",\n  \"maxTokens\": 400\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/chat",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"chat"
+							]
+						},
+						"description": "Pregunta sobre beneficios para empleados"
+					},
+					"response": []
+				},
+				{
+					"name": "Chat - Pregunta Compleja",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"Compara las políticas de trabajo remoto con las de vacaciones. ¿Cuál es más flexible?\",\n  \"maxTokens\": 700,\n  \"temperature\": 0.6\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/chat",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"chat"
+							]
+						},
+						"description": "Pregunta compleja que requiere comparar información de múltiples documentos"
+					},
+					"response": []
+				}
+			],
+			"description": "Chat conversacional usando RAG para responder preguntas basadas en documentos"
+		},
+		{
+			"name": "🧹 Administration",
+			"item": [
+				{
+					"name": "Clear All Documents (DANGER)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"confirm\": \"DELETE_ALL\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/clear",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"clear"
+							]
+						},
+						"description": "⚠️ PELIGROSO: Elimina TODOS los documentos del índice RAG"
+					},
+					"response": []
+				}
+			],
+			"description": "Funciones administrativas (usar con precaución)"
+		},
+		{
+			"name": "🧪 Testing & Validation",
+			"item": [
+				{
+					"name": "Test Embedding Generation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"texto de prueba para generar embedding\",\n  \"topK\": 1\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/search",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"search"
+							]
+						},
+						"description": "Probar que la generación de embeddings funciona correctamente"
+					},
+					"response": []
+				},
+				{
+					"name": "Test ChromaDB Connection",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/stats",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"stats"
+							]
+						},
+						"description": "Verificar que ChromaDB esté funcionando correctamente"
+					},
+					"response": []
+				},
+				{
+					"name": "Test SAP AI Core Integration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"¿Funciona la integración con SAP AI Core?\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/rag/chat",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"rag",
+								"chat"
+							]
+						},
+						"description": "Probar que la integración con SAP AI Core funciona"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests para validar que todos los componentes funcionan correctamente"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script que se ejecuta antes de cada request",
+					"console.log('Ejecutando request a:', pm.request.url.toString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Tests automáticos que se ejecutan después de cada response",
+					"pm.test('Status code is successful', function () {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+					"});",
+					"",
+					"pm.test('Response time is less than 10 seconds', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+					"});",
+					"",
+					"pm.test('Response has JSON content-type', function () {",
+					"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "https://tu-app.cfapps.sap.hana.ondemand.com",
+			"type": "string",
+			"description": "URL base de tu aplicación en Cloud Foundry"
+		},
+		{
+			"key": "DOCUMENT_ID",
+			"value": "doc_ejemplo_123",
+			"type": "string",
+			"description": "ID de documento para tests específicos"
+		}
+	]
+}
