@@ -2,7 +2,7 @@ import express from "express";
 import { initAuth } from "./auth.js";
 import chatRoutes from "./routes/chat.js";
 import ragRoutes from "./routes/rag.js";
-import { initializeSampleData } from "./init-sample-data.js";
+import { initializeSampleData } from "./scripts/init-sample-data.js";
 
 const app = express();
 

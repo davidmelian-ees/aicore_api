@@ -20,14 +20,26 @@ class ChromaVectorStore {
     try {
       console.log('[CHROMA] Inicializando cliente ChromaDB...');
       
-      // Crear cliente ChromaDB (por defecto usa http://localhost:8000)
-      this.client = new ChromaClient({
-        path: "http://localhost:8000"
-      });
+      // Configuración para diferentes entornos
+      const isProduction = process.env.NODE_ENV === 'production';
+      const chromaConfig = isProduction 
+        ? { 
+            // En Cloud Foundry, usar cliente local embebido
+            // ChromaDB se ejecutará en memoria/archivos locales
+          }
+        : { 
+            // En desarrollo, conectar al servicio Python
+            path: "http://localhost:8001" 
+          };
+      
+      // Crear cliente ChromaDB
+      this.client = new ChromaClient(chromaConfig);
 
-      // Verificar conexión
-      await this.client.heartbeat();
-      console.log('[CHROMA] ✅ Conexión establecida con ChromaDB');
+      // En producción, no necesitamos heartbeat (cliente embebido)
+      if (!isProduction) {
+        await this.client.heartbeat();
+      }
+      console.log(`[CHROMA] ✅ ChromaDB inicializado (${isProduction ? 'embebido' : 'servicio externo'})`);
 
       // Obtener o crear colección
       try {

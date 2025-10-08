@@ -13,17 +13,27 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# ChromaDB local (no necesario en CF)
-chroma_service/
+# ChromaDB Python service (no necesario en CF, usamos ChromaDB directo)
+chroma_service/start_service.bat
+chroma_service/simple_server.py
+chroma_service/venv/
 chroma_data/
 *.db
 *.sqlite
 
 # Scripts de desarrollo local
-test_*.js
-ingest_*.js
+tests/
+scripts/ingest-documents.js
+scripts/start-cf.js
 setup_*.bat
 start_simple.bat
+
+# Documentación de desarrollo
+docs/CHROMADB_SETUP.md
+docs/DEPLOYMENT_ISSUE.md
+
+# Postman collections
+postman/
 
 # Archivos temporales
 *.tmp

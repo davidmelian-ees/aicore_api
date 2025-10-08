@@ -5,7 +5,7 @@
  * Se ejecuta automáticamente al iniciar la aplicación
  */
 
-import { indexDocument } from './services/ragService.js';
+import { indexDocument } from '../services/ragService.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';

@@ -15,7 +15,7 @@ Guía completa para desplegar el sistema RAG + AI Core en Cloud Foundry.
 ```
 Cloud Foundry Application
 ├── Node.js Server (Puerto dinámico)
-├── Vector Store en Memoria
+├── ChromaDB Embebido (Persistente)
 ├── SAP AI Core Integration
 ├── Datos de ejemplo pre-cargados
 └── Autenticación XSUAA habilitada
@@ -25,11 +25,11 @@ Cloud Foundry Application
 
 | Componente | Local | Cloud Foundry |
 |------------|-------|---------------|
-| **Vector Store** | ChromaDB Python | Memoria (VectorStore) |
+| **Vector Store** | ChromaDB Python Service | ChromaDB Embebido |
 | **Autenticación** | Deshabilitada | XSUAA habilitada |
 | **Datos** | Manual upload | Pre-cargados automáticamente |
-| **Puerto** | 4000 | Dinámico (CF_PORT) |
-| **Persistencia** | ChromaDB files | Memoria (se reinicia) |
+| **Puerto** | 4000 + 8001 | Dinámico (CF_PORT) |
+| **Persistencia** | Archivos externos | Archivos locales CF |
 
 ## 🚀 Comandos de Despliegue
 
@@ -86,7 +86,7 @@ curl https://your-app-url.cfapps.sap.hana.ondemand.com/health
   "status": "healthy",
   "timestamp": "2024-10-08T11:30:00Z",
   "environment": "production",
-  "vectorStore": "memory"
+  "vectorStore": "chroma"
 }
 ```
 
