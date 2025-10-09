@@ -10,7 +10,11 @@ import {
   getDocumentInfo,
   deleteDocument,
   getRAGStats,
-  clearRAGIndex
+  clearRAGIndex,
+  createContext,
+  listContexts,
+  getContextInfo,
+  deleteContext
 } from "../services/ragService.js";
 
 const router = express.Router();
@@ -60,6 +64,126 @@ const upload = multer({
 });
 
 /**
+ * POST /api/rag/contexts
+ * Crea un nuevo contexto
+ */
+router.post("/contexts", async (req, res) => {
+  try {
+    const { name, description } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        error: "El nombre del contexto es requerido" 
+      });
+    }
+
+    const context = await createContext(name.trim(), description?.trim());
+
+    res.json({
+      success: true,
+      message: "Contexto creado exitosamente",
+      context
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /contexts:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error creando contexto",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/rag/contexts
+ * Lista todos los contextos
+ */
+router.get("/contexts", async (req, res) => {
+  try {
+    const contexts = await listContexts();
+
+    res.json({
+      success: true,
+      contexts,
+      count: contexts.length
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /contexts:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error listando contextos",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/rag/contexts/:contextId
+ * Obtiene información de un contexto específico
+ */
+router.get("/contexts/:contextId", async (req, res) => {
+  try {
+    const { contextId } = req.params;
+    const context = await getContextInfo(contextId);
+
+    if (!context) {
+      return res.status(404).json({
+        success: false,
+        error: "Contexto no encontrado"
+      });
+    }
+
+    res.json({
+      success: true,
+      context
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /contexts/:id:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error obteniendo contexto",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * DELETE /api/rag/contexts/:contextId
+ * Elimina un contexto y todos sus documentos
+ */
+router.delete("/contexts/:contextId", async (req, res) => {
+  try {
+    const { contextId } = req.params;
+    const result = await deleteContext(contextId);
+
+    if (!result.deleted) {
+      return res.status(404).json({
+        success: false,
+        error: "Contexto no encontrado"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Contexto eliminado exitosamente",
+      result
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en DELETE /contexts:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error eliminando contexto",
+      details: error.message 
+    });
+  }
+});
+
+/**
  * POST /api/rag/upload
  * Sube y indexa un documento usando SAP AI Core
  */
@@ -82,7 +206,8 @@ router.post("/upload", upload.single('document'), async (req, res) => {
         originalName: req.file.originalname,
         uploadedBy: req.body.uploadedBy || 'anonymous',
         uploadedAt: new Date().toISOString(),
-        tags: req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : []
+        tags: req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [],
+        contextId: req.body.contextId || 'default'
       }
     );
 
@@ -130,6 +255,7 @@ router.post("/chat", async (req, res) => {
       topK = 5, 
       includeContext = true,
       documentId = null,
+      contextId = 'default',
       model = "gpt-4o"
     } = req.body;
 
@@ -147,6 +273,7 @@ router.post("/chat", async (req, res) => {
       topK: Math.min(Math.max(topK, 1), 20), // Limitar entre 1 y 20
       includeContext,
       documentId,
+      contextId,
       model
     });
 
@@ -178,6 +305,7 @@ router.post("/search", async (req, res) => {
       query, 
       topK = 5,
       documentId = null,
+      contextId = 'default',
       minSimilarity = 0.1
     } = req.body;
 
@@ -191,6 +319,7 @@ router.post("/search", async (req, res) => {
     const results = await searchContext(query, {
       topK: Math.min(Math.max(topK, 1), 50),
       documentId,
+      contextId,
       minSimilarity: Math.max(minSimilarity, 0)
     });
 
@@ -217,16 +346,18 @@ router.post("/search", async (req, res) => {
 
 /**
  * GET /api/rag/documents
- * Lista todos los documentos indexados
+ * Lista todos los documentos indexados (opcionalmente filtrados por contexto)
  */
 router.get("/documents", async (req, res) => {
   try {
-    const documents = await listDocuments();
+    const { contextId } = req.query;
+    const documents = await listDocuments(contextId);
 
     res.json({
       success: true,
       documents,
       count: documents.length,
+      contextId: contextId || 'all',
       retrievedAt: new Date().toISOString()
     });
 

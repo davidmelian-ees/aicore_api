@@ -6,6 +6,20 @@ import { processDocument } from './documentProcessor.js';
 import { getAiCoreClient } from '../auth/aiCoreClient.js';
 import { v4 as uuidv4 } from 'uuid';
 
+// Almacenamiento en memoria para contextos
+const contexts = new Map();
+
+// Inicializar contexto por defecto
+if (!contexts.has('default')) {
+  contexts.set('default', {
+    id: 'default',
+    name: 'Contexto Principal',
+    description: 'Contexto por defecto del sistema',
+    createdAt: new Date().toISOString(),
+    documentCount: 0
+  });
+}
+
 // Configuración para el tipo de almacenamiento vectorial
 // En Cloud Foundry usar memoria por defecto, localmente python
 const VECTOR_STORE_TYPE = process.env.VECTOR_STORE_TYPE || (process.env.NODE_ENV === 'production' ? 'memory' : 'python');
@@ -62,6 +76,86 @@ async function getVectorStore() {
  * @param {Object} metadata - Metadatos adicionales del documento
  * @returns {Promise<Object>} - Información del documento indexado
  */
+/**
+ * Crea un nuevo contexto
+ * @param {string} name - Nombre del contexto
+ * @param {string} description - Descripción del contexto
+ * @returns {Promise<Object>} - Información del contexto creado
+ */
+export async function createContext(name, description = '') {
+  const contextId = uuidv4();
+  const context = {
+    id: contextId,
+    name,
+    description,
+    createdAt: new Date().toISOString(),
+    documentCount: 0
+  };
+  
+  contexts.set(contextId, context);
+  console.log(`[RAG] Contexto creado: ${name} (${contextId})`);
+  
+  return context;
+}
+
+/**
+ * Lista todos los contextos
+ * @returns {Promise<Array<Object>>} - Lista de contextos
+ */
+export async function listContexts() {
+  return Array.from(contexts.values());
+}
+
+/**
+ * Obtiene información de un contexto específico
+ * @param {string} contextId - ID del contexto
+ * @returns {Promise<Object|null>} - Información del contexto o null si no existe
+ */
+export async function getContextInfo(contextId) {
+  return contexts.get(contextId) || null;
+}
+
+/**
+ * Elimina un contexto y todos sus documentos
+ * @param {string} contextId - ID del contexto
+ * @returns {Promise<Object>} - Resultado de la eliminación
+ */
+export async function deleteContext(contextId) {
+  if (contextId === 'default') {
+    throw new Error('No se puede eliminar el contexto por defecto');
+  }
+  
+  const context = contexts.get(contextId);
+  if (!context) {
+    return { deleted: false, contextId };
+  }
+  
+  try {
+    // Eliminar todos los documentos del contexto
+    const store = await getVectorStore();
+    const documents = await store.getDocumentsByContext(contextId);
+    
+    for (const doc of documents) {
+      await store.deleteDocument(doc.documentId);
+    }
+    
+    // Eliminar el contexto
+    contexts.delete(contextId);
+    
+    console.log(`[RAG] Contexto eliminado: ${context.name} (${contextId})`);
+    
+    return {
+      deleted: true,
+      contextId,
+      documentsDeleted: documents.length
+    };
+    
+  } catch (error) {
+    console.error('[RAG] Error eliminando contexto:', error);
+    throw new Error(`Error eliminando contexto: ${error.message}`);
+  }
+}
+
 export async function indexDocument(filePath, mimeType, metadata = {}) {
   try {
     console.log(`[RAG] Iniciando indexación de documento: ${filePath}`);
@@ -104,6 +198,7 @@ export async function indexDocument(filePath, mimeType, metadata = {}) {
           totalChunks: chunks.length,
           fileSize: fileMetadata.fileSize,
           uploadedAt: metadata.uploadedAt || new Date().toISOString(),
+          contextId: metadata.contextId || 'default',
           ...metadata
         }
       };
@@ -113,7 +208,15 @@ export async function indexDocument(filePath, mimeType, metadata = {}) {
       indexedChunks.push(chunkDocument);
     }
     
-    console.log(`[RAG] Documento indexado exitosamente: ${documentId}`);
+    // Actualizar contador de documentos en el contexto
+    const contextId = metadata.contextId || 'default';
+    const context = contexts.get(contextId);
+    if (context) {
+      context.documentCount += 1;
+      contexts.set(contextId, context);
+    }
+    
+    console.log(`[RAG] Documento indexado exitosamente: ${documentId} en contexto ${contextId}`);
     
     return {
       documentId,
@@ -144,7 +247,8 @@ export async function searchContext(query, options = {}) {
   const { 
     topK = 5, 
     minSimilarity = 0.1,
-    documentId = null 
+    documentId = null,
+    contextId = 'default'
   } = options;
   
   try {
@@ -167,6 +271,13 @@ export async function searchContext(query, options = {}) {
     } else {
       // Para vector store en memoria, usar el embedding
       results = store.search(queryEmbedding, topK * 2, minSimilarity);
+    }
+    
+    // Filtrar por contexto
+    if (contextId && contextId !== 'all') {
+      results = results.filter(result => 
+        result.metadata?.contextId === contextId
+      );
     }
     
     // Filtrar por documento específico si se especifica
@@ -210,6 +321,7 @@ export async function generateRAGResponse(query, options = {}) {
     topK = 5, 
     includeContext = true,
     documentId = null,
+    contextId = 'default',
     model = "gpt-4o",
     systemPrompt = null
   } = options;
@@ -218,7 +330,7 @@ export async function generateRAGResponse(query, options = {}) {
     console.log(`[RAG] Generando respuesta RAG para: "${query.substring(0, 50)}..."`);
     
     // Buscar contexto relevante
-    const contextResults = await searchContext(query, { topK, documentId });
+    const contextResults = await searchContext(query, { topK, documentId, contextId });
     
     if (contextResults.length === 0) {
       console.log('[RAG] No se encontró contexto relevante');
@@ -300,16 +412,25 @@ ${contextText}`;
  * Lista todos los documentos indexados
  * @returns {Array<Object>} - Lista de documentos únicos con estadísticas
  */
-export async function listDocuments() {
+export async function listDocuments(contextId = null) {
   try {
     const store = await getVectorStore();
-    const documents = await store.getUniqueDocuments();
+    let documents = await store.getUniqueDocuments();
+    
+    // Filtrar por contexto si se especifica
+    if (contextId && contextId !== 'all') {
+      documents = documents.filter(doc => 
+        doc.contextId === contextId || 
+        (contextId === 'default' && !doc.contextId)
+      );
+    }
     
     return documents.map(doc => ({
       documentId: doc.documentId,
       fileName: doc.fileName,
       totalChunks: doc.totalChunks,
       addedAt: doc.addedAt,
+      contextId: doc.contextId || 'default',
       chunks: doc.chunks?.length || 0
     }));
     

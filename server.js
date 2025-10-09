@@ -13,15 +13,71 @@ const port = process.env.PORT || 4000;
 console.log(`🌍 Entorno: ${isProduction ? 'Producción (Cloud Foundry)' : 'Desarrollo'}`);
 console.log(`📊 Vector Store: ${process.env.VECTOR_STORE_TYPE || 'auto'}`);
 
-// Inicializar autenticación
+// ⚠️ CORS DEBE IR ANTES QUE TODO ⚠️
+// Configurar CORS para desarrollo y producción
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  // Debug logging en desarrollo
+  if (!isProduction) {
+    console.log(`[CORS] ${req.method} ${req.path} - Origin: ${origin || 'none'}`);
+    console.log(`[CORS] Headers recibidos:`, Object.keys(req.headers));
+  }
+  
+  if (isProduction) {
+    // En producción, solo permitir el dominio específico del frontend
+    if (origin === 'https://rag-dashboard-ui.cfapps.eu10-005.hana.ondemand.com') {
+      res.header('Access-Control-Allow-Origin', origin);
+      console.log(`[CORS] Permitido origen de producción: ${origin}`);
+    }
+  } else {
+    // En desarrollo, permitir localhost en cualquier puerto
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3001'
+    ];
+    
+    if (origin && allowedOrigins.includes(origin)) {
+      res.header('Access-Control-Allow-Origin', origin);
+      console.log(`[CORS] ✅ Desarrollo - permitiendo origen específico: ${origin}`);
+    } else if (!origin) {
+      // Para requests sin origin (como Postman)
+      res.header('Access-Control-Allow-Origin', '*');
+      console.log(`[CORS] ✅ Sin origin - permitiendo *`);
+    } else {
+      console.log(`[CORS] ⚠️ Origen no permitido: ${origin}`);
+      res.header('Access-Control-Allow-Origin', origin); // Permitir de todas formas en desarrollo
+    }
+  }
+  
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400'); // Cache preflight por 24 horas
+  
+  if (req.method === 'OPTIONS') {
+    console.log(`[CORS] ✅ Preflight request para ${req.path} - respondiendo 200`);
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+});
+
+console.log(`🌐 CORS configurado para ${isProduction ? 'producción' : 'desarrollo'}`);
+
+// Middleware de parsing JSON (después de CORS)
+app.use(express.json());
+
+// Inicializar autenticación (después de CORS y JSON)
 if (isProduction) {
   console.log('🔐 Inicializando autenticación para producción...');
   initAuth(app);
 } else {
   console.log('🔓 Modo desarrollo - autenticación deshabilitada');
 }
-
-app.use(express.json());
 
 // Servir archivos estáticos de documentación
 app.use('/docs', express.static('docs'));
@@ -63,6 +119,16 @@ app.get('/', (req, res) => {
 // Rutas principales
 app.use("/api", chatRoutes);
 app.use("/api/rag", ragRoutes);
+
+app.get('/request_jsonp', (request, response) => {  
+  console.log("This service supports JSONP now: " + request.query.id);
+  var data = "{" + "UserName:'" + repo[request.query.id] + " ( handled in port 3001 )'"
+  + "}";
+  var callback = request.query.callback;
+  var jsonp = callback + '(' + data + ');';
+  response.send(jsonp);
+  response.end();
+});
 
 // Inicializar datos de ejemplo en producción
 async function startServer() {

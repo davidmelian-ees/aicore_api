@@ -1,0 +1,415 @@
+{
+	"info": {
+		"_postman_id": "rag-api-multi-context-collection",
+		"name": "RAG API - Multi Context",
+		"description": "Colección completa de la API RAG con soporte para múltiples contextos integrada con SAP AI Core",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "rag-api-exporter"
+	},
+	"item": [
+		{
+			"name": "Health & Status",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RAG Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/rag/health",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "health"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RAG Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/rag/stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "stats"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Contexts Management",
+			"item": [
+				{
+					"name": "Create Context",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Contexto de Prueba\",\n  \"description\": \"Este es un contexto de ejemplo para testing\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/rag/contexts",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "contexts"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List All Contexts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/rag/contexts",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "contexts"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Context by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/rag/contexts/{{context_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "contexts", "{{context_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Context",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/rag/contexts/{{context_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "contexts", "{{context_id}}"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Documents Management",
+			"item": [
+				{
+					"name": "Upload Document to Context",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "contextId",
+									"value": "{{context_id}}",
+									"type": "text"
+								},
+								{
+									"key": "uploadedBy",
+									"value": "postman-user",
+									"type": "text"
+								},
+								{
+									"key": "tags",
+									"value": "postman,test,upload",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/rag/upload",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "upload"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List All Documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/rag/documents",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "documents"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Documents by Context",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/rag/documents?contextId={{context_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "documents"],
+							"query": [
+								{
+									"key": "contextId",
+									"value": "{{context_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Document Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/rag/documents/{{document_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "documents", "{{document_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Document",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/rag/documents/{{document_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "documents", "{{document_id}}"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "RAG Chat & Search",
+			"item": [
+				{
+					"name": "Chat with Context",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"¿Qué información contienen los documentos de este contexto?\",\n  \"contextId\": \"{{context_id}}\",\n  \"topK\": 5,\n  \"includeContext\": true,\n  \"model\": \"gpt-4o\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/rag/chat",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "chat"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Chat with Default Context",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"Explícame el contenido de los documentos\",\n  \"contextId\": \"default\",\n  \"topK\": 3,\n  \"includeContext\": true,\n  \"model\": \"gpt-4o\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/rag/chat",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "chat"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search in Context",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"información importante\",\n  \"contextId\": \"{{context_id}}\",\n  \"topK\": 5,\n  \"minSimilarity\": 0.1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/rag/search",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "search"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search in Specific Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"concepto específico\",\n  \"contextId\": \"{{context_id}}\",\n  \"documentId\": \"{{document_id}}\",\n  \"topK\": 3,\n  \"minSimilarity\": 0.2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/rag/search",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "search"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "System Management",
+			"item": [
+				{
+					"name": "Clear RAG Index",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"confirm\": \"DELETE_ALL\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/rag/clear",
+							"host": ["{{base_url}}"],
+							"path": ["api", "rag", "clear"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Legacy Chat (Backward Compatibility)",
+			"item": [
+				{
+					"name": "Simple Chat",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Hola, ¿cómo estás?\"\n    }\n  ],\n  \"model\": \"gpt-4o\",\n  \"maxTokens\": 500,\n  \"temperature\": 0.7\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/chat",
+							"host": ["{{base_url}}"],
+							"path": ["api", "chat"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://ai_core_api.cfapps.eu10-005.hana.ondemand.com",
+			"type": "string",
+			"description": "URL de producción del API RAG"
+		},
+		{
+			"key": "local_url",
+			"value": "http://localhost:4000",
+			"type": "string",
+			"description": "URL local para desarrollo"
+		},
+		{
+			"key": "context_id",
+			"value": "default",
+			"type": "string",
+			"description": "ID del contexto a usar en las pruebas"
+		},
+		{
+			"key": "document_id",
+			"value": "",
+			"type": "string",
+			"description": "ID del documento a usar en las pruebas"
+		}
+	]
+}
