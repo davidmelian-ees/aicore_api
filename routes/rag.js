@@ -307,12 +307,36 @@ router.post("/process-pliego", uploadPliego.single('pliego'), async (req, res) =
       console.warn(`[RAG API] No se pudo eliminar archivo temporal: ${unlinkError.message}`);
     }
 
-    res.json({
+    const response = {
       success: true,
       message: "Pliego procesado exitosamente",
       analysis: result.analysis,
       metadata: result.metadata
-    });
+    };
+
+    // Incluir texto corregido si está disponible
+    if (result.correctedText) {
+      response.correctedText = result.correctedText;
+      response.message = "Pliego procesado exitosamente con correcciones ortográficas";
+    }
+
+    // Incluir PDF corregido como base64 si está disponible
+    if (result.correctedPdfBuffer) {
+      // Asegurar que es un Buffer y convertir a base64
+      const pdfBuffer = Buffer.isBuffer(result.correctedPdfBuffer) 
+        ? result.correctedPdfBuffer 
+        : Buffer.from(result.correctedPdfBuffer);
+        
+      response.correctedPdf = {
+        data: pdfBuffer.toString('base64'),
+        filename: `${result.metadata.fileName.replace('.pdf', '')}_corregido.pdf`,
+        mimeType: 'application/pdf',
+        size: pdfBuffer.length
+      };
+      response.message = "Pliego procesado exitosamente con correcciones ortográficas y PDF corregido";
+    }
+
+    res.json(response);
 
   } catch (error) {
     console.error("[RAG API] Error en /process-pliego:", error);

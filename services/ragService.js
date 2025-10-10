@@ -4,11 +4,12 @@ import { chromaPythonClient } from './chromaPythonClient.js';
 import { generateEmbedding, generateEmbeddings } from './embeddingService.js';
 import { processDocument } from './documentProcessor.js';
 import { getAiCoreClient } from '../auth/aiCoreClient.js';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import fs from 'fs/promises';
 import { v4 as uuidv4 } from 'uuid';
 
 // Almacenamiento en memoria para contextos
 const contexts = new Map();
-
 // Inicializar contexto por defecto
 if (!contexts.has('default')) {
   contexts.set('default', {
@@ -599,15 +600,26 @@ Por favor, analiza el contenido del pliego basándote en las instrucciones propo
     
     // Si el prompt incluye "correcciones" o "ortografía", generar también el texto corregido
     let correctedText = null;
+    let correctedPdfBuffer = null;
+    
     if (customPrompt.toLowerCase().includes('correc') || customPrompt.toLowerCase().includes('ortograf')) {
       console.log(`[RAG] Generando correcciones ortográficas...`);
       
       try {
+        // Limitar el contenido para correcciones si es muy largo
+        let contentForCorrection = fullContent;
+        if (fullContent.length > 80000) {
+          console.warn(`[RAG] Contenido muy largo para correcciones: ${fullContent.length} caracteres, truncando...`);
+          contentForCorrection = fullContent.substring(0, 80000) + '\n\n[CONTENIDO TRUNCADO...]';
+        }
+
         const correctionPrompt = `Corrige únicamente los errores ortográficos y gramaticales del siguiente texto, manteniendo EXACTAMENTE el mismo formato, estructura, saltos de línea y estilo. No cambies el contenido, solo corrige errores:
 
-${fullContent}
+${contentForCorrection}
 
 IMPORTANTE: Devuelve SOLO el texto corregido, sin comentarios adicionales.`;
+
+        console.log(`[RAG] Enviando ${correctionPrompt.length} caracteres para corrección`);
 
         const correctionClient = getAiCoreClient('gpt-4o');
         const correctionResponse = await correctionClient.run({
@@ -620,10 +632,30 @@ IMPORTANTE: Devuelve SOLO el texto corregido, sin comentarios adicionales.`;
         });
 
         correctedText = correctionResponse.getContent();
+        
+        if (!correctedText || correctedText.trim().length === 0) {
+          throw new Error('SAP AI Core devolvió correcciones vacías');
+        }
+        
         console.log(`[RAG] Texto corregido generado: ${correctedText.length} caracteres`);
         
+        // Generar PDF corregido
+        try {
+          correctedPdfBuffer = await createCorrectedPDF(filePath, correctedText);
+          console.log(`[RAG] PDF corregido generado: ${correctedPdfBuffer.length} bytes`);
+        } catch (pdfError) {
+          console.warn(`[RAG] Error generando PDF corregido:`, pdfError.message);
+        }
+        
       } catch (correctionError) {
-        console.warn(`[RAG] Error generando correcciones:`, correctionError.message);
+        console.error(`[RAG] Error detallado generando correcciones:`, {
+          message: correctionError.message,
+          status: correctionError.status,
+          code: correctionError.code,
+          response: correctionError.response?.data || 'No response data',
+          stack: correctionError.stack?.split('\n').slice(0, 3).join('\n')
+        });
+        console.warn(`[RAG] Error generando correcciones: ${correctionError.message}`);
       }
     }
     
@@ -631,6 +663,7 @@ IMPORTANTE: Devuelve SOLO el texto corregido, sin comentarios adicionales.`;
       success: true,
       analysis,
       correctedText,
+      correctedPdfBuffer,
       metadata: {
         fileName: metadata.originalName || 'pliego.pdf',
         fileSize: documentData.metadata?.fileSize || 0,
@@ -639,13 +672,133 @@ IMPORTANTE: Devuelve SOLO el texto corregido, sin comentarios adicionales.`;
         contentLength: fullContent.length,
         chunksProcessed: documentData.chunks.length,
         model: 'gpt-4o',
-        hasCorrectedText: !!correctedText
+        hasCorrectedText: !!correctedText,
+        hasCorrectedPdf: !!correctedPdfBuffer
       }
     };
     
   } catch (error) {
     console.error('[RAG] Error procesando pliego:', error);
     throw new Error(`Error procesando pliego: ${error.message}`);
+  }
+}
+
+/**
+ * Crea un PDF corregido manteniendo el formato original
+ * @param {string} originalPdfPath - Ruta del PDF original
+ * @param {string} correctedText - Texto corregido
+ * @returns {Promise<Buffer>} - Buffer del PDF corregido
+ */
+export async function createCorrectedPDF(originalPdfPath, correctedText) {
+  try {
+    console.log(`[PDF] Creando PDF corregido...`);
+    
+    // Leer el PDF original
+    const originalPdfBytes = await fs.readFile(originalPdfPath);
+    const originalPdf = await PDFDocument.load(originalPdfBytes);
+    
+    // Crear nuevo PDF
+    const correctedPdf = await PDFDocument.create();
+    
+    // Obtener fuente estándar
+    const font = await correctedPdf.embedFont(StandardFonts.Helvetica);
+    const fontSize = 12;
+    const margin = 50;
+    
+    // Obtener dimensiones de la primera página original
+    const originalPages = originalPdf.getPages();
+    const firstPage = originalPages[0];
+    const { width, height } = firstPage.getSize();
+    
+    // Dividir el texto corregido en líneas que quepan en la página
+    const maxWidth = width - (margin * 2);
+    const lineHeight = fontSize * 1.2;
+    const maxLinesPerPage = Math.floor((height - (margin * 2)) / lineHeight);
+    
+    // Función para dividir texto en líneas
+    const wrapText = (text, maxWidth, font, fontSize) => {
+      const words = text.split(' ');
+      const lines = [];
+      let currentLine = '';
+      
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+        
+        if (testWidth <= maxWidth) {
+          currentLine = testLine;
+        } else {
+          if (currentLine) {
+            lines.push(currentLine);
+            currentLine = word;
+          } else {
+            // Palabra muy larga, dividirla
+            lines.push(word);
+          }
+        }
+      }
+      
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+      
+      return lines;
+    };
+    
+    // Procesar el texto corregido
+    const paragraphs = correctedText.split('\n\n');
+    let allLines = [];
+    
+    for (const paragraph of paragraphs) {
+      if (paragraph.trim()) {
+        const wrappedLines = wrapText(paragraph.trim(), maxWidth, font, fontSize);
+        allLines.push(...wrappedLines);
+        allLines.push(''); // Línea vacía entre párrafos
+      }
+    }
+    
+    // Crear páginas con el texto corregido
+    let currentPageLines = [];
+    
+    for (let i = 0; i < allLines.length; i++) {
+      currentPageLines.push(allLines[i]);
+      
+      // Si la página está llena o es la última línea
+      if (currentPageLines.length >= maxLinesPerPage || i === allLines.length - 1) {
+        const page = correctedPdf.addPage([width, height]);
+        
+        // Añadir texto a la página
+        let yPosition = height - margin;
+        
+        for (const line of currentPageLines) {
+          if (yPosition > margin) {
+            page.drawText(line, {
+              x: margin,
+              y: yPosition,
+              size: fontSize,
+              font: font,
+              color: rgb(0, 0, 0)
+            });
+            yPosition -= lineHeight;
+          }
+        }
+        
+        currentPageLines = [];
+      }
+    }
+    
+    // Generar el PDF corregido
+    const correctedPdfBytes = await correctedPdf.save();
+    
+    // Asegurar que devolvemos un Buffer
+    const pdfBuffer = Buffer.from(correctedPdfBytes);
+    
+    console.log(`[PDF] PDF corregido creado exitosamente: ${pdfBuffer.length} bytes`);
+    return pdfBuffer;
+    
+  } catch (error) {
+    console.error('[PDF] Error creando PDF corregido:', error);
+    throw new Error(`Error creando PDF corregido: ${error.message}`);
   }
 }
 
