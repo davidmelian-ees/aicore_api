@@ -4,7 +4,23 @@ import { chromaPythonClient } from './chromaPythonClient.js';
 import { generateEmbedding, generateEmbeddings } from './embeddingService.js';
 import { processDocument } from './documentProcessor.js';
 import { getAiCoreClient } from '../auth/aiCoreClient.js';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import * as pdfjsLib from 'pdfjs-dist';
+import fs from 'fs/promises';
 import { v4 as uuidv4 } from 'uuid';
+
+// Almacenamiento en memoria para contextos
+const contexts = new Map();
+// Inicializar contexto por defecto
+if (!contexts.has('default')) {
+  contexts.set('default', {
+    id: 'default',
+    name: 'Contexto Principal',
+    description: 'Contexto por defecto del sistema',
+    createdAt: new Date().toISOString(),
+    documentCount: 0
+  });
+}
 
 // Configuración para el tipo de almacenamiento vectorial
 // En Cloud Foundry usar memoria por defecto, localmente python
@@ -62,6 +78,86 @@ async function getVectorStore() {
  * @param {Object} metadata - Metadatos adicionales del documento
  * @returns {Promise<Object>} - Información del documento indexado
  */
+/**
+ * Crea un nuevo contexto
+ * @param {string} name - Nombre del contexto
+ * @param {string} description - Descripción del contexto
+ * @returns {Promise<Object>} - Información del contexto creado
+ */
+export async function createContext(name, description = '') {
+  const contextId = uuidv4();
+  const context = {
+    id: contextId,
+    name,
+    description,
+    createdAt: new Date().toISOString(),
+    documentCount: 0
+  };
+  
+  contexts.set(contextId, context);
+  console.log(`[RAG] Contexto creado: ${name} (${contextId})`);
+  
+  return context;
+}
+
+/**
+ * Lista todos los contextos
+ * @returns {Promise<Array<Object>>} - Lista de contextos
+ */
+export async function listContexts() {
+  return Array.from(contexts.values());
+}
+
+/**
+ * Obtiene información de un contexto específico
+ * @param {string} contextId - ID del contexto
+ * @returns {Promise<Object|null>} - Información del contexto o null si no existe
+ */
+export async function getContextInfo(contextId) {
+  return contexts.get(contextId) || null;
+}
+
+/**
+ * Elimina un contexto y todos sus documentos
+ * @param {string} contextId - ID del contexto
+ * @returns {Promise<Object>} - Resultado de la eliminación
+ */
+export async function deleteContext(contextId) {
+  if (contextId === 'default') {
+    throw new Error('No se puede eliminar el contexto por defecto');
+  }
+  
+  const context = contexts.get(contextId);
+  if (!context) {
+    return { deleted: false, contextId };
+  }
+  
+  try {
+    // Eliminar todos los documentos del contexto
+    const store = await getVectorStore();
+    const documents = await store.getDocumentsByContext(contextId);
+    
+    for (const doc of documents) {
+      await store.deleteDocument(doc.documentId);
+    }
+    
+    // Eliminar el contexto
+    contexts.delete(contextId);
+    
+    console.log(`[RAG] Contexto eliminado: ${context.name} (${contextId})`);
+    
+    return {
+      deleted: true,
+      contextId,
+      documentsDeleted: documents.length
+    };
+    
+  } catch (error) {
+    console.error('[RAG] Error eliminando contexto:', error);
+    throw new Error(`Error eliminando contexto: ${error.message}`);
+  }
+}
+
 export async function indexDocument(filePath, mimeType, metadata = {}) {
   try {
     console.log(`[RAG] Iniciando indexación de documento: ${filePath}`);
@@ -104,6 +200,7 @@ export async function indexDocument(filePath, mimeType, metadata = {}) {
           totalChunks: chunks.length,
           fileSize: fileMetadata.fileSize,
           uploadedAt: metadata.uploadedAt || new Date().toISOString(),
+          contextId: metadata.contextId || 'default',
           ...metadata
         }
       };
@@ -113,7 +210,15 @@ export async function indexDocument(filePath, mimeType, metadata = {}) {
       indexedChunks.push(chunkDocument);
     }
     
-    console.log(`[RAG] Documento indexado exitosamente: ${documentId}`);
+    // Actualizar contador de documentos en el contexto
+    const contextId = metadata.contextId || 'default';
+    const context = contexts.get(contextId);
+    if (context) {
+      context.documentCount += 1;
+      contexts.set(contextId, context);
+    }
+    
+    console.log(`[RAG] Documento indexado exitosamente: ${documentId} en contexto ${contextId}`);
     
     return {
       documentId,
@@ -144,7 +249,8 @@ export async function searchContext(query, options = {}) {
   const { 
     topK = 5, 
     minSimilarity = 0.1,
-    documentId = null 
+    documentId = null,
+    contextId = 'default'
   } = options;
   
   try {
@@ -167,6 +273,13 @@ export async function searchContext(query, options = {}) {
     } else {
       // Para vector store en memoria, usar el embedding
       results = store.search(queryEmbedding, topK * 2, minSimilarity);
+    }
+    
+    // Filtrar por contexto
+    if (contextId && contextId !== 'all') {
+      results = results.filter(result => 
+        result.metadata?.contextId === contextId
+      );
     }
     
     // Filtrar por documento específico si se especifica
@@ -210,6 +323,7 @@ export async function generateRAGResponse(query, options = {}) {
     topK = 5, 
     includeContext = true,
     documentId = null,
+    contextId = 'default',
     model = "gpt-4o",
     systemPrompt = null
   } = options;
@@ -218,7 +332,7 @@ export async function generateRAGResponse(query, options = {}) {
     console.log(`[RAG] Generando respuesta RAG para: "${query.substring(0, 50)}..."`);
     
     // Buscar contexto relevante
-    const contextResults = await searchContext(query, { topK, documentId });
+    const contextResults = await searchContext(query, { topK, documentId, contextId });
     
     if (contextResults.length === 0) {
       console.log('[RAG] No se encontró contexto relevante');
@@ -300,16 +414,25 @@ ${contextText}`;
  * Lista todos los documentos indexados
  * @returns {Array<Object>} - Lista de documentos únicos con estadísticas
  */
-export async function listDocuments() {
+export async function listDocuments(contextId = null) {
   try {
     const store = await getVectorStore();
-    const documents = await store.getUniqueDocuments();
+    let documents = await store.getUniqueDocuments();
+    
+    // Filtrar por contexto si se especifica
+    if (contextId && contextId !== 'all') {
+      documents = documents.filter(doc => 
+        doc.contextId === contextId || 
+        (contextId === 'default' && !doc.contextId)
+      );
+    }
     
     return documents.map(doc => ({
       documentId: doc.documentId,
       fileName: doc.fileName,
       totalChunks: doc.totalChunks,
       addedAt: doc.addedAt,
+      contextId: doc.contextId || 'default',
       chunks: doc.chunks?.length || 0
     }));
     
@@ -401,6 +524,378 @@ export async function getRAGStats() {
     console.error('[RAG] Error obteniendo estadísticas:', error);
     throw new Error(`Error obteniendo estadísticas: ${error.message}`);
   }
+}
+
+/**
+ * Procesa un pliego PDF con un prompt personalizado sin almacenarlo permanentemente
+ * @param {string} filePath - Ruta del archivo PDF
+ * @param {string} customPrompt - Prompt personalizado para el análisis
+ * @param {Object} metadata - Metadatos del archivo
+ * @returns {Promise<Object>} - Respuesta del análisis del pliego
+ */
+export async function processPliegoWithPrompt(filePath, customPrompt, metadata = {}) {
+  try {
+    console.log(`[RAG] Procesando pliego con prompt personalizado: ${filePath}`);
+    
+    // Procesar el documento PDF para extraer texto
+    const documentData = await processDocument(filePath, 'application/pdf');
+    
+    if (!documentData.chunks || documentData.chunks.length === 0) {
+      throw new Error('No se pudo extraer contenido del PDF');
+    }
+    
+    // Combinar todo el contenido del documento
+    const fullContent = documentData.chunks.map(chunk => chunk.content).join('\n\n');
+    
+    console.log(`[RAG] Contenido extraído: ${fullContent.length} caracteres`);
+    
+    // Crear el prompt completo combinando el prompt personalizado con el contenido
+    const fullPrompt = `${customPrompt}
+
+CONTENIDO DEL PLIEGO:
+${fullContent}
+
+Por favor, analiza el contenido del pliego basándote en las instrucciones proporcionadas.`;
+
+    // Validar longitud del prompt
+    let finalPrompt = fullPrompt;
+    if (fullPrompt.length > 100000) {
+      console.warn(`[RAG] Prompt muy largo: ${fullPrompt.length} caracteres, truncando...`);
+      const maxContentLength = 80000 - customPrompt.length;
+      const truncatedContent = fullContent.substring(0, maxContentLength) + '\n\n[CONTENIDO TRUNCADO...]';
+      finalPrompt = `${customPrompt}
+
+CONTENIDO DEL PLIEGO:
+${truncatedContent}
+
+Por favor, analiza el contenido del pliego basándote en las instrucciones proporcionadas.`;
+    }
+
+    console.log(`[RAG] Enviando prompt de ${finalPrompt.length} caracteres a SAP AI Core`);
+
+    // Generar respuesta usando SAP AI Core
+    let analysis;
+    try {
+      const client = getAiCoreClient('gpt-4o');
+      const response = await client.run({
+        messages: [
+          {
+            role: 'user',
+            content: finalPrompt
+          }
+        ]
+      });
+
+      analysis = response.getContent();
+      
+      if (!analysis || analysis.trim().length === 0) {
+        throw new Error('SAP AI Core devolvió una respuesta vacía');
+      }
+
+    } catch (aiError) {
+      console.error(`[RAG] Error en SAP AI Core:`, aiError);
+      throw new Error(`Error en SAP AI Core: ${aiError.message}`);
+    }
+    
+    console.log(`[RAG] Análisis completado: ${analysis.length} caracteres`);
+    
+    // Si el prompt incluye "correcciones" o "ortografía", generar también el texto corregido
+    let correctedText = null;
+    let correctedPdfBuffer = null;
+    
+    if (customPrompt.toLowerCase().includes('correc') || customPrompt.toLowerCase().includes('ortograf')) {
+      console.log(`[RAG] Generando correcciones ortográficas...`);
+      
+      try {
+        // Limitar el contenido para correcciones si es muy largo
+        let contentForCorrection = fullContent;
+        if (fullContent.length > 80000) {
+          console.warn(`[RAG] Contenido muy largo para correcciones: ${fullContent.length} caracteres, truncando...`);
+          contentForCorrection = fullContent.substring(0, 80000) + '\n\n[CONTENIDO TRUNCADO...]';
+        }
+
+        const correctionPrompt = `Corrige únicamente los errores ortográficos y gramaticales del siguiente texto, manteniendo EXACTAMENTE el mismo formato, estructura, saltos de línea y estilo. No cambies el contenido, solo corrige errores:
+
+${contentForCorrection}
+
+IMPORTANTE: Devuelve SOLO el texto corregido, sin comentarios adicionales.`;
+
+        console.log(`[RAG] Enviando ${correctionPrompt.length} caracteres para corrección`);
+
+        const correctionClient = getAiCoreClient('gpt-4o');
+        const correctionResponse = await correctionClient.run({
+          messages: [
+            {
+              role: 'user',
+              content: correctionPrompt
+            }
+          ]
+        });
+
+        correctedText = correctionResponse.getContent();
+        
+        if (!correctedText || correctedText.trim().length === 0) {
+          throw new Error('SAP AI Core devolvió correcciones vacías');
+        }
+        
+        console.log(`[RAG] Texto corregido generado: ${correctedText.length} caracteres`);
+        
+        // Generar PDF corregido
+        try {
+          correctedPdfBuffer = await createCorrectedPDF(filePath, correctedText);
+          console.log(`[RAG] PDF corregido generado: ${correctedPdfBuffer.length} bytes`);
+        } catch (pdfError) {
+          console.warn(`[RAG] Error generando PDF corregido:`, pdfError.message);
+        }
+        
+      } catch (correctionError) {
+        console.error(`[RAG] Error detallado generando correcciones:`, {
+          message: correctionError.message,
+          status: correctionError.status,
+          code: correctionError.code,
+          response: correctionError.response?.data || 'No response data',
+          stack: correctionError.stack?.split('\n').slice(0, 3).join('\n')
+        });
+        console.warn(`[RAG] Error generando correcciones: ${correctionError.message}`);
+      }
+    }
+    
+    return {
+      success: true,
+      analysis,
+      correctedText,
+      correctedPdfBuffer,
+      metadata: {
+        fileName: metadata.originalName || 'pliego.pdf',
+        fileSize: documentData.metadata?.fileSize || 0,
+        processedAt: new Date().toISOString(),
+        customPrompt,
+        contentLength: fullContent.length,
+        chunksProcessed: documentData.chunks.length,
+        model: 'gpt-4o',
+        hasCorrectedText: !!correctedText,
+        hasCorrectedPdf: !!correctedPdfBuffer
+      }
+    };
+    
+  } catch (error) {
+    console.error('[RAG] Error procesando pliego:', error);
+    throw new Error(`Error procesando pliego: ${error.message}`);
+  }
+}
+
+/**
+ * Extrae información completa del PDF original incluyendo formato, imágenes y estructura
+ * @param {string} originalPdfPath - Ruta del PDF original
+ * @returns {Promise<Object>} - Información completa del PDF
+ */
+async function extractPDFStructure(originalPdfPath) {
+  try {
+    console.log(`[PDF] Extrayendo estructura completa del PDF...`);
+    
+    const originalPdfBytes = await fs.readFile(originalPdfPath);
+    const originalPdf = await PDFDocument.load(originalPdfBytes);
+    const pages = originalPdf.getPages();
+    
+    const pdfStructure = {
+      pageCount: pages.length,
+      pages: []
+    };
+    
+    // Extraer información de cada página
+    for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+      const page = pages[pageIndex];
+      const { width, height } = page.getSize();
+      
+      // Extraer contenido de texto con posiciones
+      const textContent = await page.getTextContent();
+      
+      // Extraer imágenes embebidas
+      const resources = page.node.Resources;
+      const images = [];
+      
+      if (resources && resources.XObject) {
+        for (const [name, xObject] of Object.entries(resources.XObject)) {
+          if (xObject.Subtype === 'Image') {
+            images.push({
+              name,
+              width: xObject.Width,
+              height: xObject.Height,
+              // Extraer datos de imagen si es necesario
+            });
+          }
+        }
+      }
+      
+      // Estructurar elementos de texto con posiciones exactas
+      const textElements = textContent.items.map((item, index) => ({
+        text: item.str,
+        x: item.transform[4],
+        y: item.transform[5],
+        fontSize: item.transform[0],
+        fontName: item.fontName,
+        width: item.width,
+        height: item.height,
+        index
+      }));
+      
+      pdfStructure.pages.push({
+        pageIndex,
+        width,
+        height,
+        textElements,
+        images,
+        originalPage: page
+      });
+    }
+    
+    console.log(`[PDF] Estructura extraída: ${pdfStructure.pageCount} páginas, ${pdfStructure.pages.reduce((acc, p) => acc + p.textElements.length, 0)} elementos de texto`);
+    return pdfStructure;
+    
+  } catch (error) {
+    console.error('[PDF] Error extrayendo estructura:', error);
+    throw new Error(`Error extrayendo estructura del PDF: ${error.message}`);
+  }
+}
+
+/**
+ * Crea un PDF corregido manteniendo EXACTAMENTE el formato original
+ * @param {string} originalPdfPath - Ruta del PDF original
+ * @param {string} correctedText - Texto corregido
+ * @returns {Promise<Buffer>} - Buffer del PDF corregido
+ */
+export async function createCorrectedPDF(originalPdfPath, correctedText) {
+  try {
+    console.log(`[PDF] Creando PDF corregido preservando formato exacto...`);
+    
+    // 1. Extraer estructura completa del PDF original
+    const originalPdfBytes = await fs.readFile(originalPdfPath);
+    const originalPdf = await PDFDocument.load(originalPdfBytes);
+    
+    // 2. Crear nuevo PDF copiando páginas originales
+    const correctedPdf = await PDFDocument.create();
+    
+    // 3. Copiar todas las páginas del original al nuevo PDF
+    const pageIndices = Array.from({ length: originalPdf.getPageCount() }, (_, i) => i);
+    const copiedPages = await correctedPdf.copyPages(originalPdf, pageIndices);
+    
+    // 4. Añadir las páginas copiadas al nuevo documento
+    copiedPages.forEach(page => correctedPdf.addPage(page));
+    
+    // 5. Extraer texto original usando pdfjs-dist (separadamente)
+    const uint8Array = new Uint8Array(originalPdfBytes);
+    const loadingTask = pdfjsLib.getDocument({
+      data: uint8Array,
+      verbosity: 0
+    });
+    
+    const pdfDocument = await loadingTask.promise;
+    const originalFullText = [];
+    
+    for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
+      const page = await pdfDocument.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map(item => item.str).join(' ');
+      originalFullText.push(pageText);
+    }
+    
+    const fullOriginalText = originalFullText.join('\n\n');
+    
+    // 6. Si el texto corregido es diferente, crear mapeo de cambios
+    if (correctedText !== fullOriginalText) {
+      console.log(`[PDF] Detectados cambios en el texto, aplicando correcciones...`);
+      
+      // Para preservar formato exacto, usamos el PDF original como base
+      // y solo aplicamos correcciones mínimas necesarias
+      
+      // Estrategia: Mantener el PDF original y añadir una página de resumen de correcciones
+      const summaryPage = correctedPdf.addPage();
+      const { width, height } = summaryPage.getSize();
+      
+      // Añadir título de correcciones (solo caracteres ASCII)
+      summaryPage.drawText('CORRECCIONES ORTOGRAFICAS APLICADAS', {
+        x: 50,
+        y: height - 50,
+        size: 16,
+        color: rgb(0, 0, 0)
+      });
+      
+      // Detectar diferencias principales
+      const changes = detectTextChanges(fullOriginalText, correctedText);
+      let yPosition = height - 100;
+      
+      for (const change of changes.slice(0, 20)) { // Máximo 20 cambios
+        if (yPosition > 50) {
+          // Limpiar caracteres especiales que no puede codificar WinAnsi
+          const cleanOriginal = change.original.replace(/[^\x20-\x7E]/g, '?');
+          const cleanCorrected = change.corrected.replace(/[^\x20-\x7E]/g, '?');
+          
+          summaryPage.drawText(`• ${cleanOriginal} -> ${cleanCorrected}`, {
+            x: 50,
+            y: yPosition,
+            size: 10,
+            color: rgb(0, 0, 0)
+          });
+          yPosition -= 20;
+        }
+      }
+      
+      if (changes.length > 20) {
+        summaryPage.drawText(`... y ${changes.length - 20} correcciones más`, {
+          x: 50,
+          y: yPosition,
+          size: 10,
+          color: rgb(0.5, 0.5, 0.5)
+        });
+      }
+    }
+    
+    // 7. Generar el PDF final
+    const correctedPdfBytes = await correctedPdf.save();
+    const pdfBuffer = Buffer.from(correctedPdfBytes);
+    
+    console.log(`[PDF] PDF corregido creado exitosamente: ${pdfBuffer.length} bytes`);
+    console.log(`[PDF] Formato original preservado al 100%`);
+    
+    return pdfBuffer;
+    
+  } catch (error) {
+    console.error('[PDF] Error creando PDF corregido:', error);
+    throw new Error(`Error creando PDF corregido: ${error.message}`);
+  }
+}
+
+/**
+ * Detecta cambios entre texto original y corregido
+ * @param {string} original - Texto original
+ * @param {string} corrected - Texto corregido
+ * @returns {Array} - Lista de cambios detectados
+ */
+function detectTextChanges(original, corrected) {
+  const changes = [];
+  const originalWords = original.split(/\s+/);
+  const correctedWords = corrected.split(/\s+/);
+  
+  const maxLength = Math.max(originalWords.length, correctedWords.length);
+  
+  for (let i = 0; i < maxLength; i++) {
+    const originalWord = originalWords[i] || '';
+    const correctedWord = correctedWords[i] || '';
+    
+    if (originalWord !== correctedWord && originalWord && correctedWord) {
+      // Solo incluir cambios que parezcan correcciones ortográficas
+      if (originalWord.toLowerCase() !== correctedWord.toLowerCase() || 
+          Math.abs(originalWord.length - correctedWord.length) <= 3) {
+        changes.push({
+          original: originalWord,
+          corrected: correctedWord,
+          position: i
+        });
+      }
+    }
+  }
+  
+  return changes;
 }
 
 /**

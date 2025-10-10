@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import mammoth from 'mammoth';
+import * as pdfjsLib from 'pdfjs-dist';
 
 /**
  * Procesa un archivo y extrae su contenido de texto
@@ -20,7 +21,7 @@ export async function extractTextFromFile(filePath, mimeType) {
         return await extractTextFromPlainText(filePath);
       
       case '.pdf':
-        throw new Error('Procesamiento de PDF temporalmente deshabilitado. Use TXT, DOCX, MD, JSON o CSV.');
+        return await extractTextFromPDF(filePath);
       
       case '.docx':
         return await extractTextFromDocx(filePath);
@@ -43,10 +44,68 @@ async function extractTextFromPlainText(filePath) {
 }
 
 /**
- * Extrae texto de archivos PDF (deshabilitado temporalmente)
+ * Extrae texto de archivos PDF usando pdfjs-dist (Mozilla PDF.js)
  */
 async function extractTextFromPDF(filePath) {
-  throw new Error('Procesamiento de PDF temporalmente deshabilitado');
+  try {
+    console.log(`[PDF] Procesando archivo PDF: ${filePath}`);
+    
+    // Leer el archivo PDF
+    const buffer = await fs.readFile(filePath);
+    const uint8Array = new Uint8Array(buffer);
+    
+    // Cargar el documento PDF
+    const loadingTask = pdfjsLib.getDocument({
+      data: uint8Array,
+      verbosity: 0 // Reducir logs de pdfjs
+    });
+    
+    const pdfDocument = await loadingTask.promise;
+    const numPages = pdfDocument.numPages;
+    
+    console.log(`[PDF] Documento cargado: ${numPages} páginas`);
+    
+    let fullText = '';
+    
+    // Extraer texto de cada página
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      try {
+        const page = await pdfDocument.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        
+        // Combinar todos los elementos de texto de la página
+        const pageText = textContent.items
+          .map(item => item.str)
+          .join(' ');
+        
+        if (pageText.trim()) {
+          fullText += pageText + '\n\n';
+        }
+        
+        console.log(`[PDF] Página ${pageNum}/${numPages}: ${pageText.length} caracteres`);
+      } catch (pageError) {
+        console.warn(`[PDF] Error procesando página ${pageNum}:`, pageError.message);
+        // Continuar con las siguientes páginas
+      }
+    }
+    
+    // Limpiar el texto
+    fullText = fullText
+      .replace(/\s+/g, ' ') // Normalizar espacios
+      .replace(/\n\s*\n/g, '\n\n') // Normalizar saltos de línea
+      .trim();
+    
+    if (!fullText || fullText.length === 0) {
+      throw new Error('El PDF no contiene texto extraíble o está vacío');
+    }
+    
+    console.log(`[PDF] Texto extraído exitosamente: ${fullText.length} caracteres`);
+    return fullText;
+    
+  } catch (error) {
+    console.error(`[PDF] Error extrayendo texto de ${filePath}:`, error);
+    throw new Error(`Error procesando PDF: ${error.message}`);
+  }
 }
 
 /**
@@ -94,20 +153,46 @@ export function splitTextIntoChunks(text, chunkSize = 1000, overlap = 200) {
 export async function processDocument(filePath, mimeType, options = {}) {
   const { chunkSize = 1000, overlap = 200 } = options;
   
-  // Extraer texto
-  const text = await extractTextFromFile(filePath, mimeType);
-  
-  // Dividir en chunks
-  const chunks = splitTextIntoChunks(text, chunkSize, overlap);
-  
-  return {
-    fullText: text,
-    chunks,
-    metadata: {
-      fileName: path.basename(filePath),
-      fileSize: (await fs.stat(filePath)).size,
-      chunkCount: chunks.length,
-      processedAt: new Date().toISOString()
+  try {
+    console.log(`[DOC] Procesando documento: ${filePath} (${mimeType})`);
+    
+    // Extraer texto
+    const text = await extractTextFromFile(filePath, mimeType);
+    
+    if (!text || text.trim().length === 0) {
+      throw new Error('No se pudo extraer contenido del documento');
     }
-  };
+    
+    // Dividir en chunks
+    const textChunks = splitTextIntoChunks(text, chunkSize, overlap);
+    
+    // Convertir chunks a formato esperado por RAG
+    const chunks = textChunks.map((chunk, index) => ({
+      content: chunk,
+      index,
+      metadata: {
+        chunkIndex: index,
+        totalChunks: textChunks.length
+      }
+    }));
+    
+    const fileStats = await fs.stat(filePath);
+    
+    console.log(`[DOC] Documento procesado: ${chunks.length} chunks, ${text.length} caracteres`);
+    
+    return {
+      fullText: text,
+      chunks,
+      metadata: {
+        fileName: path.basename(filePath),
+        fileSize: fileStats.size,
+        chunkCount: chunks.length,
+        processedAt: new Date().toISOString(),
+        contentLength: text.length
+      }
+    };
+  } catch (error) {
+    console.error(`[DOC] Error procesando documento ${filePath}:`, error);
+    throw error;
+  }
 }
