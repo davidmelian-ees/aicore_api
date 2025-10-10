@@ -141,6 +141,7 @@ class VectorStore {
         documentsMap.set(docId, {
           documentId: docId,
           fileName: document.metadata?.fileName,
+          contextId: document.metadata?.contextId || 'default',
           addedAt: document.addedAt,
           chunks: []
         });
@@ -159,6 +160,19 @@ class VectorStore {
       ...doc,
       totalChunks: doc.chunks.length
     }));
+  }
+
+  /**
+   * Obtiene documentos por contexto
+   * @param {string} contextId - ID del contexto
+   * @returns {Array<Object>} - Lista de documentos del contexto
+   */
+  getDocumentsByContext(contextId) {
+    const documents = this.getUniqueDocuments();
+    return documents.filter(doc => 
+      doc.contextId === contextId || 
+      (contextId === 'default' && !doc.contextId)
+    );
   }
 
   /**
@@ -226,6 +240,7 @@ class VectorStore {
   getStats() {
     const uniqueDocuments = new Set();
     const fileNames = new Set();
+    const contexts = new Set();
     
     for (const document of this.documents.values()) {
       if (document.metadata?.documentId) {
@@ -233,6 +248,9 @@ class VectorStore {
       }
       if (document.metadata?.fileName) {
         fileNames.add(document.metadata.fileName);
+      }
+      if (document.metadata?.contextId) {
+        contexts.add(document.metadata.contextId);
       }
     }
 
@@ -244,6 +262,7 @@ class VectorStore {
       totalChunks: this.documents.size,
       totalDocuments: uniqueDocuments.size,
       totalFiles: fileNames.size,
+      totalContexts: contexts.size,
       embeddingDimension: embeddingDimensions,
       indexSize: this.index.length,
       memoryUsage: {
