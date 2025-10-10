@@ -14,7 +14,8 @@ import {
   createContext,
   listContexts,
   getContextInfo,
-  deleteContext
+  deleteContext,
+  processPliegoWithPrompt
 } from "../services/ragService.js";
 
 const router = express.Router();
@@ -49,16 +50,35 @@ const upload = multer({
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'text/markdown',
       'application/json',
-      'text/csv'
+      'text/csv',
+      'application/pdf'
     ];
     
-    const allowedExtensions = ['.txt', '.docx', '.md', '.json', '.csv'];
+    const allowedExtensions = ['.txt', '.docx', '.md', '.json', '.csv', '.pdf'];
     const ext = path.extname(file.originalname).toLowerCase();
     
     if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error(`Tipo de archivo no soportado: ${file.mimetype}. Permitidos: txt, docx, md, json, csv`));
+      cb(new Error(`Tipo de archivo no soportado: ${file.mimetype}. Permitidos: txt, docx, md, json, csv, pdf`));
+    }
+  }
+});
+
+// Configuración específica para procesamiento de pliegos (solo PDFs)
+const uploadPliego = multer({ 
+  storage,
+  limits: {
+    fileSize: 100 * 1024 * 1024 // 100MB límite para pliegos
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['application/pdf'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedTypes.includes(file.mimetype) || ext === '.pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error(`Solo se permiten archivos PDF para pliegos. Recibido: ${file.mimetype}`));
     }
   }
 });
@@ -239,6 +259,76 @@ router.post("/upload", upload.single('document'), async (req, res) => {
     res.status(500).json({ 
       success: false,
       error: "Error procesando el documento",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * POST /api/rag/process-pliego
+ * Procesa un pliego PDF con un prompt personalizado sin almacenarlo
+ */
+router.post("/process-pliego", uploadPliego.single('pliego'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ 
+        success: false,
+        error: "No se proporcionó ningún archivo PDF" 
+      });
+    }
+
+    const { prompt } = req.body;
+    
+    if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        error: "El prompt personalizado es requerido" 
+      });
+    }
+
+    console.log(`[RAG API] Procesando pliego: ${req.file.originalname} con prompt personalizado`);
+
+    // Procesar el pliego con el prompt personalizado
+    const result = await processPliegoWithPrompt(
+      req.file.path,
+      prompt.trim(),
+      {
+        originalName: req.file.originalname,
+        fileSize: req.file.size,
+        uploadedAt: new Date().toISOString()
+      }
+    );
+
+    // Limpiar el archivo temporal inmediatamente
+    try {
+      await fs.unlink(req.file.path);
+      console.log(`[RAG API] Archivo temporal eliminado: ${req.file.path}`);
+    } catch (unlinkError) {
+      console.warn(`[RAG API] No se pudo eliminar archivo temporal: ${unlinkError.message}`);
+    }
+
+    res.json({
+      success: true,
+      message: "Pliego procesado exitosamente",
+      analysis: result.analysis,
+      metadata: result.metadata
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /process-pliego:", error);
+    
+    // Limpiar archivo en caso de error
+    if (req.file?.path) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.warn(`[RAG API] No se pudo limpiar archivo tras error: ${unlinkError.message}`);
+      }
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      error: "Error procesando el pliego",
       details: error.message 
     });
   }

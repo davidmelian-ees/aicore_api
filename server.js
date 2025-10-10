@@ -104,6 +104,7 @@ app.get('/', (req, res) => {
       rag: '/api/rag',
       ragHealth: '/api/rag/health',
       ragDocs: '/api/rag/documents',
+      ragPliego: '/api/rag/process-pliego',
       documentation: '/docs/RAG_SYSTEM_DOCUMENTATION.html'
     },
     vectorStore: process.env.VECTOR_STORE_TYPE || 'auto',

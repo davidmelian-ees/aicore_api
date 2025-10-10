@@ -525,6 +525,131 @@ export async function getRAGStats() {
 }
 
 /**
+ * Procesa un pliego PDF con un prompt personalizado sin almacenarlo permanentemente
+ * @param {string} filePath - Ruta del archivo PDF
+ * @param {string} customPrompt - Prompt personalizado para el análisis
+ * @param {Object} metadata - Metadatos del archivo
+ * @returns {Promise<Object>} - Respuesta del análisis del pliego
+ */
+export async function processPliegoWithPrompt(filePath, customPrompt, metadata = {}) {
+  try {
+    console.log(`[RAG] Procesando pliego con prompt personalizado: ${filePath}`);
+    
+    // Procesar el documento PDF para extraer texto
+    const documentData = await processDocument(filePath, 'application/pdf');
+    
+    if (!documentData.chunks || documentData.chunks.length === 0) {
+      throw new Error('No se pudo extraer contenido del PDF');
+    }
+    
+    // Combinar todo el contenido del documento
+    const fullContent = documentData.chunks.map(chunk => chunk.content).join('\n\n');
+    
+    console.log(`[RAG] Contenido extraído: ${fullContent.length} caracteres`);
+    
+    // Crear el prompt completo combinando el prompt personalizado con el contenido
+    const fullPrompt = `${customPrompt}
+
+CONTENIDO DEL PLIEGO:
+${fullContent}
+
+Por favor, analiza el contenido del pliego basándote en las instrucciones proporcionadas.`;
+
+    // Validar longitud del prompt
+    let finalPrompt = fullPrompt;
+    if (fullPrompt.length > 100000) {
+      console.warn(`[RAG] Prompt muy largo: ${fullPrompt.length} caracteres, truncando...`);
+      const maxContentLength = 80000 - customPrompt.length;
+      const truncatedContent = fullContent.substring(0, maxContentLength) + '\n\n[CONTENIDO TRUNCADO...]';
+      finalPrompt = `${customPrompt}
+
+CONTENIDO DEL PLIEGO:
+${truncatedContent}
+
+Por favor, analiza el contenido del pliego basándote en las instrucciones proporcionadas.`;
+    }
+
+    console.log(`[RAG] Enviando prompt de ${finalPrompt.length} caracteres a SAP AI Core`);
+
+    // Generar respuesta usando SAP AI Core
+    let analysis;
+    try {
+      const client = getAiCoreClient('gpt-4o');
+      const response = await client.run({
+        messages: [
+          {
+            role: 'user',
+            content: finalPrompt
+          }
+        ]
+      });
+
+      analysis = response.getContent();
+      
+      if (!analysis || analysis.trim().length === 0) {
+        throw new Error('SAP AI Core devolvió una respuesta vacía');
+      }
+
+    } catch (aiError) {
+      console.error(`[RAG] Error en SAP AI Core:`, aiError);
+      throw new Error(`Error en SAP AI Core: ${aiError.message}`);
+    }
+    
+    console.log(`[RAG] Análisis completado: ${analysis.length} caracteres`);
+    
+    // Si el prompt incluye "correcciones" o "ortografía", generar también el texto corregido
+    let correctedText = null;
+    if (customPrompt.toLowerCase().includes('correc') || customPrompt.toLowerCase().includes('ortograf')) {
+      console.log(`[RAG] Generando correcciones ortográficas...`);
+      
+      try {
+        const correctionPrompt = `Corrige únicamente los errores ortográficos y gramaticales del siguiente texto, manteniendo EXACTAMENTE el mismo formato, estructura, saltos de línea y estilo. No cambies el contenido, solo corrige errores:
+
+${fullContent}
+
+IMPORTANTE: Devuelve SOLO el texto corregido, sin comentarios adicionales.`;
+
+        const correctionClient = getAiCoreClient('gpt-4o');
+        const correctionResponse = await correctionClient.run({
+          messages: [
+            {
+              role: 'user',
+              content: correctionPrompt
+            }
+          ]
+        });
+
+        correctedText = correctionResponse.getContent();
+        console.log(`[RAG] Texto corregido generado: ${correctedText.length} caracteres`);
+        
+      } catch (correctionError) {
+        console.warn(`[RAG] Error generando correcciones:`, correctionError.message);
+      }
+    }
+    
+    return {
+      success: true,
+      analysis,
+      correctedText,
+      metadata: {
+        fileName: metadata.originalName || 'pliego.pdf',
+        fileSize: documentData.metadata?.fileSize || 0,
+        processedAt: new Date().toISOString(),
+        customPrompt,
+        contentLength: fullContent.length,
+        chunksProcessed: documentData.chunks.length,
+        model: 'gpt-4o',
+        hasCorrectedText: !!correctedText
+      }
+    };
+    
+  } catch (error) {
+    console.error('[RAG] Error procesando pliego:', error);
+    throw new Error(`Error procesando pliego: ${error.message}`);
+  }
+}
+
+/**
  * Limpia todo el índice RAG
  * @returns {Object} - Resultado de la limpieza
  */
