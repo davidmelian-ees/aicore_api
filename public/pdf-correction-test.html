@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrección de PDFs - Herramienta de Prueba</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .workflow-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f9fafb;
+        }
+
+        .workflow-section h2 {
+            color: #374151;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .workflow-section h2::before {
+            content: "📄";
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .workflow-section.apply h2::before {
+            content: "✏️";
+        }
+
+        .workflow-section p {
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .upload-area {
+            border: 3px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #4f46e5;
+            background: #f8faff;
+        }
+
+        .upload-area.dragover {
+            border-color: #4f46e5;
+            background: #f0f4ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #9ca3af;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .selected-file {
+            background: #ecfdf5;
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .selected-file.show {
+            display: block;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            color: #065f46;
+        }
+
+        .file-info::before {
+            content: "📎";
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .corrections-input {
+            margin-bottom: 20px;
+        }
+
+        .corrections-input label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .corrections-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .corrections-textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e5e7eb;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result.success {
+            background: #ecfdf5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+
+        .result.error {
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .example {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .example h4 {
+            color: #0c4a6e;
+            margin-bottom: 10px;
+        }
+
+        .example code {
+            display: block;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-line;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .workflow-section {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Corrección de PDFs</h1>
+            <p>Herramienta de prueba para corrección ortográfica automática</p>
+        </div>
+
+        <div class="content">
+            <!-- Workflow 1: Generar lista de correcciones -->
+            <div class="workflow-section">
+                <h2>Generar PDF con Lista de Correcciones</h2>
+                <p>Sube un PDF y obtén el documento original con una página adicional que lista todas las correcciones ortográficas encontradas.</p>
+                
+                <div class="upload-area" onclick="document.getElementById('file1').click()" 
+                     ondrop="handleDrop(event, 'file1')" 
+                     ondragover="handleDragOver(event)"
+                     ondragleave="handleDragLeave(event)">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Haz clic aquí o arrastra tu PDF</div>
+                    <div class="upload-subtext">Máximo 50MB</div>
+                </div>
+                
+                <input type="file" id="file1" class="file-input" accept=".pdf" onchange="handleFileSelect(event, 'selected1')">
+                
+                <div id="selected1" class="selected-file">
+                    <div class="file-info">
+                        <span id="filename1"></span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="generateCorrectionsList()" id="btn-generate">
+                        📄 Generar Lista de Correcciones
+                    </button>
+                </div>
+
+                <div id="loading1" class="loading">
+                    <div class="spinner"></div>
+                    Procesando PDF y generando correcciones...
+                </div>
+
+                <div id="result1" class="result"></div>
+            </div>
+
+            <!-- Workflow 2: Aplicar correcciones directamente -->
+            <div class="workflow-section apply">
+                <h2>Aplicar Correcciones Directamente</h2>
+                <p>Sube un PDF y proporciona una lista de correcciones para aplicar directamente al texto <strong>preservando el formato original</strong> (posiciones, fuentes, colores).</p>
+                
+                <div class="upload-area" onclick="document.getElementById('file2').click()" 
+                     ondrop="handleDrop(event, 'file2')" 
+                     ondragover="handleDragOver(event)"
+                     ondragleave="handleDragLeave(event)">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Haz clic aquí o arrastra tu PDF</div>
+                    <div class="upload-subtext">Máximo 50MB</div>
+                </div>
+                
+                <input type="file" id="file2" class="file-input" accept=".pdf" onchange="handleFileSelect(event, 'selected2')">
+                
+                <div id="selected2" class="selected-file">
+                    <div class="file-info">
+                        <span id="filename2"></span>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <h4>📝 Formato de correcciones:</h4>
+                    <code>• Dokumento -> Documento
+• parrafo -> párrafo
+• ejemlo, -> ejemplo,
+• recivir -> recibir</code>
+                </div>
+
+                <div class="corrections-input">
+                    <label for="corrections">Lista de correcciones:</label>
+                    <textarea id="corrections" class="corrections-textarea" 
+                              placeholder="• palabra_incorrecta -> palabra_correcta&#10;• otra_palabra -> corrección&#10;..."></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="generateCorrectionsOnly()" id="btn-generate-only">
+                        🔍 Solo Generar Correcciones
+                    </button>
+                    <button class="btn btn-success" onclick="applyCorrections()" id="btn-apply">
+                        ✏️ Aplicar Correcciones
+                    </button>
+                </div>
+
+                <div id="loading2" class="loading">
+                    <div class="spinner"></div>
+                    Aplicando correcciones preservando formato original...
+                </div>
+
+                <div id="result2" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000/api/pdf-correction';
+
+        // Manejo de drag & drop
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(e, inputId) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                document.getElementById(inputId).files = files;
+                handleFileSelect({ target: { files } }, inputId === 'file1' ? 'selected1' : 'selected2');
+            }
+        }
+
+        // Manejo de selección de archivos
+        function handleFileSelect(event, selectedId) {
+            const file = event.target.files[0];
+            const selectedDiv = document.getElementById(selectedId);
+            const filenameSpan = document.getElementById(selectedId === 'selected1' ? 'filename1' : 'filename2');
+            
+            if (file) {
+                filenameSpan.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                selectedDiv.classList.add('show');
+            } else {
+                selectedDiv.classList.remove('show');
+            }
+        }
+
+        // Generar lista de correcciones
+        async function generateCorrectionsList() {
+            const fileInput = document.getElementById('file1');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showResult('result1', 'Por favor selecciona un archivo PDF', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('pdf', file);
+
+            showLoading('loading1', true);
+            hideResult('result1');
+            disableButton('btn-generate', true);
+
+            try {
+                const response = await fetch(`${API_BASE}/generate-list`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    downloadFile(blob, `correcciones-${file.name}`, 'application/pdf');
+                    showResult('result1', '✅ PDF con correcciones generado exitosamente', 'success');
+                } else {
+                    const error = await response.json();
+                    showResult('result1', `❌ Error: ${error.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('result1', `❌ Error de conexión: ${error.message}`, 'error');
+            } finally {
+                showLoading('loading1', false);
+                disableButton('btn-generate', false);
+            }
+        }
+
+        // Generar solo correcciones
+        async function generateCorrectionsOnly() {
+            const fileInput = document.getElementById('file2');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showResult('result2', 'Por favor selecciona un archivo PDF', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('pdf', file);
+
+            showLoading('loading2', true);
+            hideResult('result2');
+            disableButton('btn-generate-only', true);
+
+            try {
+                const response = await fetch(`${API_BASE}/generate-corrections`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    document.getElementById('corrections').value = result.correctionsList;
+                    showResult('result2', `✅ ${result.totalCorrections} correcciones generadas y cargadas en el campo de texto`, 'success');
+                } else {
+                    showResult('result2', `❌ Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('result2', `❌ Error de conexión: ${error.message}`, 'error');
+            } finally {
+                showLoading('loading2', false);
+                disableButton('btn-generate-only', false);
+            }
+        }
+
+        // Aplicar correcciones
+        async function applyCorrections() {
+            const fileInput = document.getElementById('file2');
+            const file = fileInput.files[0];
+            const corrections = document.getElementById('corrections').value.trim();
+            
+            if (!file) {
+                showResult('result2', 'Por favor selecciona un archivo PDF', 'error');
+                return;
+            }
+
+            if (!corrections) {
+                showResult('result2', 'Por favor proporciona las correcciones a aplicar', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('pdf', file);
+            formData.append('corrections', corrections);
+
+            showLoading('loading2', true);
+            hideResult('result2');
+            disableButton('btn-apply', true);
+
+            try {
+                const response = await fetch(`${API_BASE}/apply-corrections`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    downloadFile(blob, `corregido-${file.name}`, 'application/pdf');
+                    showResult('result2', '✅ PDF corregido generado exitosamente', 'success');
+                } else {
+                    const error = await response.json();
+                    showResult('result2', `❌ Error: ${error.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('result2', `❌ Error de conexión: ${error.message}`, 'error');
+            } finally {
+                showLoading('loading2', false);
+                disableButton('btn-apply', false);
+            }
+        }
+
+        // Utilidades
+        function showLoading(loadingId, show) {
+            const loading = document.getElementById(loadingId);
+            if (show) {
+                loading.classList.add('show');
+            } else {
+                loading.classList.remove('show');
+            }
+        }
+
+        function showResult(resultId, message, type) {
+            const result = document.getElementById(resultId);
+            result.textContent = message;
+            result.className = `result show ${type}`;
+        }
+
+        function hideResult(resultId) {
+            const result = document.getElementById(resultId);
+            result.classList.remove('show');
+        }
+
+        function disableButton(buttonId, disabled) {
+            const button = document.getElementById(buttonId);
+            button.disabled = disabled;
+        }
+
+        function downloadFile(blob, filename, mimeType) {
+            const url = window.URL.createObjectURL(new Blob([blob], { type: mimeType }));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
