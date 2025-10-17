@@ -24,14 +24,21 @@ export async function generatePDFWithCorrectionsList(originalPdfPath, customProm
     const documentData = await processDocument(originalPdfPath, 'application/pdf');
     const originalText = documentData.chunks.map(chunk => chunk.content).join('\n\n');
     
-    // 2. Generar correcciones usando SAP AI Core
+    // 2. Limitar texto para SAP AI Core (máximo 50,000 caracteres)
+    let textForAnalysis = originalText;
+    if (originalText.length > 50000) {
+      console.warn(`[PDF-CORRECTION] Texto muy largo: ${originalText.length} caracteres, truncando...`);
+      textForAnalysis = originalText.substring(0, 50000) + '\n\n[TEXTO TRUNCADO...]';
+    }
+
+    // 3. Generar correcciones usando SAP AI Core
     const correctionPrompt = customPrompt || `Analiza el siguiente texto y genera una lista de correcciones ortográficas y gramaticales.
 
 Para cada corrección, usa EXACTAMENTE este formato:
 • palabra_incorrecta -> palabra_correcta
 
 TEXTO A ANALIZAR:
-${originalText}
+${textForAnalysis}
 
 IMPORTANTE: 
 - Solo devuelve la lista de correcciones en el formato especificado
@@ -39,14 +46,35 @@ IMPORTANTE:
 - No incluyas explicaciones adicionales
 - Si no hay errores, devuelve "No se encontraron errores ortográficos"`;
 
-    console.log(`[PDF-CORRECTION] Generando correcciones con SAP AI Core...`);
+    console.log(`[PDF-CORRECTION] Generando correcciones con SAP AI Core (${correctionPrompt.length} caracteres)...`);
     
-    const client = getAiCoreClient('gpt-4o');
-    const response = await client.run({
-      messages: [{ role: 'user', content: correctionPrompt }]
-    });
-    
-    const correctionsList = response.getContent();
+    let correctionsList;
+    try {
+      const client = getAiCoreClient('gpt-4o');
+      const response = await client.run({
+        messages: [{ role: 'user', content: correctionPrompt }]
+      });
+      
+      correctionsList = response.getContent();
+      
+      if (!correctionsList || correctionsList.trim().length === 0) {
+        throw new Error('SAP AI Core devolvió una respuesta vacía');
+      }
+      
+      console.log(`[PDF-CORRECTION] Correcciones generadas: ${correctionsList.length} caracteres`);
+      
+    } catch (aiError) {
+      console.error(`[PDF-CORRECTION] Error detallado en SAP AI Core:`, {
+        message: aiError.message,
+        status: aiError.status || aiError.code,
+        response: aiError.response?.data || 'No response data',
+        promptLength: correctionPrompt.length
+      });
+      
+      // Fallback: generar lista básica sin IA
+      console.log(`[PDF-CORRECTION] Usando fallback sin IA...`);
+      correctionsList = "No se pudieron generar correcciones automáticas.\nRevise el documento manualmente para errores ortográficos.";
+    }
     
     // 3. Cargar PDF original
     const originalPdfBytes = await fs.readFile(originalPdfPath);
@@ -188,7 +216,8 @@ export async function applyCorrectionsDirectly(originalPdfPath, corrections) {
       const pageTextItems = textWithPositions.pages[pageIndex]?.textItems || [];
       
       // Aplicar correcciones a los elementos de texto de esta página
-      for (const textItem of pageTextItems) {
+      for (let itemIndex = 0; itemIndex < pageTextItems.length; itemIndex++) {
+        const textItem = pageTextItems[itemIndex];
         let originalText = textItem.str;
         let correctedText = originalText;
         let hasChanges = false;
@@ -209,6 +238,19 @@ export async function applyCorrectionsDirectly(originalPdfPath, corrections) {
           }
         }
         
+        // Detectar si hay elementos de texto muy cercanos (texto denso)
+        const nextItem = pageTextItems[itemIndex + 1];
+        let isDenseText = false;
+        if (nextItem) {
+          const currentX = textItem.transform[4];
+          const currentWidth = textItem.width || 0;
+          const nextX = nextItem.transform[4];
+          const gap = nextX - (currentX + currentWidth);
+          
+          // Si el gap es muy pequeño, es texto denso
+          isDenseText = gap < (Math.abs(textItem.transform[0]) || 12) * 0.2;
+        }
+        
         // Si hay cambios, reemplazar el texto manteniendo posición y formato
         if (hasChanges && correctedText !== originalText) {
           try {
@@ -216,25 +258,84 @@ export async function applyCorrectionsDirectly(originalPdfPath, corrections) {
             const fontSize = Math.abs(textItem.transform[0]) || 12;
             const font = await correctedPdf.embedFont(StandardFonts.Helvetica);
             
-            // Limpiar área original (dibujar rectángulo blanco)
-            const textWidth = font.widthOfTextAtSize(originalText, fontSize);
-            const textHeight = fontSize * 1.2;
+            // Calcular área de limpieza más precisa considerando espacios
+            const originalWidth = font.widthOfTextAtSize(originalText, fontSize);
+            const correctedWidth = font.widthOfTextAtSize(correctedText, fontSize);
             
+            // Usar el ancho mayor + margen adicional para espacios
+            const maxWidth = Math.max(originalWidth, correctedWidth);
+            
+            // Ajustar márgenes según densidad del texto
+            let extraMargin, textHeight, verticalAdjust;
+            
+            if (isDenseText) {
+              // Para texto denso: márgenes más conservadores
+              extraMargin = fontSize * 0.3;
+              textHeight = fontSize * 1.4;
+              verticalAdjust = fontSize * 0.2;
+              console.log(`[PDF-CORRECTION] Texto denso detectado, usando márgenes conservadores`);
+            } else {
+              // Para texto normal: márgenes más amplios
+              extraMargin = fontSize * 0.6;
+              textHeight = fontSize * 1.7;
+              verticalAdjust = fontSize * 0.4;
+            }
+            
+            const cleanWidth = maxWidth + extraMargin;
+            
+            // Detectar color de fondo (por defecto blanco)
+            let backgroundColor = rgb(1, 1, 1); // Blanco por defecto
+            
+            // Calcular posición de limpieza más precisa
+            const cleanX = textItem.transform[4] - (extraMargin / 2);
+            const cleanY = textItem.transform[5] - verticalAdjust;
+            
+            // Limpiar área original con rectángulo optimizado
             page.drawRectangle({
-              x: textItem.transform[4] - 1,
-              y: textItem.transform[5] - 2,
-              width: textWidth + 2,
+              x: cleanX,
+              y: cleanY,
+              width: cleanWidth,
               height: textHeight,
-              color: rgb(1, 1, 1) // Blanco
+              color: backgroundColor,
+              borderWidth: 0 // Sin borde
             });
             
-            // Dibujar texto corregido en la misma posición
-            page.drawText(correctedText, {
+            // Intentar detectar color original del texto
+            let textColor = rgb(0, 0, 0); // Negro por defecto
+            
+            // Si hay información de color en el textItem, usarla
+            if (textItem.color) {
+              try {
+                if (Array.isArray(textItem.color) && textItem.color.length >= 3) {
+                  textColor = rgb(textItem.color[0], textItem.color[1], textItem.color[2]);
+                  console.log(`[PDF-CORRECTION] Color detectado: RGB(${textItem.color[0]}, ${textItem.color[1]}, ${textItem.color[2]})`);
+                }
+              } catch (colorError) {
+                console.warn(`[PDF-CORRECTION] Error detectando color: ${colorError.message}`);
+              }
+            }
+            
+            // Verificar si el texto corregido cabe en el espacio disponible
+            let finalCorrectedText = correctedText;
+            if (isDenseText && correctedWidth > originalWidth * 1.2) {
+              // Si el texto corregido es mucho más largo, intentar abreviarlo o usar el original
+              console.warn(`[PDF-CORRECTION] Texto corregido muy largo para espacio denso: "${correctedText}"`);
+              // Para texto denso, mantener longitud similar
+              if (correctedText.length > originalText.length * 1.3) {
+                console.log(`[PDF-CORRECTION] Manteniendo texto original por limitaciones de espacio`);
+                finalCorrectedText = originalText; // Fallback al original
+              }
+            }
+            
+            console.log(`[PDF-CORRECTION] Reemplazando "${originalText}" → "${finalCorrectedText}" en posición (${textItem.transform[4]}, ${textItem.transform[5]}) con fontSize ${fontSize} ${isDenseText ? '(DENSO)' : ''}`);
+            
+            // Dibujar texto corregido en la misma posición con color original
+            page.drawText(finalCorrectedText, {
               x: textItem.transform[4],
               y: textItem.transform[5],
               size: fontSize,
               font: font,
-              color: rgb(0, 0, 0) // Negro por defecto
+              color: textColor
             });
             
           } catch (textError) {
@@ -308,7 +409,11 @@ async function extractTextWithPositions(pdfBytes) {
         transform: item.transform,
         width: item.width,
         height: item.height,
-        fontName: item.fontName
+        fontName: item.fontName,
+        // Intentar capturar información de color si está disponible
+        color: item.color || null,
+        // Información adicional de estilo
+        hasEOL: item.hasEOL || false
       }));
       
       pages.push({ pageIndex: pageNum - 1, textItems });
@@ -486,6 +591,42 @@ function escapeRegExp(string) {
 }
 
 /**
+ * Prueba la conectividad con SAP AI Core
+ * @returns {Promise<Object>} - Resultado de la prueba
+ */
+export async function testAiCoreConnection() {
+  try {
+    console.log(`[PDF-CORRECTION] Probando conexión con SAP AI Core...`);
+    
+    const testPrompt = "Responde solo con 'OK' si recibes este mensaje.";
+    
+    const client = getAiCoreClient('gpt-4o');
+    const response = await client.run({
+      messages: [{ role: 'user', content: testPrompt }]
+    });
+    
+    const result = response.getContent();
+    
+    return {
+      success: true,
+      connected: true,
+      response: result,
+      timestamp: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] Error en conexión SAP AI Core:', error);
+    return {
+      success: false,
+      connected: false,
+      error: error.message,
+      status: error.status || error.code,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+/**
  * Genera correcciones automáticas para un PDF
  * @param {string} pdfPath - Ruta del PDF
  * @returns {Promise<Object>} - Lista de correcciones generadas
@@ -497,13 +638,20 @@ export async function generateCorrections(pdfPath) {
     const documentData = await processDocument(pdfPath, 'application/pdf');
     const originalText = documentData.chunks.map(chunk => chunk.content).join('\n\n');
     
+    // Limitar texto para SAP AI Core
+    let textForAnalysis = originalText;
+    if (originalText.length > 50000) {
+      console.warn(`[PDF-CORRECTION] Texto muy largo: ${originalText.length} caracteres, truncando...`);
+      textForAnalysis = originalText.substring(0, 50000) + '\n\n[TEXTO TRUNCADO...]';
+    }
+    
     const prompt = `Analiza el siguiente texto y genera una lista de correcciones ortográficas y gramaticales.
 
 Para cada corrección, usa EXACTAMENTE este formato:
 • palabra_incorrecta -> palabra_correcta
 
 TEXTO A ANALIZAR:
-${originalText.substring(0, 50000)} ${originalText.length > 50000 ? '\n\n[TEXTO TRUNCADO...]' : ''}
+${textForAnalysis}
 
 IMPORTANTE: 
 - Solo devuelve la lista de correcciones en el formato especificado
@@ -511,20 +659,47 @@ IMPORTANTE:
 - No incluyas explicaciones adicionales
 - Si no hay errores, devuelve "No se encontraron errores ortográficos"`;
 
-    const client = getAiCoreClient('gpt-4o');
-    const response = await client.run({
-      messages: [{ role: 'user', content: prompt }]
-    });
+    console.log(`[PDF-CORRECTION] Enviando prompt de ${prompt.length} caracteres a SAP AI Core...`);
+
+    let correctionsList;
+    let corrections = [];
     
-    const correctionsList = response.getContent();
-    const corrections = parseCorrections(correctionsList);
+    try {
+      const client = getAiCoreClient('gpt-4o');
+      const response = await client.run({
+        messages: [{ role: 'user', content: prompt }]
+      });
+      
+      correctionsList = response.getContent();
+      
+      if (!correctionsList || correctionsList.trim().length === 0) {
+        throw new Error('SAP AI Core devolvió una respuesta vacía');
+      }
+      
+      corrections = parseCorrections(correctionsList);
+      console.log(`[PDF-CORRECTION] ${corrections.length} correcciones generadas exitosamente`);
+      
+    } catch (aiError) {
+      console.error(`[PDF-CORRECTION] Error detallado en SAP AI Core:`, {
+        message: aiError.message,
+        status: aiError.status || aiError.code,
+        response: aiError.response?.data || 'No response data',
+        promptLength: prompt.length
+      });
+      
+      // Fallback: respuesta básica
+      correctionsList = "No se pudieron generar correcciones automáticas debido a un error en el servicio de IA.\nRevise el documento manualmente para errores ortográficos.";
+      corrections = [];
+    }
     
     return {
       success: true,
       correctionsList,
       corrections,
       totalCorrections: corrections.length,
-      originalTextLength: originalText.length
+      originalTextLength: originalText.length,
+      textAnalyzedLength: textForAnalysis.length,
+      wasTruncated: originalText.length > 50000
     };
     
   } catch (error) {

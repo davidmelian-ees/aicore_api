@@ -6,7 +6,8 @@ import {
   generatePDFWithCorrectionsList, 
   applyCorrectionsDirectly, 
   parseCorrections,
-  generateCorrections
+  generateCorrections,
+  testAiCoreConnection
 } from '../services/pdfCorrectionService.js';
 
 const router = express.Router();
@@ -321,9 +322,44 @@ router.get('/health', (req, res) => {
       generateList: 'POST /api/pdf-correction/generate-list',
       applyCorrections: 'POST /api/pdf-correction/apply-corrections',
       generateCorrections: 'POST /api/pdf-correction/generate-corrections',
-      testWorkflow: 'POST /api/pdf-correction/test-workflow'
+      testWorkflow: 'POST /api/pdf-correction/test-workflow',
+      testAiCore: 'GET /api/pdf-correction/test-ai-core'
     }
   });
+});
+
+/**
+ * GET /api/pdf-correction/test-ai-core
+ * Prueba la conectividad con SAP AI Core
+ */
+router.get('/test-ai-core', async (req, res) => {
+  try {
+    console.log('[PDF-CORRECTION] Probando conexión SAP AI Core...');
+    
+    const result = await testAiCoreConnection();
+    
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'Conexión con SAP AI Core exitosa',
+        ...result
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Error conectando con SAP AI Core',
+        ...result
+      });
+    }
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] Error en test-ai-core:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Error interno probando SAP AI Core'
+    });
+  }
 });
 
 export default router;
