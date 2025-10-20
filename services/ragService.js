@@ -1,6 +1,5 @@
 import { vectorStore } from './vectorStore.js';
-import { chromaVectorStore } from './chromaVectorStore.js';
-import { chromaPythonClient } from './chromaPythonClient.js';
+import { sqliteVectorStore } from './sqliteVectorStore.js';
 import { generateEmbedding, generateEmbeddings } from './embeddingService.js';
 import { processDocument } from './documentProcessor.js';
 import { getAiCoreClient } from '../auth/aiCoreClient.js';
@@ -8,23 +7,42 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
 import fs from 'fs/promises';
 import { v4 as uuidv4 } from 'uuid';
+import { contextPersistence } from './contextPersistence.js';
 
-// Almacenamiento en memoria para contextos
-const contexts = new Map();
-// Inicializar contexto por defecto
-if (!contexts.has('default')) {
-  contexts.set('default', {
-    id: 'default',
-    name: 'Contexto Principal',
-    description: 'Contexto por defecto del sistema',
-    createdAt: new Date().toISOString(),
-    documentCount: 0
-  });
+// Almacenamiento de contextos con persistencia
+let contexts = new Map();
+let contextsInitialized = false;
+
+/**
+ * Inicializa los contextos cargándolos desde persistencia
+ */
+async function initializeContexts() {
+  if (contextsInitialized) return contexts;
+  
+  try {
+    console.log('[RAG] Inicializando contextos desde persistencia...');
+    contexts = await contextPersistence.loadContexts();
+    contextsInitialized = true;
+    console.log(`[RAG] ✅ Contextos inicializados: ${contexts.size} contextos cargados`);
+  } catch (error) {
+    console.warn('[RAG] ⚠️  Error cargando contextos, usando por defecto:', error.message);
+    // Fallback: crear contexto por defecto
+    contexts.set('default', {
+      id: 'default',
+      name: 'Contexto Principal',
+      description: 'Contexto por defecto del sistema',
+      createdAt: new Date().toISOString(),
+      documentCount: 0
+    });
+    contextsInitialized = true;
+  }
+  
+  return contexts;
 }
 
 // Configuración para el tipo de almacenamiento vectorial
-// En Cloud Foundry usar memoria por defecto, localmente python
-const VECTOR_STORE_TYPE = process.env.VECTOR_STORE_TYPE || (process.env.NODE_ENV === 'production' ? 'memory' : 'python');
+// Usar SQLite por defecto para máxima compatibilidad
+const VECTOR_STORE_TYPE = process.env.VECTOR_STORE_TYPE || 'sqlite';
 
 /**
  * Servicio principal de RAG (Retrieval-Augmented Generation)
@@ -37,36 +55,23 @@ const VECTOR_STORE_TYPE = process.env.VECTOR_STORE_TYPE || (process.env.NODE_ENV
  */
 async function getVectorStore() {
   switch (VECTOR_STORE_TYPE) {
-    case 'python':
-      if (!chromaPythonClient.isInitialized) {
-        console.log('[RAG] Inicializando ChromaDB Python Service...');
+    case 'sqlite':
+      if (!sqliteVectorStore.isInitialized) {
+        console.log('[RAG] Inicializando SQLite Vector Store...');
         try {
-          await chromaPythonClient.initialize();
-          return chromaPythonClient;
+          await sqliteVectorStore.initialize();
+          return sqliteVectorStore;
         } catch (error) {
-          console.warn('[RAG] ⚠️  ChromaDB Python Service no disponible, usando memoria');
-          console.warn('[RAG] 💡 Inicia el servicio: cd chroma_service && start_service.bat');
+          console.warn('[RAG] ⚠️  SQLite Vector Store no disponible, usando memoria');
+          console.warn('[RAG] Error:', error.message);
           return vectorStore;
         }
       }
-      return chromaPythonClient;
-      
-    case 'chroma':
-      if (!chromaVectorStore.isInitialized) {
-        console.log('[RAG] Inicializando ChromaDB...');
-        try {
-          await chromaVectorStore.initialize();
-          return chromaVectorStore;
-        } catch (error) {
-          console.warn('[RAG] ⚠️  ChromaDB no disponible, usando memoria');
-          console.warn('[RAG] 💡 Para usar ChromaDB: docker run -p 8000:8000 chromadb/chroma');
-          return vectorStore;
-        }
-      }
-      return chromaVectorStore;
+      return sqliteVectorStore;
       
     case 'memory':
     default:
+      console.log('[RAG] Usando Vector Store en memoria');
       return vectorStore;
   }
 }
@@ -85,6 +90,8 @@ async function getVectorStore() {
  * @returns {Promise<Object>} - Información del contexto creado
  */
 export async function createContext(name, description = '') {
+  await initializeContexts();
+  
   const contextId = uuidv4();
   const context = {
     id: contextId,
@@ -95,7 +102,14 @@ export async function createContext(name, description = '') {
   };
   
   contexts.set(contextId, context);
-  console.log(`[RAG] Contexto creado: ${name} (${contextId})`);
+  
+  // Persistir el nuevo contexto
+  try {
+    await contextPersistence.saveContext(contextId, context);
+    console.log(`[RAG] ✅ Contexto creado y persistido: ${name} (${contextId})`);
+  } catch (error) {
+    console.warn(`[RAG] ⚠️  Error persistiendo contexto ${contextId}:`, error.message);
+  }
   
   return context;
 }
@@ -105,6 +119,7 @@ export async function createContext(name, description = '') {
  * @returns {Promise<Array<Object>>} - Lista de contextos
  */
 export async function listContexts() {
+  await initializeContexts();
   return Array.from(contexts.values());
 }
 
@@ -114,6 +129,7 @@ export async function listContexts() {
  * @returns {Promise<Object|null>} - Información del contexto o null si no existe
  */
 export async function getContextInfo(contextId) {
+  await initializeContexts();
   return contexts.get(contextId) || null;
 }
 
@@ -127,6 +143,7 @@ export async function deleteContext(contextId) {
     throw new Error('No se puede eliminar el contexto por defecto');
   }
   
+  await initializeContexts();
   const context = contexts.get(contextId);
   if (!context) {
     return { deleted: false, contextId };
@@ -141,10 +158,16 @@ export async function deleteContext(contextId) {
       await store.deleteDocument(doc.documentId);
     }
     
-    // Eliminar el contexto
+    // Eliminar el contexto de memoria
     contexts.delete(contextId);
     
-    console.log(`[RAG] Contexto eliminado: ${context.name} (${contextId})`);
+    // Persistir la eliminación
+    try {
+      await contextPersistence.deleteContext(contextId);
+      console.log(`[RAG] ✅ Contexto eliminado y persistido: ${context.name} (${contextId})`);
+    } catch (error) {
+      console.warn(`[RAG] ⚠️  Error persistiendo eliminación del contexto ${contextId}:`, error.message);
+    }
     
     return {
       deleted: true,
@@ -180,7 +203,8 @@ export async function indexDocument(filePath, mimeType, metadata = {}) {
     
     // Generar embeddings para todos los chunks usando SAP AI Core
     console.log(`[RAG] Generando embeddings con SAP AI Core...`);
-    const embeddings = await generateEmbeddings(chunks);
+    const chunkTexts = chunks.map(chunk => chunk.content);
+    const embeddings = await generateEmbeddings(chunkTexts);
     
     // Indexar cada chunk en el vector store
     const indexedChunks = [];
@@ -189,9 +213,14 @@ export async function indexDocument(filePath, mimeType, metadata = {}) {
       const chunk = chunks[i];
       const embedding = embeddings[i];
       
+      // Debug: verificar estructura del chunk
+      if (typeof chunk.content !== 'string') {
+        console.warn(`[RAG] Chunk ${i} tiene content de tipo ${typeof chunk.content}:`, chunk.content);
+      }
+      
       const chunkDocument = {
         id: chunkId,
-        content: chunk,
+        content: chunk.content,
         metadata: {
           documentId,
           fileName: fileMetadata.fileName,
@@ -212,10 +241,18 @@ export async function indexDocument(filePath, mimeType, metadata = {}) {
     
     // Actualizar contador de documentos en el contexto
     const contextId = metadata.contextId || 'default';
+    await initializeContexts();
     const context = contexts.get(contextId);
     if (context) {
       context.documentCount += 1;
       contexts.set(contextId, context);
+      
+      // Persistir el cambio en el contador
+      try {
+        await contextPersistence.updateDocumentCount(contextId, context.documentCount);
+      } catch (error) {
+        console.warn(`[RAG] ⚠️  Error persistiendo contador de documentos:`, error.message);
+      }
     }
     
     console.log(`[RAG] Documento indexado exitosamente: ${documentId} en contexto ${contextId}`);
@@ -229,7 +266,9 @@ export async function indexDocument(filePath, mimeType, metadata = {}) {
       indexedAt: new Date().toISOString(),
       chunks: indexedChunks.map(chunk => ({
         id: chunk.id,
-        preview: chunk.content.substring(0, 100) + '...'
+        preview: typeof chunk.content === 'string' 
+          ? chunk.content.substring(0, 100) + '...'
+          : 'Contenido no disponible'
       }))
     };
     
