@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist';
+import * as XLSX from 'xlsx';
 
 /**
  * Procesa un archivo y extrae su contenido de texto
@@ -25,6 +26,10 @@ export async function extractTextFromFile(filePath, mimeType) {
       
       case '.docx':
         return await extractTextFromDocx(filePath);
+      
+      case '.xlsx':
+      case '.xls':
+        return await extractTextFromExcel(filePath);
       
       default:
         throw new Error(`Tipo de archivo no soportado: ${extension}`);
@@ -115,6 +120,58 @@ async function extractTextFromDocx(filePath) {
   const buffer = await fs.readFile(filePath);
   const result = await mammoth.extractRawText({ buffer });
   return result.value;
+}
+
+/**
+ * Extrae texto de archivos Excel (.xlsx, .xls)
+ */
+async function extractTextFromExcel(filePath) {
+  try {
+    console.log(`[EXCEL] Procesando archivo Excel: ${filePath}`);
+    
+    // Leer el archivo Excel
+    const buffer = await fs.readFile(filePath);
+    const workbook = XLSX.read(buffer, { type: 'buffer' });
+    
+    let fullText = '';
+    
+    // Procesar todas las hojas del archivo
+    workbook.SheetNames.forEach((sheetName, index) => {
+      console.log(`[EXCEL] Procesando hoja: ${sheetName}`);
+      
+      const worksheet = workbook.Sheets[sheetName];
+      
+      // Convertir la hoja a texto plano
+      const sheetText = XLSX.utils.sheet_to_txt(worksheet, { 
+        FS: '\t', // Field separator (tab)
+        RS: '\n'  // Record separator (newline)
+      });
+      
+      if (sheetText.trim()) {
+        // Añadir nombre de la hoja como encabezado
+        fullText += `=== HOJA: ${sheetName} ===\n`;
+        fullText += sheetText + '\n\n';
+      }
+    });
+    
+    // Limpiar el texto
+    fullText = fullText
+      .replace(/\t+/g, ' ') // Convertir tabs a espacios
+      .replace(/\s+/g, ' ') // Normalizar espacios múltiples
+      .replace(/\n\s*\n/g, '\n\n') // Normalizar saltos de línea
+      .trim();
+    
+    if (!fullText || fullText.length === 0) {
+      throw new Error('El archivo Excel no contiene datos extraíbles o está vacío');
+    }
+    
+    console.log(`[EXCEL] Texto extraído exitosamente: ${fullText.length} caracteres de ${workbook.SheetNames.length} hojas`);
+    return fullText;
+    
+  } catch (error) {
+    console.error(`[EXCEL] Error extrayendo texto de ${filePath}:`, error);
+    throw new Error(`Error procesando archivo Excel: ${error.message}`);
+  }
 }
 
 /**
