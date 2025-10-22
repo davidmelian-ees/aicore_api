@@ -1,0 +1,370 @@
+{
+  "info": {
+    "name": "PDF Correction API",
+    "description": "Colección de endpoints para corrección ortográfica de PDFs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/pdf-correction/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "pdf-correction", "health"]
+        },
+        "description": "Verificar estado del servicio de corrección de PDFs"
+      },
+      "response": []
+    },
+    {
+      "name": "Generar PDF con Lista de Correcciones",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "pdf",
+              "type": "file",
+              "src": [],
+              "description": "Archivo PDF a procesar"
+            },
+            {
+              "key": "customPrompt",
+              "value": "Analiza el siguiente texto y genera correcciones ortográficas detalladas",
+              "type": "text",
+              "description": "Prompt personalizado (opcional)"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/pdf-correction/generate-list",
+          "host": ["{{base_url}}"],
+          "path": ["api", "pdf-correction", "generate-list"]
+        },
+        "description": "Genera un PDF con el contenido original + lista de correcciones al final"
+      },
+      "response": []
+    },
+    {
+      "name": "Test SAP AI Core Connection",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/pdf-correction/test-ai-core",
+          "host": ["{{base_url}}"],
+          "path": ["api", "pdf-correction", "test-ai-core"]
+        },
+        "description": "Probar conectividad con SAP AI Core"
+      },
+      "response": [
+        {
+          "name": "Conexión Exitosa",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/pdf-correction/test-ai-core",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pdf-correction", "test-ai-core"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Conexión con SAP AI Core exitosa\",\n  \"connected\": true,\n  \"response\": \"OK\",\n  \"timestamp\": \"2025-01-01T12:00:00.000Z\"\n}"
+        },
+        {
+          "name": "Error de Conexión",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/pdf-correction/test-ai-core",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pdf-correction", "test-ai-core"]
+            }
+          },
+          "status": "Internal Server Error",
+          "code": 500,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Error conectando con SAP AI Core\",\n  \"connected\": false,\n  \"error\": \"Request failed with status code 400\",\n  \"status\": 400,\n  \"timestamp\": \"2025-01-01T12:00:00.000Z\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Solo Generar Correcciones",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "pdf",
+              "type": "file",
+              "src": [],
+              "description": "Archivo PDF a analizar"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/pdf-correction/generate-corrections",
+          "host": ["{{base_url}}"],
+          "path": ["api", "pdf-correction", "generate-corrections"]
+        },
+        "description": "Genera solo la lista de correcciones sin crear PDF"
+      },
+      "response": [
+        {
+          "name": "Respuesta Exitosa",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "pdf",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pdf-correction/generate-corrections",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pdf-correction", "generate-corrections"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"correctionsList\": \"• Dokumento -> Documento\\n• parrafo -> párrafo\\n• ejemlo -> ejemplo\",\n  \"corrections\": [\n    {\"from\": \"Dokumento\", \"to\": \"Documento\"},\n    {\"from\": \"parrafo\", \"to\": \"párrafo\"},\n    {\"from\": \"ejemlo\", \"to\": \"ejemplo\"}\n  ],\n  \"totalCorrections\": 3,\n  \"originalTextLength\": 1500\n}"
+        }
+      ]
+    },
+    {
+      "name": "Aplicar Correcciones Directamente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "pdf",
+              "type": "file",
+              "src": [],
+              "description": "Archivo PDF a corregir"
+            },
+            {
+              "key": "corrections",
+              "value": "• Dokumento -> Documento\n• parrafo -> párrafo\n• ejemlo -> ejemplo\n• recivir -> recibir",
+              "type": "text",
+              "description": "Lista de correcciones en formato texto"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/pdf-correction/apply-corrections",
+          "host": ["{{base_url}}"],
+          "path": ["api", "pdf-correction", "apply-corrections"]
+        },
+        "description": "Aplica correcciones directamente al PDF preservando formato original"
+      },
+      "response": []
+    },
+    {
+      "name": "Aplicar Correcciones (Array JSON)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "pdf",
+              "type": "file",
+              "src": [],
+              "description": "Archivo PDF a corregir"
+            },
+            {
+              "key": "corrections",
+              "value": "[\n  {\"from\": \"Dokumento\", \"to\": \"Documento\"},\n  {\"from\": \"parrafo\", \"to\": \"párrafo\"},\n  {\"from\": \"ejemlo\", \"to\": \"ejemplo\"},\n  {\"from\": \"recivir\", \"to\": \"recibir\"}\n]",
+              "type": "text",
+              "description": "Lista de correcciones en formato JSON"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/pdf-correction/apply-corrections",
+          "host": ["{{base_url}}"],
+          "path": ["api", "pdf-correction", "apply-corrections"]
+        },
+        "description": "Aplica correcciones usando formato JSON array"
+      },
+      "response": []
+    },
+    {
+      "name": "Test Workflow - Lista",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "pdf",
+              "type": "file",
+              "src": [],
+              "description": "Archivo PDF de prueba"
+            },
+            {
+              "key": "workflow",
+              "value": "list",
+              "type": "text",
+              "description": "Tipo de flujo: 'list' o 'apply'"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/pdf-correction/test-workflow",
+          "host": ["{{base_url}}"],
+          "path": ["api", "pdf-correction", "test-workflow"]
+        },
+        "description": "Flujo de prueba para generar PDF con lista de correcciones"
+      },
+      "response": []
+    },
+    {
+      "name": "Test Workflow - Aplicar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "pdf",
+              "type": "file",
+              "src": [],
+              "description": "Archivo PDF de prueba"
+            },
+            {
+              "key": "workflow",
+              "value": "apply",
+              "type": "text",
+              "description": "Tipo de flujo: 'list' o 'apply'"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/pdf-correction/test-workflow",
+          "host": ["{{base_url}}"],
+          "path": ["api", "pdf-correction", "test-workflow"]
+        },
+        "description": "Flujo de prueba para generar y aplicar correcciones automáticamente"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Script que se ejecuta antes de cada request",
+          "console.log('Ejecutando request a:', pm.request.url);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Tests automáticos para todas las respuestas",
+          "pm.test('Status code is successful', function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+          "});",
+          "",
+          "pm.test('Response time is less than 30 seconds', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(30000);",
+          "});"
+        ]
+      }
+    }
+  ]
+}

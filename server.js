@@ -2,6 +2,7 @@ import express from "express";
 import { initAuth } from "./auth.js";
 import chatRoutes from "./routes/chat.js";
 import ragRoutes from "./routes/rag.js";
+import pdfCorrectionRoutes from "./routes/pdfCorrection.js";
 import { initializeSampleData } from "./scripts/init-sample-data.js";
 
 const app = express();
@@ -81,6 +82,7 @@ if (isProduction) {
 
 // Servir archivos estáticos de documentación
 app.use('/docs', express.static('docs'));
+app.use('/public', express.static('public'));
 
 // Ruta de salud para Cloud Foundry
 app.get('/health', (req, res) => {
@@ -105,6 +107,8 @@ app.get('/', (req, res) => {
       ragHealth: '/api/rag/health',
       ragDocs: '/api/rag/documents',
       ragPliego: '/api/rag/process-pliego',
+      pdfCorrection: '/api/pdf-correction',
+      pdfCorrectionHealth: '/api/pdf-correction/health',
       documentation: '/docs/RAG_SYSTEM_DOCUMENTATION.html'
     },
     vectorStore: process.env.VECTOR_STORE_TYPE || 'auto',
@@ -120,6 +124,7 @@ app.get('/', (req, res) => {
 // Rutas principales
 app.use("/api", chatRoutes);
 app.use("/api/rag", ragRoutes);
+app.use("/api/pdf-correction", pdfCorrectionRoutes);
 
 app.get('/request_jsonp', (request, response) => {  
   console.log("This service supports JSONP now: " + request.query.id);

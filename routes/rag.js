@@ -51,16 +51,18 @@ const upload = multer({
       'text/markdown',
       'application/json',
       'text/csv',
-      'application/pdf'
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/vnd.ms-excel' // .xls
     ];
     
-    const allowedExtensions = ['.txt', '.docx', '.md', '.json', '.csv', '.pdf'];
+    const allowedExtensions = ['.txt', '.docx', '.md', '.json', '.csv', '.pdf', '.xlsx', '.xls'];
     const ext = path.extname(file.originalname).toLowerCase();
     
     if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error(`Tipo de archivo no soportado: ${file.mimetype}. Permitidos: txt, docx, md, json, csv, pdf`));
+      cb(new Error(`Tipo de archivo no soportado: ${file.mimetype}. Permitidos: txt, docx, md, json, csv, pdf, xlsx, xls`));
     }
   }
 });
