@@ -31,6 +31,11 @@ function getEmbeddingClient(model = "text-embedding-3-small") {
  * @returns {Promise<Array<number>>} - Vector de embedding
  */
 export async function generateEmbedding(text, model = "text-embedding-3-small") {
+  // Validar que el input sea un string
+  if (typeof text !== 'string') {
+    throw new Error(`generateEmbedding espera un string, recibió: ${typeof text}. Valor: ${JSON.stringify(text)}`);
+  }
+  
   try {
     const client = getEmbeddingClient(model);
     
@@ -178,6 +183,11 @@ export function validateEmbedding(embedding) {
  * @returns {Array<number>} - Vector de embedding local
  */
 function generateLocalEmbedding(text) {
+  // Validar que el input sea un string
+  if (typeof text !== 'string') {
+    throw new Error(`generateLocalEmbedding espera un string, recibió: ${typeof text}. Valor: ${JSON.stringify(text)}`);
+  }
+  
   console.log(`[EMBEDDINGS] Generando embedding local para texto de ${text.length} caracteres`);
   
   // Normalizar texto
