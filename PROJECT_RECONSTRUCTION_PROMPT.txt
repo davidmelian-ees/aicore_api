@@ -1,0 +1,359 @@
+================================================================================
+                    PROMPT DE RECONSTRUCCIÓN DEL PROYECTO RAG
+                        Sistema RAG con SAP AI Core + ChromaDB
+================================================================================
+
+CONTEXTO GENERAL:
+Necesito que reconstruyas completamente un sistema RAG (Retrieval-Augmented Generation) 
+integrado con SAP AI Core que funciona tanto localmente como en Cloud Foundry. 
+El proyecto permite subir documentos, procesarlos con embeddings y hacer consultas 
+inteligentes usando IA generativa.
+
+================================================================================
+                              ARQUITECTURA TÉCNICA
+================================================================================
+
+BACKEND (Node.js + Express):
+- Framework: Express.js con ES6 modules
+- Puerto: 4000 (local), dinámico (Cloud Foundry)
+- Autenticación: XSUAA para producción, deshabilitada en desarrollo
+- CORS: Configurado para desarrollo y producción
+
+ALMACENAMIENTO DE DATOS:
+1. CONTEXTOS: Persistencia en JSON (./data/contexts.json)
+2. DOCUMENTOS Y EMBEDDINGS: SQLite (./data/rag_vectors.db)
+3. FALLBACK: Memoria para desarrollo/testing
+
+INTEGRACIÓN SAP AI CORE:
+- Embeddings: text-embedding-3-small (OpenAI via SAP AI Core)
+- Chat: gpt-4o (OpenAI via SAP AI Core)
+- Fallback local: sentence-transformers/all-MiniLM-L6-v2
+
+================================================================================
+                            ESTRUCTURA DEL PROYECTO
+================================================================================
+
+BACKEND ESTRUCTURA:
+aicore_api/
+├── server.js                           # Servidor principal Express
+├── package.json                        # Dependencias y scripts
+├── manifest.yml                        # Configuración Cloud Foundry
+├── xs-security.json                    # Configuración XSUAA
+├── .cfignore                          # Archivos ignorados en CF
+├── auth/
+│   ├── aiCoreClient.js                # Cliente SAP AI Core
+│   └── xsuaaConfig.js                 # Configuración XSUAA
+├── routes/
+│   ├── rag.js                         # Endpoints RAG principales
+│   ├── health.js                      # Health check
+│   └── cors.js                        # Configuración CORS
+├── services/
+│   ├── ragService.js                  # Servicio principal RAG
+│   ├── sqliteVectorStore.js           # Vector store SQLite (PRINCIPAL)
+│   ├── vectorStore.js                 # Vector store memoria (backup)
+│   ├── contextPersistence.js          # Persistencia contextos JSON
+│   ├── embeddingService.js            # Generación embeddings
+│   ├── documentProcessor.js           # Procesamiento documentos
+│   └── pdfCorrectionService.js        # Corrección PDFs
+├── data/                              # Datos persistentes
+│   ├── contexts.json                  # Contextos guardados
+│   ├── rag_vectors.db                 # Base datos SQLite
+│   ├── rag_vectors.db-wal             # Write-Ahead Log
+│   └── rag_vectors.db-shm             # Shared memory
+├── uploads/                           # Archivos subidos temporalmente
+├── public/                            # Archivos estáticos
+└── docs/                              # Documentación
+
+SCRIPTS PRINCIPALES:
+- start-with-sqlite.bat                # Iniciar servidor con SQLite
+- deploy-backend.bat                   # Desplegar a Cloud Foundry
+- cleanup-project.bat                  # Limpieza del proyecto
+
+================================================================================
+                              FUNCIONALIDADES CORE
+================================================================================
+
+1. GESTIÓN DE CONTEXTOS:
+   - Crear contextos para organizar documentos
+   - Listar contextos con conteo de documentos
+   - Eliminar contextos y sus documentos
+   - Persistencia automática en JSON
+
+2. PROCESAMIENTO DE DOCUMENTOS:
+   - Formatos soportados: TXT, DOCX, MD, JSON, CSV, PDF, XLSX, XLS
+   - Chunking inteligente (500 caracteres con overlap 50)
+   - Generación de embeddings automática
+   - Almacenamiento en SQLite con metadatos
+
+3. BÚSQUEDA SEMÁNTICA:
+   - Búsqueda por similitud coseno
+   - Filtrado por contexto
+   - Ranking de resultados por relevancia
+   - Soporte para múltiples documentos
+
+4. CHAT RAG:
+   - Consultas en lenguaje natural
+   - Recuperación de contexto relevante
+   - Generación de respuestas con IA
+   - Historial de conversación
+
+5. CORRECCIÓN DE PDFs:
+   - Detección automática de errores OCR
+   - Corrección de texto usando IA
+   - Regeneración de PDFs corregidos
+   - Preservación de formato original
+
+================================================================================
+                                API ENDPOINTS
+================================================================================
+
+CONTEXTOS:
+GET    /api/rag/contexts                # Listar contextos
+POST   /api/rag/contexts                # Crear contexto
+DELETE /api/rag/contexts/:id            # Eliminar contexto
+
+DOCUMENTOS:
+GET    /api/rag/documents               # Listar documentos por contexto
+POST   /api/rag/upload                 # Subir documento
+DELETE /api/rag/documents/:id          # Eliminar documento
+
+BÚSQUEDA Y CHAT:
+POST   /api/rag/search                 # Búsqueda semántica
+POST   /api/rag/chat                   # Chat con RAG
+POST   /api/rag/chat/stream            # Chat streaming
+
+CORRECCIÓN PDF:
+POST   /api/rag/correct-pdf            # Corregir PDF con IA
+
+UTILIDADES:
+GET    /health                         # Health check
+GET    /api/rag/health                 # Health RAG específico
+
+================================================================================
+                            CONFIGURACIÓN TÉCNICA
+================================================================================
+
+DEPENDENCIAS PRINCIPALES:
+{
+  "express": "^4.18.2",
+  "multer": "^1.4.5-lts.1",
+  "better-sqlite3": "^8.7.0",
+  "mammoth": "^1.6.0",
+  "xlsx": "^0.18.5",
+  "pdfjs-dist": "^4.0.379",
+  "pdf-lib": "^1.17.1",
+  "@sap/xssec": "^3.2.13",
+  "passport": "^0.6.0",
+  "cors": "^2.8.5",
+  "uuid": "^9.0.0"
+}
+
+VARIABLES DE ENTORNO:
+- NODE_ENV: development/production
+- VECTOR_STORE_TYPE: sqlite (por defecto)
+- AICORE_AUTH_URL: URL autenticación SAP AI Core
+- AICORE_CLIENT_ID: Cliente ID SAP AI Core
+- AICORE_CLIENT_SECRET: Secret SAP AI Core
+- AICORE_RESOURCE_GROUP: Grupo de recursos
+- AICORE_BASE_URL: URL base SAP AI Core
+
+CONFIGURACIÓN CLOUD FOUNDRY (manifest.yml):
+applications:
+- name: ai_core_api
+  memory: 1G
+  instances: 1
+  buildpacks:
+    - nodejs_buildpack
+  env:
+    NODE_ENV: production
+    VECTOR_STORE_TYPE: sqlite
+  services:
+    - aicore-app-auth
+
+================================================================================
+                              LÓGICA DE NEGOCIO
+================================================================================
+
+FLUJO DE SUBIDA DE DOCUMENTOS:
+1. Usuario sube archivo via POST /api/rag/upload
+2. Multer guarda archivo temporalmente en /uploads
+3. documentProcessor.js extrae texto según tipo de archivo
+4. Texto se divide en chunks de 500 caracteres
+5. embeddingService.js genera embeddings para cada chunk
+6. sqliteVectorStore.js almacena chunks + embeddings + metadatos
+7. contextPersistence.js actualiza contador de documentos
+8. Archivo temporal se elimina
+
+FLUJO DE BÚSQUEDA:
+1. Usuario envía query via POST /api/rag/search
+2. embeddingService.js genera embedding del query
+3. sqliteVectorStore.js busca chunks similares (cosine similarity)
+4. Resultados se ordenan por relevancia
+5. Se retornan top K resultados con metadatos
+
+FLUJO DE CHAT RAG:
+1. Usuario envía pregunta via POST /api/rag/chat
+2. Se ejecuta búsqueda semántica para encontrar contexto relevante
+3. Se construye prompt con contexto + pregunta
+4. aiCoreClient.js envía prompt a SAP AI Core (gpt-4o)
+5. Respuesta se retorna al usuario
+6. Opcionalmente se guarda en historial
+
+PERSISTENCIA:
+- Contextos: JSON plano en ./data/contexts.json
+- Documentos: SQLite con tabla 'documents' (id, content, embedding, metadata, context_id, document_id, chunk_index, created_at)
+- Embeddings: JSON arrays almacenados como TEXT en SQLite
+- Búsqueda: Cálculo de similitud coseno en memoria sobre embeddings
+
+================================================================================
+                            CARACTERÍSTICAS ESPECIALES
+================================================================================
+
+MULTI-CONTEXTO:
+- Cada documento pertenece a un contexto específico
+- Búsquedas pueden filtrarse por contexto
+- Contextos actúan como "espacios de trabajo" separados
+- Contexto "default" para documentos sin contexto específico
+
+FALLBACKS INTELIGENTES:
+- Si SAP AI Core falla → embeddings locales con sentence-transformers
+- Si SQLite falla → vector store en memoria
+- Si ChromaDB falla → automáticamente usa SQLite
+- Configuración automática según entorno
+
+PROCESAMIENTO ROBUSTO:
+- Validación de tipos de archivo por MIME type y extensión
+- Manejo de errores específico por tipo de documento
+- Logging detallado para debugging
+- Limpieza automática de archivos temporales
+
+OPTIMIZACIONES:
+- SQLite en modo WAL para mejor concurrencia
+- Índices en context_id y document_id
+- Chunking con overlap para mejor contexto
+- Embeddings cacheados en base de datos
+
+================================================================================
+                              DESPLIEGUE Y OPERACIÓN
+================================================================================
+
+DESARROLLO LOCAL:
+1. npm install
+2. Configurar variables de entorno SAP AI Core
+3. start-with-sqlite.bat
+4. Servidor en http://localhost:4000
+
+CLOUD FOUNDRY:
+1. cf login -a https://api.cf.eu10-005.hana.ondemand.com
+2. Configurar servicio XSUAA (aicore-app-auth)
+3. deploy-backend.bat
+4. URL: https://ai_core_api.cfapps.eu10-005.hana.ondemand.com
+
+MONITOREO:
+- Health check: GET /health
+- Logs: cf logs ai_core_api
+- Métricas: Integradas en respuestas API
+
+================================================================================
+                                CASOS DE USO
+================================================================================
+
+1. GESTIÓN DOCUMENTAL EMPRESARIAL:
+   - Subir manuales, políticas, procedimientos
+   - Organizar por departamentos (contextos)
+   - Búsqueda rápida de información específica
+
+2. ASISTENTE INTELIGENTE:
+   - Chat con documentos corporativos
+   - Respuestas basadas en conocimiento interno
+   - Citas y referencias automáticas
+
+3. ANÁLISIS DE CONTENIDO:
+   - Procesamiento de contratos y pliegos
+   - Extracción de información clave
+   - Comparación entre documentos
+
+4. CORRECCIÓN AUTOMÁTICA:
+   - Mejora de PDFs escaneados
+   - Corrección de errores OCR
+   - Regeneración de documentos limpios
+
+================================================================================
+                              PROBLEMAS RESUELTOS
+================================================================================
+
+PERSISTENCIA:
+- PROBLEMA: Contextos se perdían al reiniciar servidor
+- SOLUCIÓN: contextPersistence.js con almacenamiento JSON automático
+
+VECTOR STORAGE:
+- PROBLEMA: ChromaDB embebido fallaba con errores de URL parsing
+- SOLUCIÓN: sqliteVectorStore.js como alternativa robusta y sin dependencias
+
+COMPATIBILIDAD CLOUD FOUNDRY:
+- PROBLEMA: Servicios externos no funcionaban en CF
+- SOLUCIÓN: Todo embebido (SQLite + embeddings locales como fallback)
+
+PROCESAMIENTO DOCUMENTOS:
+- PROBLEMA: Errores con diferentes formatos de archivo
+- SOLUCIÓN: Validación robusta + procesadores específicos por tipo
+
+CORS Y AUTENTICACIÓN:
+- PROBLEMA: Configuración compleja para diferentes entornos
+- SOLUCIÓN: Configuración automática según NODE_ENV
+
+================================================================================
+                              INSTRUCCIONES DE RECONSTRUCCIÓN
+================================================================================
+
+PASO 1 - SETUP INICIAL:
+1. Crear proyecto Node.js con ES6 modules
+2. Instalar dependencias listadas arriba
+3. Configurar estructura de carpetas exacta
+4. Crear archivos de configuración (manifest.yml, xs-security.json, .cfignore)
+
+PASO 2 - SERVICIOS CORE:
+1. Implementar sqliteVectorStore.js con tabla documents y métodos CRUD
+2. Crear contextPersistence.js para manejo de contextos en JSON
+3. Desarrollar embeddingService.js con integración SAP AI Core + fallback local
+4. Construir documentProcessor.js con soporte para todos los formatos
+
+PASO 3 - API Y RUTAS:
+1. Configurar server.js con Express, CORS, autenticación condicional
+2. Implementar routes/rag.js con todos los endpoints listados
+3. Crear ragService.js como orquestador principal
+4. Añadir health checks y manejo de errores
+
+PASO 4 - INTEGRACIÓN SAP AI CORE:
+1. Configurar aiCoreClient.js con autenticación OAuth2
+2. Implementar llamadas a embeddings y chat
+3. Manejar fallbacks para cuando el servicio no esté disponible
+4. Configurar XSUAA para Cloud Foundry
+
+PASO 5 - FUNCIONALIDADES AVANZADAS:
+1. Implementar pdfCorrectionService.js para corrección de PDFs
+2. Añadir streaming para chat en tiempo real
+3. Crear sistema de chunking inteligente
+4. Implementar búsqueda semántica con ranking
+
+PASO 6 - DESPLIEGUE:
+1. Crear scripts .bat para desarrollo y despliegue
+2. Configurar manifest.yml para Cloud Foundry
+3. Probar localmente con SQLite
+4. Desplegar y verificar funcionamiento en CF
+
+CONSIDERACIONES IMPORTANTES:
+- Usar siempre CMD en lugar de PowerShell para scripts
+- Mantener compatibilidad entre desarrollo local y Cloud Foundry
+- Implementar fallbacks para todos los servicios externos
+- Validar exhaustivamente tipos de archivos y contenido
+- Manejar errores de manera granular con logging detallado
+- Optimizar SQLite para concurrencia y rendimiento
+
+Este prompt contiene toda la información necesaria para reconstruir el proyecto
+completamente desde cero, manteniendo toda la funcionalidad y arquitectura
+desarrollada.
+
+================================================================================
+                                    FIN DEL PROMPT
+================================================================================
