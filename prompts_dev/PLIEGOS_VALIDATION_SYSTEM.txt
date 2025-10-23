@@ -12,20 +12,56 @@ no desde el punto de vista ortográfico/gramatical, sino estructural y de conten
 ================================================================================
 
 CUATRO TIPOS DE PLIEGOS BASE:
-1. Tipo A: [Pendiente de definir plantilla específica]
-2. Tipo B: [Pendiente de definir plantilla específica] 
-3. Tipo C: [Pendiente de definir plantilla específica]
-4. Tipo D: [Pendiente de definir plantilla específica]
+1. OBRA_CIVIL_OBERT (Obra Civil Abierto)
+2. OBRA_CIVIL_SIMPLIFICAT (Obra Civil Simplificado)
+3. OBRA_EDIFICACIO_OBERT (Obra Edificación Abierto)
+4. OBRA_EDIFICACIO_SIMPLIFICAT (Obra Edificación Simplificado)
 
 VARIANTES POR TIPO:
-- CON LOTES: Incluye secciones específicas para manejo de lotes
-- SIN LOTES: Versión simplificada sin secciones de lotes
+- CON_LOTES: Incluye secciones específicas para manejo de lotes
+- SIN_LOTES: Versión simplificada sin secciones de lotes
 
 TOTAL DE COMBINACIONES: 8 plantillas (4 tipos × 2 variantes)
 
 ================================================================================
+                        CONVENCIÓN DE NOMENCLATURA
+================================================================================
+
+FORMATO GENERAL:
+pliego_{TIPO}_{MODALIDAD}_{CATEGORIA}
+
+COMPONENTES:
+- TIPO: obra_civil_obert | obra_civil_simplificat | obra_edificacio_obert | obra_edificacio_simplificat
+- MODALIDAD: con_lotes | sin_lotes  
+- CATEGORIA: PLANTILLA | PLANTILLA_TAGS | GENERADO | VALIDACION
+
+EJEMPLOS DE NOMBRES:
+✅ pliego_obra_civil_obert_con_lotes_PLANTILLA
+✅ pliego_obra_civil_obert_con_lotes_PLANTILLA_TAGS  
+✅ pliego_obra_civil_simplificat_sin_lotes_GENERADO
+✅ pliego_obra_edificacio_obert_con_lotes_PLANTILLA
+✅ pliego_obra_edificacio_simplificat_sin_lotes_VALIDACION
+
+CATEGORÍAS EXPLICADAS:
+- PLANTILLA: Documento base limpio sin datos específicos
+- PLANTILLA_TAGS: Plantilla con marcadores SAP {{VARIABLE}}
+- GENERADO: Pliego final con datos SAP insertados (referencia correcta)
+- VALIDACION: Documento a validar (puede tener errores)
+
+================================================================================
                             VALIDACIONES REQUERIDAS
 ================================================================================
+
+0. PRE-VALIDACIÓN DE ERRORES COMUNES (NUEVA):
+   🔴 ERRORES CRÍTICOS (Bloquean validación):
+   - Tags SAP sin rellenar ({{VARIABLE}}, [CAMPO], etc.)
+   - Campos SÍ/NO marcados simultáneamente
+   - Cantidad de lotes inconsistente (secuencia incompleta)
+   
+   🟡 ADVERTENCIAS (Permiten continuar):
+   - Formato de fecha incorrecto (debe ser DD/MM/AAAA)
+   - Formato de importes incorrecto (debe ser 123.456,78 €)
+   - Palabras en castellano (debe estar en catalán)
 
 1. RESPETO A PLANTILLA:
    - Verificar que la estructura del pliego coincida con la plantilla correspondiente
