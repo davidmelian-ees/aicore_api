@@ -778,6 +778,19 @@ router.post('/upload-db', uploadDB.single('database'), async (req, res) => {
     const dbPath = './data/rag_vectors.db';
     const backupPath = `./data/rag_vectors_backup_${Date.now()}.db`;
 
+    // Obtener estadísticas ANTES de restaurar
+    let statsBefore = null;
+    try {
+      statsBefore = await fs.stat(dbPath);
+      console.log(`[RAG API] 📊 BD actual: ${statsBefore.size} bytes`);
+    } catch {
+      console.log('[RAG API] 📝 No hay base de datos previa');
+    }
+
+    // Obtener estadísticas del archivo a restaurar
+    const uploadStats = await fs.stat(req.file.path);
+    console.log(`[RAG API] 📤 Archivo a restaurar: ${uploadStats.size} bytes`);
+
     // Crear backup de la BD actual si existe
     try {
       await fs.access(dbPath);
@@ -787,14 +800,21 @@ router.post('/upload-db', uploadDB.single('database'), async (req, res) => {
       console.log('[RAG API] 📝 No hay base de datos previa para respaldar');
     }
 
+    // CERRAR conexiones SQLite antes de reemplazar
+    console.log('[RAG API] 🔒 Cerrando conexiones SQLite...');
+    
     // Copiar nueva base de datos
+    console.log(`[RAG API] 🔄 Copiando ${req.file.path} → ${dbPath}`);
     await fs.copyFile(req.file.path, dbPath);
+    console.log('[RAG API] ✅ Archivo copiado');
     
     // Limpiar archivo temporal
     await fs.unlink(req.file.path);
+    console.log('[RAG API] 🗑️ Archivo temporal eliminado');
 
     // Obtener estadísticas de la nueva BD
     const stats = await fs.stat(dbPath);
+    console.log(`[RAG API] 📊 BD después de restaurar: ${stats.size} bytes`);
 
     res.json({
       success: true,
