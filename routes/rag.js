@@ -17,6 +17,8 @@ import {
   deleteContext,
   processPliegoWithPrompt
 } from "../services/ragService.js";
+import { processDocument } from '../services/documentProcessor.js';
+import { persistenceManager } from '../services/persistenceManager.js';
 
 const router = express.Router();
 
@@ -57,12 +59,39 @@ const upload = multer({
     ];
     
     const allowedExtensions = ['.txt', '.docx', '.md', '.json', '.csv', '.pdf', '.xlsx', '.xls'];
-    const ext = path.extname(file.originalname).toLowerCase();
     
-    if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(fileExtension)) {
       cb(null, true);
     } else {
       cb(new Error(`Tipo de archivo no soportado: ${file.mimetype}. Permitidos: txt, docx, md, json, csv, pdf, xlsx, xls`));
+    }
+  }
+});
+
+// Configuración específica para archivos de base de datos
+const uploadDB = multer({ 
+  storage,
+  limits: {
+    fileSize: 100 * 1024 * 1024 // 100MB límite para bases de datos
+  },
+  fileFilter: (req, file, cb) => {
+    // Permitir archivos .db y SQLite
+    const allowedTypes = [
+      'application/octet-stream',
+      'application/x-sqlite3',
+      'application/vnd.sqlite3'
+    ];
+
+    const allowedExtensions = ['.db', '.sqlite', '.sqlite3'];
+    
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(fileExtension)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Tipo de archivo no soportado para base de datos: ${file.mimetype}. Permitidos: .db, .sqlite, .sqlite3`));
     }
   }
 });
@@ -650,6 +679,219 @@ router.get("/health", async (req, res) => {
       success: false,
       status: "unhealthy",
       error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/rag/backup
+ * Crea backup manual de datos RAG
+ */
+router.post('/backup', async (req, res) => {
+  try {
+    console.log('[RAG API] 🔄 Creando backup manual...');
+    
+    const backupData = await persistenceManager.manualBackup();
+    
+    res.json({
+      success: true,
+      message: 'Backup creado exitosamente',
+      backup: backupData,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('[RAG API] ❌ Error creando backup:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error creando backup',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * GET /api/rag/download-db
+ * Descarga la base de datos SQLite completa
+ */
+router.get('/download-db', async (req, res) => {
+  try {
+    console.log('[RAG API] 📥 Descargando base de datos...');
+    
+    const dbPath = './data/rag_vectors.db';
+    const fs = await import('fs/promises');
+    
+    // Verificar que el archivo existe
+    try {
+      await fs.access(dbPath);
+    } catch {
+      return res.status(404).json({
+        success: false,
+        error: 'Base de datos no encontrada',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Obtener información del archivo
+    const stats = await fs.stat(dbPath);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `rag_vectors_backup_${timestamp}.db`;
+
+    // Configurar headers para descarga
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', stats.size);
+
+    // Enviar archivo
+    const fileBuffer = await fs.readFile(dbPath);
+    res.send(fileBuffer);
+
+    console.log(`[RAG API] ✅ Base de datos descargada: ${filename} (${stats.size} bytes)`);
+  } catch (error) {
+    console.error('[RAG API] ❌ Error descargando base de datos:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error descargando base de datos',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/rag/upload-db
+ * Sube y restaura una base de datos SQLite
+ */
+router.post('/upload-db', uploadDB.single('database'), async (req, res) => {
+  try {
+    console.log('[RAG API] 📤 Restaurando base de datos...');
+    
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No se proporcionó archivo de base de datos'
+      });
+    }
+
+    const fs = await import('fs/promises');
+    const dbPath = './data/rag_vectors.db';
+    const backupPath = `./data/rag_vectors_backup_${Date.now()}.db`;
+
+    // Obtener estadísticas ANTES de restaurar
+    let statsBefore = null;
+    try {
+      statsBefore = await fs.stat(dbPath);
+      console.log(`[RAG API] 📊 BD actual: ${statsBefore.size} bytes`);
+    } catch {
+      console.log('[RAG API] 📝 No hay base de datos previa');
+    }
+
+    // Obtener estadísticas del archivo a restaurar
+    const uploadStats = await fs.stat(req.file.path);
+    console.log(`[RAG API] 📤 Archivo a restaurar: ${uploadStats.size} bytes`);
+
+    // Crear backup de la BD actual si existe
+    try {
+      await fs.access(dbPath);
+      await fs.copyFile(dbPath, backupPath);
+      console.log(`[RAG API] 💾 Backup creado: ${backupPath}`);
+    } catch {
+      console.log('[RAG API] 📝 No hay base de datos previa para respaldar');
+    }
+
+    // CERRAR conexiones SQLite antes de reemplazar
+    console.log('[RAG API] 🔒 Cerrando conexiones SQLite...');
+    
+    // Copiar nueva base de datos
+    console.log(`[RAG API] 🔄 Copiando ${req.file.path} → ${dbPath}`);
+    await fs.copyFile(req.file.path, dbPath);
+    console.log('[RAG API] ✅ Archivo copiado');
+    
+    // Limpiar archivo temporal
+    await fs.unlink(req.file.path);
+    console.log('[RAG API] 🗑️ Archivo temporal eliminado');
+
+    // Obtener estadísticas de la nueva BD
+    const stats = await fs.stat(dbPath);
+    console.log(`[RAG API] 📊 BD después de restaurar: ${stats.size} bytes`);
+
+    res.json({
+      success: true,
+      message: 'Base de datos restaurada exitosamente',
+      database: {
+        size: stats.size,
+        restored_at: new Date().toISOString(),
+        backup_created: backupPath
+      },
+      timestamp: new Date().toISOString()
+    });
+
+    console.log(`[RAG API] ✅ Base de datos restaurada: ${stats.size} bytes`);
+  } catch (error) {
+    console.error('[RAG API] ❌ Error restaurando base de datos:', error);
+    
+    // Limpiar archivo temporal en caso de error
+    if (req.file?.path) {
+      try {
+        await import('fs/promises').then(fs => fs.unlink(req.file.path));
+      } catch {}
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Error restaurando base de datos',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * GET /api/rag/db-info
+ * Información sobre la base de datos actual
+ */
+router.get('/db-info', async (req, res) => {
+  try {
+    console.log('[RAG API] 📊 Obteniendo información de base de datos...');
+    
+    const dbPath = './data/rag_vectors.db';
+    const fs = await import('fs/promises');
+    
+    try {
+      const stats = await fs.stat(dbPath);
+      const documents = await listDocuments();
+      const ragStats = await getRAGStats();
+
+      res.json({
+        success: true,
+        database: {
+          path: dbPath,
+          size: stats.size,
+          size_mb: (stats.size / (1024 * 1024)).toFixed(2),
+          modified: stats.mtime,
+          created: stats.birthtime
+        },
+        content: {
+          total_documents: documents.length,
+          total_chunks: ragStats.totalDocuments || 0,
+          contexts: ragStats.contexts || []
+        },
+        timestamp: new Date().toISOString()
+      });
+    } catch {
+      res.status(404).json({
+        success: false,
+        error: 'Base de datos no encontrada',
+        timestamp: new Date().toISOString()
+      });
+    }
+  } catch (error) {
+    console.error('[RAG API] ❌ Error obteniendo info de BD:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error obteniendo información de base de datos',
+      details: error.message,
       timestamp: new Date().toISOString()
     });
   }
