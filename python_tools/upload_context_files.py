@@ -72,7 +72,23 @@ class ContextUploader:
         return sorted(files)
 
     def determine_context(self, file_path: Path, default_context: str) -> str:
-        """Usa siempre el contexto por defecto especificado."""
+        """Determina el contexto basado en la nueva nomenclatura de pliegos."""
+        filename = file_path.name.lower()
+        
+        # Detectar plantillas (formato: pliego_{tipo}_PLANTILLA[_TAGS])
+        if 'plantilla_tags' in filename or '_tags' in filename:
+            return 'PLANTILLAS_TAGS'
+        elif 'plantilla' in filename:
+            return 'PLANTILLAS_BASE'
+        
+        # Detectar pliegos con ID (formato: CT#######_plec_{tipo}_{modalidad}[_{categoria}])
+        if filename.startswith('ct') and '_plec_' in filename:
+            if 'validacion' in filename or 'validate' in filename:
+                return 'DOCUMENTOS_VALIDACION'
+            else:
+                return 'PLIEGOS_TERMINADOS_ENTRENAMIENTO'
+        
+        # Usar contexto por defecto para otros casos
         return default_context
 
     def upload_file(self, file_path: Path, context: str, uploaded_by: str = "script_auto") -> Dict:
@@ -98,7 +114,7 @@ class ContextUploader:
                     self.upload_endpoint,
                     files=files,
                     data=data,
-                    timeout=60
+                    timeout=10
                 )
                 
                 if response.status_code == 200:
@@ -136,7 +152,7 @@ class ContextUploader:
         """Prueba la conexión con el servidor."""
         try:
             health_url = f"{self.base_url}/api/rag/health"
-            response = self.session.get(health_url, timeout=10)
+            response = self.session.get(health_url, timeout=5)
             
             if response.status_code == 200:
                 print(f"Conexion exitosa con {self.base_url}")
@@ -184,15 +200,11 @@ class ContextUploader:
         for i, file_path in enumerate(files, 1):
             print(f"[{i}/{len(files)}] ", end="")
             
-            # Determinar contexto específico
-            context = self.determine_context(file_path, default_context)
-            print(f"Contexto: {context}")
-            
-            # Subir archivo
-            result = self.upload_file(file_path, context, uploaded_by)
+            # Usar siempre el contexto especificado por el usuario
+            result = self.upload_file(file_path, default_context, uploaded_by)
             results.append({
                 'file': str(file_path),
-                'context': context,
+                'context': default_context,
                 'result': result
             })
             
@@ -308,8 +320,7 @@ def main():
             print()
             
             for i, file_path in enumerate(files, 1):
-                context = uploader.determine_context(file_path, context_id)
-                print(f"{i:2d}. {file_path.name} -> {context}")
+                print(f"{i:2d}. {file_path.name} -> {context_id}")
                 
         except Exception as e:
             print(f"ERROR: {e}")
