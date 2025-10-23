@@ -3,6 +3,7 @@ import { initAuth } from "./auth.js";
 import chatRoutes from "./routes/chat.js";
 import ragRoutes from "./routes/rag.js";
 import pdfCorrectionRoutes from "./routes/pdfCorrection.js";
+import pliegoValidationRoutes from "./routes/pliegoValidation.js";
 import { initializeSampleData } from "./scripts/init-sample-data.js";
 
 const app = express();
@@ -109,6 +110,8 @@ app.get('/', (req, res) => {
       ragPliego: '/api/rag/process-pliego',
       pdfCorrection: '/api/pdf-correction',
       pdfCorrectionHealth: '/api/pdf-correction/health',
+      pliegoValidation: '/api/pliego-validation',
+      pliegoValidationHealth: '/api/pliego-validation/health',
       documentation: '/docs/RAG_SYSTEM_DOCUMENTATION.html'
     },
     vectorStore: process.env.VECTOR_STORE_TYPE || 'auto',
@@ -125,6 +128,7 @@ app.get('/', (req, res) => {
 app.use("/api", chatRoutes);
 app.use("/api/rag", ragRoutes);
 app.use("/api/pdf-correction", pdfCorrectionRoutes);
+app.use("/api/pliego-validation", pliegoValidationRoutes);
 
 app.get('/request_jsonp', (request, response) => {  
   console.log("This service supports JSONP now: " + request.query.id);
