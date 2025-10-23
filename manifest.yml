@@ -8,5 +8,5 @@ applications:
     services:
       - aicore-app-auth
     env:
-      VECTOR_STORE_TYPE: chroma
+      VECTOR_STORE_TYPE: sqlite
       NODE_ENV: production

@@ -55,6 +55,22 @@ const VECTOR_STORE_TYPE = process.env.VECTOR_STORE_TYPE || 'sqlite';
  */
 async function getVectorStore() {
   switch (VECTOR_STORE_TYPE) {
+    case 'chroma':
+      console.log('[RAG] ChromaDB configurado, pero usando SQLite como fallback en Cloud Foundry');
+      // Fallback a SQLite para Cloud Foundry
+      if (!sqliteVectorStore.isInitialized) {
+        console.log('[RAG] Inicializando SQLite Vector Store...');
+        try {
+          await sqliteVectorStore.initialize();
+          return sqliteVectorStore;
+        } catch (error) {
+          console.warn('[RAG] ⚠️  SQLite Vector Store no disponible, usando memoria');
+          console.warn('[RAG] Error:', error.message);
+          return vectorStore;
+        }
+      }
+      return sqliteVectorStore;
+      
     case 'sqlite':
       if (!sqliteVectorStore.isInitialized) {
         console.log('[RAG] Inicializando SQLite Vector Store...');
@@ -303,12 +319,9 @@ export async function searchContext(query, options = {}) {
     let results;
     
     // Manejar diferentes tipos de stores
-    if (store === chromaPythonClient) {
-      // Para el cliente Python, usar el embedding ya generado
-      results = await store.searchWithEmbedding(queryEmbedding, topK * 2, {});
-    } else if (store === chromaVectorStore) {
-      // Para ChromaDB directo, usar la query string
-      results = await store.search(query, topK * 2, minSimilarity);
+    if (store === sqliteVectorStore) {
+      // Para SQLite Vector Store
+      results = await store.search(queryEmbedding, topK * 2, minSimilarity);
     } else {
       // Para vector store en memoria, usar el embedding
       results = store.search(queryEmbedding, topK * 2, minSimilarity);
