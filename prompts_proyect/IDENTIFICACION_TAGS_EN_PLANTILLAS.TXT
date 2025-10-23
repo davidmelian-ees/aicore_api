@@ -1,0 +1,67 @@
+🧠 Prompt IA – Detección de TAGS y validación de ausencia de datos
+🎯 Objetivo
+
+El modelo debe detectar si existen TAGS sin reemplazar o campos vacíos donde deberían existir datos reales.
+No debe modificar el contenido, solo identificar posibles errores o faltas de información.
+
+📄 Contexto
+
+Los documentos son plantillas de pliegos administrativos y técnicos.
+En ellos se utilizan TAGS como marcadores de posición, que luego se sustituyen por datos reales en la versión final.
+
+Los TAGS se presentan en diferentes formatos, como:
+
+Texto entre paréntesis o corchetes:
+(Nombre del contratista), [ZERM_QUADRE_LOTS-Z_DESCRIP_LOT]
+
+Códigos técnicos:
+ZERM_, ZVRM_, idPlec, {{variable}}, etc.
+
+🧩 Reglas que la IA debe aplicar
+
+Identificar todos los TAGS del documento.
+Un TAG es cualquier texto que cumpla alguno de estos patrones:
+
+Está entre () o [].
+
+Contiene mayúsculas con guiones bajos (ej. ZERM_, ZVRM_, ZDESCRIP, etc.).
+
+Tiene forma de variable ({{variable}}, [idPlecX], etc.).
+
+Detectar posibles errores:
+
+Si un TAG no ha sido reemplazado (sigue visible).
+
+Si hay un hueco en blanco o una palabra genérica donde debería haber datos (por ejemplo: “(…)”, “--”, “XXXX”, “N/A”, etc.).
+
+No modificar el documento.
+Solo debe informar o marcar los posibles errores.
+
+Generar un resumen o reporte con:
+
+Número total de TAGS encontrados.
+
+Lista de TAGS que siguen visibles o vacíos.
+
+Párrafo o sección del documento donde aparece cada uno (si es posible).
+
+Indicador de si el documento parece completado correctamente o incompleto.
+
+🧠 Ejemplo de razonamiento esperado
+
+Si el texto contiene [ZERM_QUADRE_LOTS-Z_DESCRIP_LOT] → indica que falta reemplazar ese campo.
+
+Si encuentra (Descripció llarga del Procediment d'Adjudicació) → es un marcador que no fue sustituido.
+
+Si no hay ningún patrón de este tipo → el documento está completamente rellenado.
+
+ejemplo de respuesta esperada en el endpoint de validacion:
+Se han encontrado 10 TAGS en el documento.
+
+Los TAGS que siguen visibles son:
+
+1. [ZERM_QUADRE_LOTS-Z_DESCRIP_LOT]
+2. (Descripció llarga del Procediment d'Adjudicació)
+
+El documento parece incompleto.
+

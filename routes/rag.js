@@ -17,6 +17,8 @@ import {
   deleteContext,
   processPliegoWithPrompt
 } from "../services/ragService.js";
+import { processDocument } from '../services/documentProcessor.js';
+import { persistenceManager } from '../services/persistenceManager.js';
 
 const router = express.Router();
 
@@ -650,6 +652,33 @@ router.get("/health", async (req, res) => {
       success: false,
       status: "unhealthy",
       error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/rag/backup
+ * Crea backup manual de datos RAG
+ */
+router.post('/backup', async (req, res) => {
+  try {
+    console.log('[RAG API] 🔄 Creando backup manual...');
+    
+    const backupData = await persistenceManager.manualBackup();
+    
+    res.json({
+      success: true,
+      message: 'Backup creado exitosamente',
+      backup: backupData,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('[RAG API] ❌ Error creando backup:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error creando backup',
+      details: error.message,
       timestamp: new Date().toISOString()
     });
   }

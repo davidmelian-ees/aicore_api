@@ -52,17 +52,6 @@ CATEGORÍAS EXPLICADAS:
                             VALIDACIONES REQUERIDAS
 ================================================================================
 
-0. PRE-VALIDACIÓN DE ERRORES COMUNES (NUEVA):
-   🔴 ERRORES CRÍTICOS (Bloquean validación):
-   - Tags SAP sin rellenar ({{VARIABLE}}, [CAMPO], etc.)
-   - Campos SÍ/NO marcados simultáneamente
-   - Cantidad de lotes inconsistente (secuencia incompleta)
-   
-   🟡 ADVERTENCIAS (Permiten continuar):
-   - Formato de fecha incorrecto (debe ser DD/MM/AAAA)
-   - Formato de importes incorrecto (debe ser 123.456,78 €)
-   - Palabras en castellano (debe estar en catalán)
-
 1. RESPETO A PLANTILLA:
    - Verificar que la estructura del pliego coincida con la plantilla correspondiente
    - Identificar secciones faltantes o mal ubicadas
