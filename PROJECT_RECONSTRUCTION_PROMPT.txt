@@ -45,6 +45,8 @@ aicore_api/
 │   └── xsuaaConfig.js                 # Configuración XSUAA
 ├── routes/
 │   ├── rag.js                         # Endpoints RAG principales
+│   ├── pdfCorrection.js               # Endpoints corrección PDF
+│   ├── pliegoValidation.js            # Endpoints validación pliegos
 │   ├── health.js                      # Health check
 │   └── cors.js                        # Configuración CORS
 ├── services/
@@ -54,12 +56,19 @@ aicore_api/
 │   ├── contextPersistence.js          # Persistencia contextos JSON
 │   ├── embeddingService.js            # Generación embeddings
 │   ├── documentProcessor.js           # Procesamiento documentos
-│   └── pdfCorrectionService.js        # Corrección PDFs
+│   ├── pdfCorrectionService.js        # Corrección PDFs
+│   └── pliegoValidationService.js     # Validación estructural pliegos
 ├── data/                              # Datos persistentes
 │   ├── contexts.json                  # Contextos guardados
 │   ├── rag_vectors.db                 # Base datos SQLite
 │   ├── rag_vectors.db-wal             # Write-Ahead Log
 │   └── rag_vectors.db-shm             # Shared memory
+├── validation_results/                # Resultados validación pliegos
+│   ├── campos_variables_detectados.txt # Campos variables catalogados
+│   └── reporte_validacion_*.json      # Reportes de validación
+├── prompts_dev/                       # Documentación desarrollo
+│   ├── PLIEGOS_VALIDATION_SYSTEM.txt  # Sistema validación pliegos
+│   └── TRAINING_STRATEGY.txt          # Estrategia entrenamiento
 ├── uploads/                           # Archivos subidos temporalmente
 ├── public/                            # Archivos estáticos
 └── docs/                              # Documentación
@@ -103,6 +112,18 @@ SCRIPTS PRINCIPALES:
    - Regeneración de PDFs corregidos
    - Preservación de formato original
 
+6. VALIDACIÓN ESTRUCTURAL DE PLIEGOS:
+   - Identificación automática de 4 tipos de pliegos (A, B, C, D)
+   - Detección de variantes con/sin lotes (8 combinaciones totales)
+   - Validación contra plantillas SAP específicas
+   - Extracción y catalogación de campos variables
+   - Detección de tags SAP no reemplazados
+   - Generación de reportes detallados de validación
+   - Puntuación de calidad estructural (0-100)
+   - Identificación de apartados faltantes/adicionales
+   - Verificación de orden correcto de secciones
+   - Comparación con pliegos históricos de referencia
+
 ================================================================================
                                 API ENDPOINTS
 ================================================================================
@@ -123,7 +144,18 @@ POST   /api/rag/chat                   # Chat con RAG
 POST   /api/rag/chat/stream            # Chat streaming
 
 CORRECCIÓN PDF:
-POST   /api/rag/correct-pdf            # Corregir PDF con IA
+POST   /api/pdf-correction/generate-list        # Generar lista de correcciones
+POST   /api/pdf-correction/apply-corrections    # Aplicar correcciones directas
+GET    /api/pdf-correction/health               # Health check PDF
+
+VALIDACIÓN DE PLIEGOS:
+POST   /api/pliego-validation/validate          # Validar pliego (archivo)
+POST   /api/pliego-validation/validate-text     # Validar texto directo
+GET    /api/pliego-validation/reportes          # Listar reportes generados
+GET    /api/pliego-validation/reportes/:id      # Obtener reporte específico
+GET    /api/pliego-validation/campos-variables  # Ver campos variables detectados
+GET    /api/pliego-validation/tipos-pliego      # Info tipos de pliego soportados
+GET    /api/pliego-validation/health            # Health check validación
 
 UTILIDADES:
 GET    /health                         # Health check

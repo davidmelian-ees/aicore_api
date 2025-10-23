@@ -4,6 +4,7 @@ import chatRoutes from "./routes/chat.js";
 import ragRoutes from "./routes/rag.js";
 import pdfCorrectionRoutes from "./routes/pdfCorrection.js";
 import { initializeSampleData } from "./scripts/init-sample-data.js";
+import { persistenceManager } from "./services/persistenceManager.js";
 
 const app = express();
 
@@ -80,6 +81,11 @@ if (isProduction) {
   console.log('🔓 Modo desarrollo - autenticación deshabilitada');
 }
 
+// Configurar rutas de la API
+app.use('/api/chat', chatRoutes);
+app.use('/api/rag', ragRoutes);
+app.use('/api/pdf-correction', pdfCorrectionRoutes);
+
 // Servir archivos estáticos de documentación
 app.use('/docs', express.static('docs'));
 app.use('/public', express.static('public'));
@@ -110,35 +116,16 @@ app.get('/', (req, res) => {
       pdfCorrection: '/api/pdf-correction',
       pdfCorrectionHealth: '/api/pdf-correction/health',
       documentation: '/docs/RAG_SYSTEM_DOCUMENTATION.html'
-    },
-    vectorStore: process.env.VECTOR_STORE_TYPE || 'auto',
-    documentation: {
-      html: '/docs/RAG_SYSTEM_DOCUMENTATION.html',
-      readme: '/docs/README.md',
-      ragGuide: '/docs/README_RAG.md',
-      deployGuide: '/docs/DEPLOY_CF_FINAL.md'
     }
   });
-});
-
-// Rutas principales
-app.use("/api", chatRoutes);
-app.use("/api/rag", ragRoutes);
-app.use("/api/pdf-correction", pdfCorrectionRoutes);
-
-app.get('/request_jsonp', (request, response) => {  
-  console.log("This service supports JSONP now: " + request.query.id);
-  var data = "{" + "UserName:'" + repo[request.query.id] + " ( handled in port 3001 )'"
-  + "}";
-  var callback = request.query.callback;
-  var jsonp = callback + '(' + data + ');';
-  response.send(jsonp);
-  response.end();
 });
 
 // Inicializar datos de ejemplo en producción
 async function startServer() {
   try {
+    // Inicializar sistema de persistencia
+    await persistenceManager.initialize();
+    
     if (isProduction) {
       console.log('📄 Inicializando datos de ejemplo para Cloud Foundry...');
       // Esperar un poco para que los servicios se inicialicen
