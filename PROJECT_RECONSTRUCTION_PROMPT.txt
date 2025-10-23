@@ -40,11 +40,13 @@ aicore_api/
 ├── manifest.yml                        # Configuración Cloud Foundry
 ├── xs-security.json                    # Configuración XSUAA
 ├── .cfignore                          # Archivos ignorados en CF
+├── .gitignore                         # Archivos ignorados en Git
+├── SISTEMA_BACKUP_Y_CONTEXTOS.md      # Documentación completa del sistema
 ├── auth/
 │   ├── aiCoreClient.js                # Cliente SAP AI Core
 │   └── xsuaaConfig.js                 # Configuración XSUAA
 ├── routes/
-│   ├── rag.js                         # Endpoints RAG principales
+│   ├── rag.js                         # Endpoints RAG principales + BACKUP
 │   ├── pdfCorrection.js               # Endpoints corrección PDF
 │   ├── pliegoValidation.js            # Endpoints validación pliegos
 │   ├── health.js                      # Health check
@@ -54,6 +56,7 @@ aicore_api/
 │   ├── sqliteVectorStore.js           # Vector store SQLite (PRINCIPAL)
 │   ├── vectorStore.js                 # Vector store memoria (backup)
 │   ├── contextPersistence.js          # Persistencia contextos JSON
+│   ├── persistenceManager.js          # Gestor de persistencia unificado
 │   ├── embeddingService.js            # Generación embeddings
 │   ├── documentProcessor.js           # Procesamiento documentos
 │   ├── pdfCorrectionService.js        # Corrección PDFs
@@ -63,12 +66,35 @@ aicore_api/
 │   ├── rag_vectors.db                 # Base datos SQLite
 │   ├── rag_vectors.db-wal             # Write-Ahead Log
 │   └── rag_vectors.db-shm             # Shared memory
+├── backups/                           # Backups automáticos de BD
+│   └── rag_vectors_backup_*.db        # Backups timestamped
+├── scripts/                           # Scripts de automatización
+│   └── backup-database.js             # Script backup automático
+├── python_tools/                      # Herramientas Python
+│   ├── requirements.txt               # Dependencias Python
+│   ├── upload_context_files.py        # Script subida masiva
+│   ├── setup_env.bat                  # Configurar entorno Python
+│   ├── upload_to_cloud.bat            # Subir a Cloud Foundry
+│   └── README.md                      # Documentación Python tools
+├── FOR_CONTEXT/                       # Archivos para subir al RAG
+│   ├── *.txt                          # Documentación y prompts
+│   ├── *.pdf                          # Pliegos generados
+│   └── *.docx                         # Plantillas
+├── venv_upload/                       # Entorno virtual Python
 ├── validation_results/                # Resultados validación pliegos
 │   ├── campos_variables_detectados.txt # Campos variables catalogados
 │   └── reporte_validacion_*.json      # Reportes de validación
 ├── prompts_dev/                       # Documentación desarrollo
-│   ├── PLIEGOS_VALIDATION_SYSTEM.txt  # Sistema validación pliegos
-│   └── TRAINING_STRATEGY.txt          # Estrategia entrenamiento
+│   ├── ERRORES_COMUNES_PLIEGOS.txt    # Errores frecuentes en pliegos
+│   ├── NOMENCLATURA_PLIEGOS.txt       # Convención de nombres
+│   ├── TRAINING_STRATEGY.txt          # Estrategia entrenamiento
+│   ├── TABLA_CRONOGRAMA_DETALLADO.txt # Cronograma del proyecto
+│   ├── ANALISIS_PLIEGOS_GENERADOS.txt # Análisis de pliegos reales
+│   ├── CONTEXTOS_RAG_PLIEGOS.txt      # Gestión de contextos
+│   └── PLIEGOS_VALIDATION_SYSTEM.txt  # Sistema validación pliegos
+├── prompts_proyect/                   # Prompts del proyecto
+│   ├── PROJECT_RECONSTRUCTION_PROMPT.txt # Este archivo
+│   └── IDENTIFICACION_TAGS_EN_PLANTILLAS.TXT # Identificación tags SAP
 ├── uploads/                           # Archivos subidos temporalmente
 ├── public/                            # Archivos estáticos
 └── docs/                              # Documentación
@@ -77,6 +103,9 @@ SCRIPTS PRINCIPALES:
 - start-with-sqlite.bat                # Iniciar servidor con SQLite
 - deploy-backend.bat                   # Desplegar a Cloud Foundry
 - cleanup-project.bat                  # Limpieza del proyecto
+- scripts/backup-database.js           # Gestión automática de backups
+- python_tools/setup_env.bat           # Configurar entorno Python
+- python_tools/upload_to_cloud.bat     # Subida masiva a Cloud Foundry
 
 ================================================================================
                               FUNCIONALIDADES CORE
@@ -113,9 +142,9 @@ SCRIPTS PRINCIPALES:
    - Preservación de formato original
 
 6. VALIDACIÓN ESTRUCTURAL DE PLIEGOS:
-   - Identificación automática de 4 tipos de pliegos (A, B, C, D)
-   - Detección de variantes con/sin lotes (8 combinaciones totales)
-   - Validación contra plantillas SAP específicas
+   - Identificación automática de 4 tipos de pliegos según nomenclatura estándar
+   - Detección de variantes con/sin lotes (24 combinaciones totales)
+   - Validación contra plantillas SAP específicas por tipo
    - Extracción y catalogación de campos variables
    - Detección de tags SAP no reemplazados
    - Generación de reportes detallados de validación
@@ -123,6 +152,23 @@ SCRIPTS PRINCIPALES:
    - Identificación de apartados faltantes/adicionales
    - Verificación de orden correcto de secciones
    - Comparación con pliegos históricos de referencia
+   - Pre-validación de errores comunes críticos
+   - Análisis automático de pliegos ya generados para aprendizaje
+
+7. SISTEMA DE BACKUP Y RESTAURACIÓN:
+   - Descarga automática de base de datos SQLite
+   - Subida y restauración de backups con validación
+   - Información detallada de estado de base de datos
+   - Script automatizado para gestión de backups
+   - Creación de backups automáticos antes de restaurar
+   - Limpieza automática de backups antiguos
+
+8. GESTIÓN AUTOMÁTICA DE CONTEXTOS RAG:
+   - Subida masiva de archivos con asignación inteligente de contextos
+   - Detección automática de tipos de documento por nomenclatura
+   - Organización de contextos por tipo de pliego y categoría
+   - Herramientas Python para automatización de subidas
+   - Sistema de dry-run para verificar asignaciones antes de subir
 
 ================================================================================
                                 API ENDPOINTS
@@ -142,6 +188,11 @@ BÚSQUEDA Y CHAT:
 POST   /api/rag/search                 # Búsqueda semántica
 POST   /api/rag/chat                   # Chat con RAG
 POST   /api/rag/chat/stream            # Chat streaming
+
+BACKUP Y RESTAURACIÓN:
+GET    /api/rag/download-db            # Descargar backup de base de datos
+POST   /api/rag/upload-db              # Subir/restaurar base de datos
+GET    /api/rag/db-info                # Información de base de datos
 
 CORRECCIÓN PDF:
 POST   /api/pdf-correction/generate-list        # Generar lista de correcciones
@@ -180,6 +231,12 @@ DEPENDENCIAS PRINCIPALES:
   "uuid": "^9.0.0"
 }
 
+HERRAMIENTAS PYTHON:
+{
+  "requests": ">=2.31.0",
+  "pathlib2": ">=2.3.7"
+}
+
 VARIABLES DE ENTORNO:
 - NODE_ENV: development/production
 - VECTOR_STORE_TYPE: sqlite (por defecto)
@@ -192,7 +249,7 @@ VARIABLES DE ENTORNO:
 CONFIGURACIÓN CLOUD FOUNDRY (manifest.yml):
 applications:
 - name: ai_core_api
-  memory: 1G
+  memory: 2048M
   instances: 1
   buildpacks:
     - nodejs_buildpack
@@ -334,6 +391,18 @@ CORS Y AUTENTICACIÓN:
 - PROBLEMA: Configuración compleja para diferentes entornos
 - SOLUCIÓN: Configuración automática según NODE_ENV
 
+BACKUP Y RESTAURACIÓN:
+- PROBLEMA: Pérdida de datos en despliegues de Cloud Foundry
+- SOLUCIÓN: Sistema completo de backup/restauración con endpoints dedicados
+
+GESTIÓN MASIVA DE CONTEXTOS:
+- PROBLEMA: Subida manual lenta de múltiples archivos
+- SOLUCIÓN: Herramientas Python con asignación automática de contextos
+
+NOMENCLATURA DE PLIEGOS:
+- PROBLEMA: Inconsistencias en nombres y organización de documentos
+- SOLUCIÓN: Sistema estándar de nomenclatura con 24 combinaciones definidas
+
 ================================================================================
                               INSTRUCCIONES DE RECONSTRUCCIÓN
 ================================================================================
@@ -368,11 +437,26 @@ PASO 5 - FUNCIONALIDADES AVANZADAS:
 3. Crear sistema de chunking inteligente
 4. Implementar búsqueda semántica con ranking
 
-PASO 6 - DESPLIEGUE:
+PASO 6 - SISTEMA DE BACKUP Y HERRAMIENTAS:
+1. Implementar endpoints de backup (/download-db, /upload-db, /db-info)
+2. Crear script Node.js para gestión automática de backups
+3. Desarrollar herramientas Python para subida masiva de contextos
+4. Configurar entorno virtual Python con dependencias
+5. Crear scripts batch para automatización de tareas
+
+PASO 7 - DOCUMENTACIÓN Y NOMENCLATURA:
+1. Crear documentación completa en prompts_dev/
+2. Definir sistema de nomenclatura estándar para pliegos
+3. Implementar detección automática de tipos de documento
+4. Crear guías de uso y solución de problemas
+5. Documentar todos los contextos RAG y su propósito
+
+PASO 8 - DESPLIEGUE Y PRODUCCIÓN:
 1. Crear scripts .bat para desarrollo y despliegue
-2. Configurar manifest.yml para Cloud Foundry
-3. Probar localmente con SQLite
-4. Desplegar y verificar funcionamiento en CF
+2. Configurar manifest.yml para Cloud Foundry con 2048M memoria
+3. Probar localmente con SQLite y herramientas Python
+4. Desplegar y verificar funcionamiento completo en CF
+5. Configurar sistema de monitoreo y backup automático
 
 CONSIDERACIONES IMPORTANTES:
 - Usar siempre CMD en lugar de PowerShell para scripts
@@ -381,6 +465,8 @@ CONSIDERACIONES IMPORTANTES:
 - Validar exhaustivamente tipos de archivos y contenido
 - Manejar errores de manera granular con logging detallado
 - Optimizar SQLite para concurrencia y rendimiento
+- Crear backups automáticos antes de operaciones críticas
+- Organizar contextos RAG de manera inteligente y escalable
 
 Este prompt contiene toda la información necesaria para reconstruir el proyecto
 completamente desde cero, manteniendo toda la funcionalidad y arquitectura
