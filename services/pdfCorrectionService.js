@@ -3,12 +3,103 @@ import * as pdfjsLib from 'pdfjs-dist';
 import fs from 'fs/promises';
 import { processDocument } from './documentProcessor.js';
 import { getAiCoreClient } from '../auth/aiCoreClient.js';
+import path from 'path';
 
 /**
  * Servicio para corrección de PDFs con dos enfoques:
  * 1. Generar PDF con lista de correcciones
  * 2. Aplicar correcciones directamente por replace
  */
+
+// Función para cargar prompts de validación
+async function loadValidationPrompts() {
+  try {
+    const promptsDir = path.join(process.cwd(), 'prompts_dev');
+    
+    const [
+      nomenclatura,
+      erroresComunes,
+      validationSystem,
+      analisisPliegos
+    ] = await Promise.all([
+      fs.readFile(path.join(promptsDir, 'NOMENCLATURA_PLIEGOS.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'ERRORES_COMUNES_PLIEGOS.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'PLIEGOS_VALIDATION_SYSTEM.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'ANALISIS_PLIEGOS_GENERADOS.txt'), 'utf8')
+    ]);
+    
+    return {
+      nomenclatura,
+      erroresComunes,
+      validationSystem,
+      analisisPliegos
+    };
+  } catch (error) {
+    console.error('[PDF-CORRECTION] Error cargando prompts:', error);
+    return null;
+  }
+}
+
+// Función para construir el prompt de validación específico
+async function buildValidationPrompt(textForAnalysis, prompts) {
+  if (!prompts) {
+    // Fallback si no se pueden cargar los prompts
+    return `Analiza el siguiente texto de pliego y genera un informe de validación con errores encontrados:
+
+TEXTO A ANALIZAR:
+${textForAnalysis}
+
+Genera un informe detallado de errores estructurales, ortográficos y de formato encontrados.`;
+  }
+
+  // Construir prompt completo usando los archivos de prompts_dev
+  return `SISTEMA DE VALIDACIÓN DE PLIEGOS SAP
+================================================================================
+
+CONTEXTO DE VALIDACIÓN:
+${prompts.validationSystem.substring(0, 2000)}
+
+ERRORES COMUNES A DETECTAR:
+${prompts.erroresComunes.substring(0, 3000)}
+
+NOMENCLATURA ESPERADA:
+${prompts.nomenclatura.substring(0, 1500)}
+
+================================================================================
+INSTRUCCIONES DE VALIDACIÓN:
+================================================================================
+
+1. ANALIZA el siguiente texto de pliego
+2. IDENTIFICA errores según los patrones definidos arriba
+3. GENERA un informe detallado con:
+   - Errores críticos (bloquean generación)
+   - Advertencias (permiten continuar)
+   - Sugerencias de corrección específicas
+   - Campos variables detectados
+
+4. FORMATO DE RESPUESTA:
+   🔴 ERRORES CRÍTICOS:
+   - [Lista de errores que impiden continuar]
+   
+   🟡 ADVERTENCIAS:
+   - [Lista de problemas menores]
+   
+   ✅ SUGERENCIAS:
+   - [Correcciones específicas recomendadas]
+   
+   📋 CAMPOS VARIABLES DETECTADOS:
+   - [Lista de variables SAP encontradas]
+
+================================================================================
+TEXTO DEL PLIEGO A VALIDAR:
+================================================================================
+
+${textForAnalysis}
+
+================================================================================
+GENERA EL INFORME DE VALIDACIÓN:
+================================================================================`;
+}
 
 /**
  * Genera un PDF con el contenido original + lista de correcciones al final
@@ -31,20 +122,11 @@ export async function generatePDFWithCorrectionsList(originalPdfPath, customProm
       textForAnalysis = originalText.substring(0, 50000) + '\n\n[TEXTO TRUNCADO...]';
     }
 
-    // 3. Generar correcciones usando SAP AI Core
-    const correctionPrompt = customPrompt || `Analiza el siguiente texto y genera una lista de correcciones ortográficas y gramaticales.
-
-Para cada corrección, usa EXACTAMENTE este formato:
-• palabra_incorrecta -> palabra_correcta
-
-TEXTO A ANALIZAR:
-${textForAnalysis}
-
-IMPORTANTE: 
-- Solo devuelve la lista de correcciones en el formato especificado
-- Una corrección por línea
-- No incluyas explicaciones adicionales
-- Si no hay errores, devuelve "No se encontraron errores ortográficos"`;
+    // 3. Cargar prompts de validación
+    const prompts = await loadValidationPrompts();
+    
+    // 4. Generar prompt de validación específico para pliegos
+    const correctionPrompt = customPrompt || await buildValidationPrompt(textForAnalysis, prompts);
 
     console.log(`[PDF-CORRECTION] Generando correcciones con SAP AI Core (${correctionPrompt.length} caracteres)...`);
     
