@@ -18,8 +18,8 @@ chroma_service/start_service.bat
 chroma_service/simple_server.py
 chroma_service/venv/
 chroma_data/
-*.db
-*.sqlite
+# *.db - COMENTADO: Necesitamos incluir rag_vectors.db para persistencia
+# *.sqlite - COMENTADO: Necesitamos incluir archivos SQLite
 
 # Scripts de desarrollo local
 tests/

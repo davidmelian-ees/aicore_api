@@ -81,6 +81,11 @@ if (isProduction) {
   console.log('🔓 Modo desarrollo - autenticación deshabilitada');
 }
 
+// Configurar rutas de la API
+app.use('/api/chat', chatRoutes);
+app.use('/api/rag', ragRoutes);
+app.use('/api/pdf-correction', pdfCorrectionRoutes);
+
 // Servir archivos estáticos de documentación
 app.use('/docs', express.static('docs'));
 app.use('/public', express.static('public'));
