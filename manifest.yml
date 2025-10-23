@@ -1,7 +1,7 @@
 ---
 applications:
   - name: ai_core_api
-    memory: 512M
+    memory: 2048M
     buildpacks:
       - nodejs_buildpack
     command: node server.js
