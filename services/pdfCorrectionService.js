@@ -3,6 +3,8 @@ import * as pdfjsLib from 'pdfjs-dist';
 import fs from 'fs/promises';
 import { processDocument } from './documentProcessor.js';
 import { getAiCoreClient } from '../auth/aiCoreClient.js';
+import { searchContext } from './ragService.js';
+import path from 'path';
 
 /**
  * Servicio para corrección de PDFs con dos enfoques:
@@ -10,13 +12,112 @@ import { getAiCoreClient } from '../auth/aiCoreClient.js';
  * 2. Aplicar correcciones directamente por replace
  */
 
+// Función para cargar prompts de validación
+async function loadValidationPrompts() {
+  try {
+    const promptsDir = path.join(process.cwd(), 'prompts_dev');
+    
+    const [
+      nomenclatura,
+      erroresComunes,
+      validationSystem,
+      analisisPliegos,
+      ejemplosErrores
+    ] = await Promise.all([
+      fs.readFile(path.join(promptsDir, 'NOMENCLATURA_PLIEGOS.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'ERRORES_COMUNES_PLIEGOS.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'PLIEGOS_VALIDATION_SYSTEM.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'ANALISIS_PLIEGOS_GENERADOS.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'PLIEGOS_ERRORES_EJEMPLOS.txt'), 'utf8')
+    ]);
+    
+    return {
+      nomenclatura,
+      erroresComunes,
+      validationSystem,
+      analisisPliegos,
+      ejemplosErrores
+    };
+  } catch (error) {
+    console.error('[PDF-CORRECTION] Error cargando prompts:', error);
+    return null;
+  }
+}
+
+// Función para construir el prompt de validación específico
+async function buildValidationPrompt(textForAnalysis, prompts, ragContext = '') {
+  if (!prompts) {
+    // Fallback si no se pueden cargar los prompts
+    return `Analiza el siguiente texto de pliego y genera un informe de validación con errores encontrados:
+
+TEXTO A ANALIZAR:
+${textForAnalysis}
+
+Genera un informe detallado de errores estructurales, ortográficos y de formato encontrados.`;
+  }
+
+  // Construir prompt completo usando los archivos de prompts_dev
+  return `SISTEMA DE VALIDACIÓN DE PLIEGOS SAP
+================================================================================
+
+CONTEXTO DE VALIDACIÓN:
+${prompts.validationSystem}
+
+ERRORES COMUNES A DETECTAR:
+${prompts.erroresComunes}
+
+EJEMPLOS DE ERRORES REALES (ENTRENAMIENTO):
+${prompts.ejemplosErrores}
+
+NOMENCLATURA ESPERADA:
+${prompts.nomenclatura}
+
+${ragContext ? `CONTEXTO RAG ADICIONAL (EJEMPLOS Y PLANTILLAS):
+${ragContext}
+
+` : ''}================================================================================
+INSTRUCCIONES DE VALIDACIÓN:
+================================================================================
+
+1. ANALIZA el siguiente texto de pliego
+2. IDENTIFICA errores según los patrones definidos arriba
+3. GENERA un informe detallado con:
+   - Errores críticos (bloquean generación)
+   - Advertencias (permiten continuar)
+   - Sugerencias de corrección específicas
+   - Campos variables detectados
+
+4. FORMATO DE RESPUESTA:
+   🔴 ERRORES CRÍTICOS:
+   - [Lista de errores que impiden continuar]
+   
+   🟡 ADVERTENCIAS:
+   - [Lista de problemas menores]
+   
+   ✅ SUGERENCIAS:
+   - [Correcciones específicas recomendadas]
+   
+   📋 CAMPOS VARIABLES DETECTADOS:
+   - [Lista de variables SAP encontradas]
+
+================================================================================
+TEXTO DEL PLIEGO A VALIDAR:
+================================================================================
+
+${textForAnalysis}
+
+================================================================================
+GENERA EL INFORME DE VALIDACIÓN:
+================================================================================`;
+}
+
 /**
  * Genera un PDF con el contenido original + lista de correcciones al final
  * @param {string} originalPdfPath - Ruta del PDF original
  * @param {string} customPrompt - Prompt para generar correcciones
  * @returns {Promise<Object>} - PDF con correcciones listadas
  */
-export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null) {
+export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null) {
   try {
     console.log(`[PDF-CORRECTION] Generando PDF con lista de correcciones...`);
     
@@ -31,20 +132,43 @@ export async function generatePDFWithCorrectionsList(originalPdfPath, customProm
       textForAnalysis = originalText.substring(0, 50000) + '\n\n[TEXTO TRUNCADO...]';
     }
 
-    // 3. Generar correcciones usando SAP AI Core
-    const correctionPrompt = customPrompt || `Analiza el siguiente texto y genera una lista de correcciones ortográficas y gramaticales.
-
-Para cada corrección, usa EXACTAMENTE este formato:
-• palabra_incorrecta -> palabra_correcta
-
-TEXTO A ANALIZAR:
-${textForAnalysis}
-
-IMPORTANTE: 
-- Solo devuelve la lista de correcciones en el formato especificado
-- Una corrección por línea
-- No incluyas explicaciones adicionales
-- Si no hay errores, devuelve "No se encontraron errores ortográficos"`;
+    // 3. Cargar prompts de validación
+    const prompts = await loadValidationPrompts();
+    
+    // 4. Obtener contexto RAG si se especifica
+    let ragContext = '';
+    if (contextId) {
+      try {
+        console.log(`[PDF-CORRECTION] Cargando contexto RAG: ${contextId}`);
+        
+        // Buscar documentos relevantes en el contexto RAG
+        const ragResults = await searchContext(
+          `errores pliegos validación tags SAP campos variables ${textForAnalysis.substring(0, 500)}`,
+          {
+            contextId: contextId,
+            topK: 10
+          }
+        );
+        
+        if (ragResults && ragResults.length > 0) {
+          ragContext = ragResults
+            .map(result => `DOCUMENTO: ${result.metadata?.fileName || 'Sin nombre'}
+CONTENIDO: ${result.content}
+RELEVANCIA: ${result.similarity}
+---`)
+            .join('\n');
+          
+          console.log(`[PDF-CORRECTION] Contexto RAG cargado: ${ragResults.length} documentos relevantes`);
+        } else {
+          console.log(`[PDF-CORRECTION] No se encontraron documentos relevantes en contexto ${contextId}`);
+        }
+      } catch (error) {
+        console.warn(`[PDF-CORRECTION] Error cargando contexto RAG: ${error.message}`);
+      }
+    }
+    
+    // 5. Generar prompt de validación específico para pliegos
+    const correctionPrompt = customPrompt || await buildValidationPrompt(textForAnalysis, prompts, ragContext);
 
     console.log(`[PDF-CORRECTION] Generando correcciones con SAP AI Core (${correctionPrompt.length} caracteres)...`);
     
@@ -76,20 +200,11 @@ IMPORTANTE:
       correctionsList = "No se pudieron generar correcciones automáticas.\nRevise el documento manualmente para errores ortográficos.";
     }
     
-    // 3. Cargar PDF original
-    const originalPdfBytes = await fs.readFile(originalPdfPath);
-    const originalPdf = await PDFDocument.load(originalPdfBytes);
-    
-    // 4. Crear nuevo PDF copiando el original
+    // 3. Crear PDF SOLO con el informe de validación (sin PDF original)
     const newPdf = await PDFDocument.create();
     
-    // Copiar todas las páginas originales
-    const pageIndices = Array.from({ length: originalPdf.getPageCount() }, (_, i) => i);
-    const copiedPages = await newPdf.copyPages(originalPdf, pageIndices);
-    copiedPages.forEach(page => newPdf.addPage(page));
-    
-    // 5. Añadir página(s) de correcciones
-    await addCorrectionsPages(newPdf, correctionsList);
+    // 4. Añadir páginas del informe de validación
+    await addValidationReportPages(newPdf, correctionsList);
     
     // 6. Generar PDF final
     const finalPdfBytes = await newPdf.save();
@@ -101,7 +216,6 @@ IMPORTANTE:
       success: true,
       pdfBuffer,
       correctionsList,
-      originalPageCount: originalPdf.getPageCount(),
       totalPageCount: newPdf.getPageCount(),
       metadata: {
         processedAt: new Date().toISOString(),
@@ -117,27 +231,27 @@ IMPORTANTE:
 }
 
 /**
- * Añade páginas de correcciones al PDF
+ * Añade páginas del informe de validación al PDF con formato mejorado
  * @param {PDFDocument} pdf - Documento PDF
- * @param {string} correctionsList - Lista de correcciones
+ * @param {string} validationReport - Informe de validación
  */
-async function addCorrectionsPages(pdf, correctionsList) {
+async function addValidationReportPages(pdf, validationReport) {
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
   
-  const corrections = correctionsList.split('\n').filter(line => line.trim());
   const pageHeight = 792; // Tamaño carta
   const pageWidth = 612;
   const margin = 50;
-  const lineHeight = 20;
-  const maxLinesPerPage = Math.floor((pageHeight - 2 * margin - 100) / lineHeight);
+  const lineHeight = 16;
+  const maxWidth = pageWidth - 2 * margin;
+  const maxLinesPerPage = Math.floor((pageHeight - 2 * margin - 80) / lineHeight);
   
   let currentPage = pdf.addPage([pageWidth, pageHeight]);
   let yPosition = pageHeight - margin;
   let lineCount = 0;
   
-  // Título
-  currentPage.drawText('CORRECCIONES ORTOGRÁFICAS', {
+  // Título principal
+  currentPage.drawText('INFORME DE VALIDACIÓN DE PLIEGO', {
     x: margin,
     y: yPosition,
     size: 18,
@@ -145,19 +259,34 @@ async function addCorrectionsPages(pdf, correctionsList) {
     color: rgb(0, 0, 0)
   });
   
-  yPosition -= 40;
-  lineCount += 2;
+  yPosition -= 30;
   
-  // Añadir cada corrección
-  for (const correction of corrections) {
+  // Fecha y hora
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES');
+  currentPage.drawText(`Generado: ${dateStr}`, {
+    x: margin,
+    y: yPosition,
+    size: 10,
+    font: font,
+    color: rgb(0.5, 0.5, 0.5)
+  });
+  
+  yPosition -= 40;
+  lineCount += 4;
+  
+  // Procesar el contenido línea por línea
+  const lines = validationReport.split('\n');
+  
+  for (const line of lines) {
+    // Verificar si necesitamos nueva página
     if (lineCount >= maxLinesPerPage) {
-      // Nueva página
       currentPage = pdf.addPage([pageWidth, pageHeight]);
       yPosition = pageHeight - margin;
       lineCount = 0;
       
       // Título en nueva página
-      currentPage.drawText('CORRECCIONES ORTOGRÁFICAS (continuación)', {
+      currentPage.drawText('INFORME DE VALIDACIÓN (continuación)', {
         x: margin,
         y: yPosition,
         size: 16,
@@ -169,20 +298,156 @@ async function addCorrectionsPages(pdf, correctionsList) {
       lineCount += 2;
     }
     
-    // Limpiar caracteres especiales para WinAnsi
-    const cleanCorrection = correction.replace(/[^\x20-\x7E]/g, '?');
+    // Procesar línea
+    const processedLine = processLineFormatting(line.trim());
     
-    currentPage.drawText(cleanCorrection, {
-      x: margin,
-      y: yPosition,
-      size: 12,
-      font: font,
-      color: rgb(0, 0, 0)
-    });
+    if (processedLine.text.length === 0) {
+      // Línea vacía - añadir espacio
+      yPosition -= lineHeight * 0.5;
+      lineCount += 0.5;
+      continue;
+    }
     
-    yPosition -= lineHeight;
-    lineCount++;
+    // Dividir líneas largas
+    const wrappedLines = wrapText(processedLine.text, maxWidth, processedLine.isBold ? boldFont : font, processedLine.fontSize);
+    
+    for (const wrappedLine of wrappedLines) {
+      if (lineCount >= maxLinesPerPage) {
+        currentPage = pdf.addPage([pageWidth, pageHeight]);
+        yPosition = pageHeight - margin;
+        lineCount = 0;
+      }
+      
+      // Limpiar caracteres especiales para WinAnsi (incluyendo emojis)
+      const cleanLine = cleanTextForPDF(wrappedLine);
+      
+      currentPage.drawText(cleanLine, {
+        x: margin + processedLine.indent,
+        y: yPosition,
+        size: processedLine.fontSize,
+        font: processedLine.isBold ? boldFont : font,
+        color: processedLine.color
+      });
+      
+      yPosition -= lineHeight;
+      lineCount++;
+    }
   }
+}
+
+/**
+ * Procesa una línea para determinar formato (negrita, color, indentación)
+ */
+function processLineFormatting(line) {
+  let text = line;
+  let isBold = false;
+  let fontSize = 12;
+  let color = rgb(0, 0, 0);
+  let indent = 0;
+  
+  // Detectar y procesar texto en negritas **TEXTO**
+  if (text.includes('**')) {
+    text = text.replace(/\*\*(.*?)\*\*/g, '$1');
+    isBold = true;
+  }
+  
+  // Detectar títulos y secciones (tanto emojis como texto limpio)
+  if (text.startsWith('🔴') || text.startsWith('[ERROR CRITICO]') || text.startsWith('ERRORES CRÍTICOS')) {
+    isBold = true;
+    fontSize = 14;
+    color = rgb(0.8, 0, 0); // Rojo
+  } else if (text.startsWith('🟡') || text.startsWith('[ADVERTENCIA]') || text.startsWith('ADVERTENCIAS')) {
+    isBold = true;
+    fontSize = 14;
+    color = rgb(0.8, 0.6, 0); // Naranja
+  } else if (text.startsWith('✅') || text.startsWith('[SUGERENCIA]') || text.startsWith('SUGERENCIAS')) {
+    isBold = true;
+    fontSize = 14;
+    color = rgb(0, 0.6, 0); // Verde
+  } else if (text.startsWith('📋') || text.startsWith('[CAMPOS VARIABLES]') || text.startsWith('CAMPOS VARIABLES')) {
+    isBold = true;
+    fontSize = 14;
+    color = rgb(0, 0, 0.8); // Azul
+  } else if (text.startsWith('===') || text.includes('================')) {
+    // Separadores - hacer más pequeños
+    fontSize = 10;
+    color = rgb(0.6, 0.6, 0.6);
+  }
+  
+  // Detectar elementos de lista
+  if (text.startsWith('- ') || text.startsWith('• ')) {
+    indent = 20;
+  } else if (text.startsWith('  - ') || text.startsWith('  • ')) {
+    indent = 40;
+  }
+  
+  return { text, isBold, fontSize, color, indent };
+}
+
+/**
+ * Limpia texto para compatibilidad con WinAnsi encoding
+ */
+function cleanTextForPDF(text) {
+  return text
+    // Reemplazar emojis comunes con texto
+    .replace(/🔴/g, '[ERROR CRITICO]')
+    .replace(/🟡/g, '[ADVERTENCIA]')
+    .replace(/✅/g, '[SUGERENCIA]')
+    .replace(/📋/g, '[CAMPOS VARIABLES]')
+    .replace(/⚠️/g, '[ATENCION]')
+    .replace(/❌/g, '[X]')
+    .replace(/✔️/g, '[OK]')
+    // Limpiar otros caracteres especiales
+    .replace(/[^\x20-\x7E\u00A0-\u00FF]/g, '?')
+    // Normalizar espacios
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Divide texto largo en múltiples líneas
+ */
+function wrapText(text, maxWidth, font, fontSize) {
+  // Limpiar texto antes de procesar
+  const cleanText = cleanTextForPDF(text);
+  const words = cleanText.split(' ');
+  const lines = [];
+  let currentLine = '';
+  
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    
+    try {
+      const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+      
+      if (testWidth <= maxWidth) {
+        currentLine = testLine;
+      } else {
+        if (currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          // Palabra muy larga - dividir
+          lines.push(word);
+        }
+      }
+    } catch (error) {
+      // Si hay error calculando ancho, usar la línea actual
+      console.warn('[PDF-CORRECTION] Error calculando ancho de texto:', error.message);
+      if (currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        lines.push(word);
+      }
+    }
+  }
+  
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+  
+  return lines.length > 0 ? lines : [''];
 }
 
 /**

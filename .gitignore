@@ -2,3 +2,19 @@
 /node_modules/
 /resources/
 default-env.json
+/FOR_CONTEXT/
+/FOR_CONTEXT_PROCECED/
+
+# Archivos de documentos (evitar subir archivos grandes)
+*.pdf
+*.doc
+*.docx
+*.xlsx
+*.xls
+
+# Entorno virtual Python
+venv_upload/
+
+# Archivos temporales
+*.tmp
+*.temp
