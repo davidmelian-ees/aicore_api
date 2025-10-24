@@ -1,0 +1,282 @@
+================================================================================
+                    ESTRATEGIA DE ENTRENAMIENTO Y IDENTIFICACIÓN
+                        Sistema de Validación de Pliegos
+================================================================================
+
+CÓMO IDENTIFICAR TIPOS DE DOCUMENTOS AUTOMÁTICAMENTE
+================================================================================
+
+1. PLANTILLAS BASE (Documentos de Referencia):
+   
+   CARACTERÍSTICAS IDENTIFICABLES:
+   - Títulos fijos y específicos por tipo (ej: "PLIEGO TIPO A - SERVICIOS")
+   - Estructura de apartados consistente
+   - Numeración específica (1.1, 1.2, 2.1, etc.)
+   - Frases introductorias estándar
+   - Ausencia total de datos específicos (fechas, importes, nombres)
+   
+   PATRONES DE DETECCIÓN:
+   - Buscar títulos característicos en primeras líneas
+   - Analizar índice o tabla de contenidos
+   - Identificar apartados obligatorios por tipo
+   - Detectar lenguaje genérico vs específico
+
+2. PLANTILLAS CON TAGS SAP:
+   
+   CARACTERÍSTICAS IDENTIFICABLES:
+   - Presencia de marcadores: {{VARIABLE}}, [TAG], {CAMPO_SAP}
+   - Estructura similar a plantilla base pero con placeholders
+   - Texto explicativo sobre variables
+   - Comentarios sobre origen de datos SAP
+   
+   PATRONES DE DETECCIÓN:
+   - Regex para detectar tags: /\{\{[A-Z_]+\}\}/g
+   - Búsqueda de patrones [VARIABLE_NAME]
+   - Identificación de comentarios SAP
+   - Análisis de densidad de tags por sección
+
+3. PLIEGOS GENERADOS (Documentos Finales):
+   
+   CARACTERÍSTICAS IDENTIFICABLES:
+   - Datos específicos: fechas reales, importes concretos
+   - Nombres de organismos, expedientes, referencias
+   - Ausencia de tags (reemplazados por valores)
+   - Información de lotes específica si aplica
+   
+   PATRONES DE DETECCIÓN:
+   - Detectar fechas en formato DD/MM/YYYY
+   - Identificar importes con símbolos monetarios
+   - Buscar códigos de expediente específicos
+   - Analizar especificidad vs genericidad del contenido
+
+4. DOCUMENTOS DE REFERENCIA (Pliegos Históricos):
+   
+   CARACTERÍSTICAS IDENTIFICABLES:
+   - Metadatos de validación previa
+   - Estructura completa y validada
+   - Datos históricos específicos
+   - Marcas de aprobación o sellos
+   
+   PATRONES DE DETECCIÓN:
+   - Buscar fechas de publicación pasadas
+   - Identificar referencias a procesos cerrados
+   - Detectar firmas o validaciones
+   - Analizar completitud estructural
+
+================================================================================
+ESTRATEGIA DE ENTRENAMIENTO DE LA IA
+================================================================================
+
+FASE 1: CARGA INICIAL DE CONOCIMIENTO
+
+1.1 SUBIR PLANTILLAS BASE:
+   ```
+   Contexto: "PLANTILLAS_BASE"
+   Documentos: 4 plantillas principales
+   Metadatos: tipo, versión, fecha_creación
+   Procesamiento: Extraer estructura fija, títulos, apartados obligatorios
+   ```
+
+1.2 SUBIR VARIANTES CON/SIN LOTES:
+   ```
+   Contexto: "VARIANTES_LOTES" 
+   Documentos: 8 variantes (4 tipos × 2 modalidades)
+   Metadatos: tipo_base, incluye_lotes, secciones_específicas
+   Procesamiento: Mapear diferencias estructurales
+   ```
+
+1.3 SUBIR DOCUMENTOS CON TAGS:
+   ```
+   Contexto: "TAGS_SAP"
+   Documentos: Plantillas con marcadores SAP
+   Metadatos: tipo_plantilla, versión_sap, tags_incluidos
+   Procesamiento: Extraer y catalogar todos los tags
+   ```
+
+FASE 2: CREACIÓN DE MAPAS DE CONOCIMIENTO
+
+2.1 MAPA ESTRUCTURAL POR TIPO:
+   ```javascript
+   {
+     "TIPO_A": {
+       "apartados_obligatorios": ["1. OBJETO", "2. PRESUPUESTO", "3. CRITERIOS"],
+       "apartados_opcionales": ["4. ANEXOS"],
+       "patrones_titulo": ["PLIEGO TIPO A", "SERVICIOS GENERALES"],
+       "estructura_lotes": {
+         "seccion": "5. LOTES",
+         "subsecciones": ["5.1 Descripción", "5.2 Valoración"]
+       }
+     }
+   }
+   ```
+
+2.2 DICCIONARIO DE TAGS SAP:
+   ```javascript
+   {
+     "{{PRESUPUESTO_BASE}}": {
+       "tipo": "IMPORTE",
+       "formato": "###.### €",
+       "ubicacion_tipica": "Apartado 2",
+       "obligatorio": true
+     },
+     "{{FECHA_INICIO}}": {
+       "tipo": "FECHA", 
+       "formato": "DD/MM/YYYY",
+       "ubicacion_tipica": "Apartado 1.3",
+       "obligatorio": true
+     }
+   }
+   ```
+
+2.3 PATRONES DE VALIDACIÓN:
+   ```javascript
+   {
+     "validaciones_estructurales": [
+       {
+         "regla": "apartado_obligatorio_presente",
+         "apartado": "1. OBJETO DEL CONTRATO",
+         "tipos_aplicables": ["TIPO_A", "TIPO_B"]
+       }
+     ],
+     "validaciones_lotes": [
+       {
+         "regla": "lotes_coherentes_con_tipo",
+         "condicion": "si_incluye_lotes_entonces_seccion_5_presente"
+       }
+     ]
+   }
+   ```
+
+FASE 3: ENTRENAMIENTO ITERATIVO
+
+3.1 ANÁLISIS DE EJEMPLOS:
+   - Subir 10-20 pliegos de cada tipo como ejemplos
+   - Ejecutar validación automática
+   - Revisar resultados y ajustar patrones
+   - Refinar algoritmos de detección
+
+3.2 CALIBRACIÓN DE MÉTRICAS:
+   - Establecer umbrales de calidad por tipo
+   - Definir pesos para diferentes validaciones
+   - Ajustar sensibilidad de detección de errores
+   - Crear escalas de puntuación
+
+3.3 VALIDACIÓN CRUZADA:
+   - Probar con documentos no vistos
+   - Validar precisión de clasificación automática
+   - Ajustar patrones según resultados
+   - Documentar casos edge
+
+================================================================================
+ALGORITMO DE IDENTIFICACIÓN AUTOMÁTICA
+================================================================================
+
+PASO 1: ANÁLISIS INICIAL
+```javascript
+function identificarTipoDocumento(texto) {
+  // 1. Detectar presencia de tags SAP
+  const tieneTagsSAP = /\{\{[A-Z_]+\}\}/.test(texto);
+  
+  // 2. Analizar especificidad del contenido
+  const tieneImportesEspecificos = /\d+\.\d+\s*€/.test(texto);
+  const tieneFechasEspecificas = /\d{2}\/\d{2}\/\d{4}/.test(texto);
+  
+  // 3. Buscar patrones de plantilla
+  const patronesPlantilla = buscarPatronesPlantilla(texto);
+  
+  if (tieneTagsSAP) return "PLANTILLA_CON_TAGS";
+  if (tieneImportesEspecificos && tieneFechasEspecificas) return "PLIEGO_GENERADO";
+  if (patronesPlantilla.length > 0) return "PLANTILLA_BASE";
+  return "DOCUMENTO_REFERENCIA";
+}
+```
+
+PASO 2: CLASIFICACIÓN DE TIPO DE PLIEGO
+```javascript
+function clasificarTipoPliego(texto, tipoDocumento) {
+  const patrones = {
+    "TIPO_A": ["SERVICIOS GENERALES", "PLIEGO TIPO A"],
+    "TIPO_B": ["OBRAS PÚBLICAS", "PLIEGO TIPO B"], 
+    "TIPO_C": ["SUMINISTROS", "PLIEGO TIPO C"],
+    "TIPO_D": ["CONSULTORÍA", "PLIEGO TIPO D"]
+  };
+  
+  for (const [tipo, keywords] of Object.entries(patrones)) {
+    if (keywords.some(keyword => texto.includes(keyword))) {
+      const conLotes = detectarLotes(texto);
+      return `${tipo}_${conLotes ? 'CON' : 'SIN'}_LOTES`;
+    }
+  }
+  
+  return "TIPO_DESCONOCIDO";
+}
+```
+
+PASO 3: VALIDACIÓN ESTRUCTURAL
+```javascript
+function validarEstructura(texto, tipoPliego) {
+  const plantilla = obtenerPlantilla(tipoPliego);
+  const estructura = extraerEstructura(texto);
+  
+  return {
+    apartadosFaltantes: plantilla.apartados.filter(a => !estructura.includes(a)),
+    apartadosAdicionales: estructura.filter(a => !plantilla.apartados.includes(a)),
+    ordenCorrecto: validarOrden(estructura, plantilla.orden),
+    completitud: calcularCompletitud(estructura, plantilla)
+  };
+}
+```
+
+================================================================================
+FLUJO DE ENTRENAMIENTO PRÁCTICO
+================================================================================
+
+DÍA 1: SETUP INICIAL
+1. Crear contextos RAG específicos
+2. Subir primeras plantillas base
+3. Configurar endpoint de validación básico
+4. Probar identificación automática de tipos
+
+DÍA 2-3: CARGA DE CONOCIMIENTO
+1. Subir todas las plantillas y variantes
+2. Cargar documentos con tags SAP
+3. Añadir ejemplos de referencia
+4. Crear mapas estructurales iniciales
+
+DÍA 4-5: CALIBRACIÓN
+1. Probar con casos reales
+2. Ajustar patrones de detección
+3. Refinar métricas de calidad
+4. Documentar casos especiales
+
+DÍA 6-7: OPTIMIZACIÓN
+1. Mejorar precisión de clasificación
+2. Añadir validaciones específicas
+3. Crear reportes detallados
+4. Establecer flujo de mejora continua
+
+================================================================================
+MÉTRICAS DE ÉXITO
+================================================================================
+
+PRECISIÓN DE CLASIFICACIÓN:
+- Tipo de documento: >95%
+- Tipo de pliego: >90%
+- Detección de lotes: >95%
+- Identificación de errores: >85%
+
+CALIDAD DE VALIDACIÓN:
+- Falsos positivos: <5%
+- Falsos negativos: <10%
+- Tiempo de procesamiento: <30 segundos
+- Completitud de reporte: >90%
+
+UTILIDAD PRÁCTICA:
+- Reducción de errores manuales: >70%
+- Tiempo de revisión ahorrado: >50%
+- Satisfacción del usuario: >8/10
+- Adopción del sistema: >80%
+
+================================================================================
+                                    FIN
+================================================================================

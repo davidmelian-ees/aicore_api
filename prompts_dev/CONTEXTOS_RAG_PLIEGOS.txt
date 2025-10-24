@@ -1,0 +1,295 @@
+================================================================================
+                    GESTIÓN DE CONTEXTOS RAG PARA PLIEGOS
+                Sistema de Organización y Consulta Inteligente
+================================================================================
+
+OBJETIVO:
+Organizar eficientemente los documentos de pliegos en contextos RAG específicos
+para maximizar la precisión de consultas y el aprendizaje del sistema.
+
+================================================================================
+                        ESTRUCTURA DE CONTEXTOS RAG
+================================================================================
+
+CONTEXTOS PRINCIPALES:
+
+1. PLANTILLAS_BASE
+   - Documentos: pliego_{tipo}_PLANTILLA
+   - Propósito: Estructuras base limpias sin datos específicos
+   - Uso: Validación estructural, referencia de apartados obligatorios
+
+2. PLANTILLAS_TAGS
+   - Documentos: pliego_{tipo}_PLANTILLA_TAGS  
+   - Propósito: Mapeo de variables SAP y campos dinámicos
+   - Uso: Identificación de tags, validación de completitud
+
+3. PLIEGOS_GENERADOS_OBRA_CIVIL_OBERT
+   - Documentos: pliego_obra_civil_obert_{modalidad}_generado
+   - Propósito: Ejemplos reales de obra civil procedimiento abierto
+   - Uso: Referencia de buenas prácticas, respuesta a consultas específicas
+
+4. PLIEGOS_GENERADOS_OBRA_CIVIL_SIMPLIFICAT
+   - Documentos: pliego_obra_civil_simplificat_{modalidad}_generado
+   - Propósito: Ejemplos reales de obra civil procedimiento simplificado
+   - Uso: Patrones de estructura simplificada
+
+5. PLIEGOS_GENERADOS_OBRA_EDIFICACIO_OBERT
+   - Documentos: pliego_obra_edificacio_obert_{modalidad}_generado
+   - Propósito: Ejemplos reales de edificación procedimiento abierto
+   - Uso: Especificidades técnicas de edificación
+
+6. PLIEGOS_GENERADOS_OBRA_EDIFICACIO_SIMPLIFICAT
+   - Documentos: pliego_obra_edificacio_simplificat_{modalidad}_generado
+   - Propósito: Ejemplos reales de edificación procedimiento simplificado
+   - Uso: Estructura mínima viable para edificación
+
+7. ERRORES_COMUNES_PLIEGOS
+   - Documentos: Casos con errores típicos y documentación de patrones
+   - Propósito: Detección automática de problemas frecuentes
+   - Uso: Pre-validación, identificación de errores críticos
+
+8. CASOS_ESPECIALES_VALIDACION
+   - Documentos: Pliegos con situaciones atípicas o complejas
+   - Propósito: Manejo de casos edge y situaciones especiales
+   - Uso: Resolución de consultas complejas
+
+================================================================================
+                        ASIGNACIÓN AUTOMÁTICA DE CONTEXTOS
+================================================================================
+
+ALGORITMO DE CLASIFICACIÓN:
+
+```javascript
+function asignarContexto(nombreArchivo, contenido) {
+  // 1. Detectar tipo base del nombre
+  const tipoMatch = nombreArchivo.match(/pliego_(obra_civil_obert|obra_civil_simplificat|obra_edificacio_obert|obra_edificacio_simplificat)/);
+  const tipo = tipoMatch ? tipoMatch[1] : null;
+  
+  // 2. Detectar categoría
+  if (nombreArchivo.includes('PLANTILLA_TAGS') || nombreArchivo.includes('plantilla_tags')) {
+    return 'PLANTILLAS_TAGS';
+  }
+  
+  if (nombreArchivo.includes('PLANTILLA') || nombreArchivo.includes('plantilla')) {
+    return 'PLANTILLAS_BASE';
+  }
+  
+  if (nombreArchivo.includes('generado') || nombreArchivo.includes('GENERADO')) {
+    return `PLIEGOS_GENERADOS_${tipo.toUpperCase()}`;
+  }
+  
+  // 3. Análisis de contenido para casos ambiguos
+  if (contenido.includes('{{') && contenido.includes('}}')) {
+    return 'PLANTILLAS_TAGS';
+  }
+  
+  if (tieneErroresComunes(contenido)) {
+    return 'ERRORES_COMUNES_PLIEGOS';
+  }
+  
+  return 'CASOS_ESPECIALES_VALIDACION';
+}
+```
+
+================================================================================
+                        ESTRATEGIAS DE CONSULTA POR CONTEXTO
+================================================================================
+
+CONSULTAS SOBRE ESTRUCTURA:
+```
+Contexto preferido: PLANTILLAS_BASE
+Ejemplo: "¿Cuáles son los apartados obligatorios en obra civil obert?"
+Estrategia: Buscar en plantillas base del tipo específico
+```
+
+CONSULTAS SOBRE VARIABLES SAP:
+```
+Contexto preferido: PLANTILLAS_TAGS
+Ejemplo: "¿Qué tags SAP se usan para el presupuesto?"
+Estrategia: Analizar plantillas con tags del tipo relevante
+```
+
+CONSULTAS SOBRE IMPLEMENTACIÓN:
+```
+Contexto preferido: PLIEGOS_GENERADOS_{TIPO}
+Ejemplo: "¿Cómo se presenta la información de lotes en la práctica?"
+Estrategia: Buscar ejemplos reales en pliegos generados
+```
+
+CONSULTAS SOBRE ERRORES:
+```
+Contexto preferido: ERRORES_COMUNES_PLIEGOS
+Ejemplo: "¿Cuáles son los errores más frecuentes en pliegos?"
+Estrategia: Consultar base de conocimiento de errores
+```
+
+CONSULTAS COMPLEJAS:
+```
+Contextos múltiples: Combinación según necesidad
+Ejemplo: "¿Cómo validar que un pliego generado cumple la plantilla?"
+Estrategia: Comparar PLANTILLAS_BASE con PLIEGOS_GENERADOS
+```
+
+================================================================================
+                        INSTRUCCIONES PARA CONSULTAS INTELIGENTES
+================================================================================
+
+CUANDO RECIBAS UNA PREGUNTA SOBRE PLIEGOS:
+
+1. IDENTIFICAR TIPO DE CONSULTA:
+   - Estructural → PLANTILLAS_BASE
+   - Variables/Tags → PLANTILLAS_TAGS  
+   - Implementación → PLIEGOS_GENERADOS_{TIPO}
+   - Errores → ERRORES_COMUNES_PLIEGOS
+   - Casos especiales → CASOS_ESPECIALES_VALIDACION
+
+2. DETERMINAR TIPO DE PLIEGO RELEVANTE:
+   - ¿Se refiere a obra civil u obra edificación?
+   - ¿Procedimiento abierto o simplificado?
+   - ¿Con lotes o sin lotes?
+
+3. SELECCIONAR CONTEXTO(S) APROPIADO(S):
+   - Contexto principal para la consulta
+   - Contextos secundarios si es necesario
+   - Orden de prioridad para búsqueda
+
+4. FORMULAR RESPUESTA COMPLETA:
+   - Información específica del contexto consultado
+   - Ejemplos concretos cuando sea posible
+   - Referencias cruzadas a otros contextos si es relevante
+
+================================================================================
+                        EJEMPLOS DE CONSULTAS Y RESPUESTAS
+================================================================================
+
+PREGUNTA: "¿Cómo debe estructurarse el apartado de presupuesto?"
+
+PROCESO:
+1. Tipo consulta: Estructural
+2. Contexto principal: PLANTILLAS_BASE
+3. Contexto secundario: PLIEGOS_GENERADOS (para ejemplos)
+
+RESPUESTA:
+```
+Según las plantillas base, el apartado de presupuesto debe incluir:
+
+📋 ESTRUCTURA ESTÁNDAR (de PLANTILLAS_BASE):
+- 2. PRESUPUESTO BASE DE LICITACIÓN
+- 2.1 Importe base
+- 2.2 IVA aplicable  
+- 2.3 Valor estimado del contrato
+
+💡 IMPLEMENTACIÓN PRÁCTICA (de PLIEGOS_GENERADOS):
+En los pliegos generados observamos:
+- Formato: "123.456,78 €" (punto miles, coma decimales)
+- IVA: "21% sobre base imponible"
+- Presentación en tabla cuando hay lotes
+```
+
+PREGUNTA: "¿Qué errores son más comunes en la sección de lotes?"
+
+PROCESO:
+1. Tipo consulta: Errores
+2. Contexto principal: ERRORES_COMUNES_PLIEGOS
+3. Contexto secundario: PLIEGOS_GENERADOS (para contrastar)
+
+RESPUESTA:
+```
+Según el análisis de errores comunes:
+
+🔴 ERRORES CRÍTICOS:
+- Inconsistencia entre número declarado y lotes presentes
+- Numeración no secuencial (Lote 1, Lote 3, falta Lote 2)
+- Lotes sin presupuesto asignado
+
+🟡 ERRORES FRECUENTES:
+- Formato incorrecto en importes de lotes
+- Descripción insuficiente de cada lote
+- Falta de criterios de adjudicación por lote
+```
+
+================================================================================
+                        MANTENIMIENTO DE CONTEXTOS
+================================================================================
+
+ACTUALIZACIÓN PERIÓDICA:
+
+1. REVISAR RELEVANCIA:
+   - ¿Los documentos siguen siendo representativos?
+   - ¿Hay nuevos patrones que documentar?
+   - ¿Algunos ejemplos están obsoletos?
+
+2. BALANCEAR CONTENIDO:
+   - Mantener proporción equilibrada entre tipos
+   - Evitar sobrecarga de un contexto específico
+   - Asegurar cobertura de todos los casos
+
+3. OPTIMIZAR BÚSQUEDAS:
+   - Monitorear qué consultas son más frecuentes
+   - Ajustar contenido según patrones de uso
+   - Mejorar metadatos para mejor recuperación
+
+4. VALIDAR CALIDAD:
+   - Verificar que ejemplos siguen buenas prácticas
+   - Actualizar casos de error según nuevos hallazgos
+   - Mantener coherencia en terminología
+
+================================================================================
+                        INTEGRACIÓN CON ENDPOINTS
+================================================================================
+
+ENDPOINT SUGERIDO: /api/rag/consulta-inteligente
+
+```javascript
+POST /api/rag/consulta-inteligente
+{
+  "pregunta": "¿Cómo estructurar apartado presupuesto?",
+  "tipo_pliego": "obra_civil_obert", // opcional
+  "modalidad": "con_lotes", // opcional
+  "contexto_preferido": "PLANTILLAS_BASE" // opcional
+}
+
+RESPUESTA:
+{
+  "respuesta": "...",
+  "contextos_consultados": ["PLANTILLAS_BASE", "PLIEGOS_GENERADOS_OBRA_CIVIL_OBERT"],
+  "ejemplos_referencia": [...],
+  "documentos_fuente": [...]
+}
+```
+
+================================================================================
+                        MÉTRICAS DE EFECTIVIDAD
+================================================================================
+
+MEDIR REGULARMENTE:
+
+📊 PRECISIÓN DE RESPUESTAS:
+- % consultas respondidas correctamente
+- Tiempo promedio de respuesta
+- Satisfacción del usuario con respuestas
+
+📈 USO DE CONTEXTOS:
+- Contextos más consultados
+- Patrones de consultas cruzadas
+- Efectividad de asignación automática
+
+🎯 CALIDAD DE CONTENIDO:
+- Documentos más referenciados
+- Casos que requieren actualización
+- Gaps en cobertura de conocimiento
+
+================================================================================
+                                NOTAS IMPORTANTES
+================================================================================
+
+- Mantener contextos enfocados y específicos
+- Evitar duplicación innecesaria entre contextos
+- Priorizar calidad sobre cantidad de documentos
+- Actualizar regularmente según feedback de uso
+- Documentar decisiones de clasificación para consistencia
+- Monitorear rendimiento y ajustar según necesidades
+
+================================================================================
+                                    FIN
+================================================================================

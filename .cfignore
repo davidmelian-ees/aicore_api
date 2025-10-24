@@ -63,3 +63,7 @@ DEPLOYMENT_ISSUE.md
 
 # Archivos de testing local
 curl_commands.bat
+
+# Documentación de desarrollo (opcional)
+FOR_CONTEXT_PROCECED/
+FOR_CONTEXT/
