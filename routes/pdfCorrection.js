@@ -60,7 +60,8 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
 
     const result = await generatePDFWithCorrectionsList(
       req.file.path,
-      req.body.customPrompt || null
+      req.body.customPrompt || null,
+      req.body.contextId || null
     );
 
     // Configurar headers para descarga

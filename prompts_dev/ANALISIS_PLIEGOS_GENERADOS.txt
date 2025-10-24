@@ -19,6 +19,7 @@ NOMENCLATURA ESPERADA:
 - pliego_{tipo}_{modalidad}_GENERADO (mayúscula)
 
 EJEMPLOS VÁLIDOS:
+✅ plec_edificacio_obert_con_lotes_generado.pdf
 ✅ pliego_obra_civil_obert_con_lotes_generado.pdf
 ✅ pliego_obra_civil_obert_sin_lotes_generado.pdf
 ✅ pliego_obra_edificacio_simplificat_con_lotes_GENERADO.pdf
