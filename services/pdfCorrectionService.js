@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import { processDocument } from './documentProcessor.js';
 import { getAiCoreClient } from '../auth/aiCoreClient.js';
 import { searchContext } from './ragService.js';
+import { recordValidationMetrics, classifyPliego } from './pliegoAnalyticsService.js';
 import path from 'path';
 
 /**
@@ -118,6 +119,7 @@ GENERA EL INFORME DE VALIDACIÓN:
  * @returns {Promise<Object>} - PDF con correcciones listadas
  */
 export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null) {
+  const startTime = Date.now();
   try {
     console.log(`[PDF-CORRECTION] Generando PDF con lista de correcciones...`);
     
@@ -212,11 +214,42 @@ RELEVANCIA: ${result.similarity}
     
     console.log(`[PDF-CORRECTION] PDF con correcciones generado: ${pdfBuffer.length} bytes`);
     
+    // 7. Clasificar automáticamente el pliego para métricas
+    let pliegoClassification = null;
+    try {
+      pliegoClassification = await classifyPliego(originalPdfPath);
+      console.log(`[PDF-CORRECTION] Pliego clasificado: ${pliegoClassification.tipo}_${pliegoClassification.modalidad} (${pliegoClassification.confidence}% confianza)`);
+    } catch (error) {
+      console.warn(`[PDF-CORRECTION] Error clasificando pliego: ${error.message}`);
+    }
+    
+    // 8. Registrar métricas de validación
+    try {
+      const metricsId = recordValidationMetrics({
+        pdfPath: originalPdfPath,
+        errorsFound: correctionsList ? [correctionsList] : [],
+        contextId: contextId,
+        processingTime: Date.now() - startTime,
+        pliegoType: pliegoClassification?.tipo,
+        pliegoModality: pliegoClassification?.modalidad
+      });
+      console.log(`[PDF-CORRECTION] Métricas registradas: ${metricsId}`);
+    } catch (error) {
+      console.warn(`[PDF-CORRECTION] Error registrando métricas: ${error.message}`);
+    }
+    
     return {
       success: true,
       pdfBuffer,
       correctionsList,
       totalPageCount: newPdf.getPageCount(),
+      classification: pliegoClassification,
+      metrics: {
+        processedAt: new Date().toISOString(),
+        originalTextLength: originalText.length,
+        correctionsLength: correctionsList.length,
+        processingTime: Date.now() - startTime
+      },
       metadata: {
         processedAt: new Date().toISOString(),
         originalTextLength: originalText.length,
