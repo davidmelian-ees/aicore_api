@@ -1,8 +1,11 @@
+import "dotenv/config";
 import express from "express";
 import { initAuth } from "./auth.js";
 import chatRoutes from "./routes/chat.js";
 import ragRoutes from "./routes/rag.js";
 import pdfCorrectionRoutes from "./routes/pdfCorrection.js";
+import analyticsRoutes from "./routes/analytics.js";
+import authRoutes from "./routes/auth.js";
 import { initializeSampleData } from "./scripts/init-sample-data.js";
 import { persistenceManager } from "./services/persistenceManager.js";
 
@@ -78,13 +81,17 @@ if (isProduction) {
   console.log('🔐 Inicializando autenticación para producción...');
   initAuth(app);
 } else {
-  console.log('🔓 Modo desarrollo - autenticación deshabilitada');
+  console.log('🔓 Modo desarrollo - autenticación deshabilitada para APIs, pero auth endpoints disponibles');
 }
 
 // Configurar rutas de la API
 app.use('/api/chat', chatRoutes);
 app.use('/api/rag', ragRoutes);
 app.use('/api/pdf-correction', pdfCorrectionRoutes);
+app.use('/api/analytics', analyticsRoutes);
+
+// Rutas de autenticación SIEMPRE disponibles (incluso en desarrollo)
+app.use('/oauth', authRoutes);
 
 // Servir archivos estáticos de documentación
 app.use('/docs', express.static('docs'));
@@ -115,6 +122,13 @@ app.get('/', (req, res) => {
       ragPliego: '/api/rag/process-pliego',
       pdfCorrection: '/api/pdf-correction',
       pdfCorrectionHealth: '/api/pdf-correction/health',
+      analytics: '/api/analytics',
+      analyticsValidation: '/api/analytics/validation',
+      analyticsClassify: '/api/analytics/classify',
+      analyticsCompare: '/api/analytics/compare-template',
+      analyticsDashboard: '/api/analytics/dashboard-summary',
+      authToken: '/oauth/token',
+      authLogout: '/oauth/logout',
       documentation: '/docs/RAG_SYSTEM_DOCUMENTATION.html'
     }
   });
