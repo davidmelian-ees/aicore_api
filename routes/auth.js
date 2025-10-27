@@ -17,94 +17,18 @@ const DEV_CREDENTIALS = {
  */
 router.post('/token', async (req, res) => {
   try {
-    const isProduction = process.env.NODE_ENV === 'production';
+    console.log('[AUTH] Endpoint /oauth/token - Este endpoint ya no se usa para login');
+    console.log('[AUTH] El frontend llama directamente a SAP OAuth2');
 
-    if (isProduction) {
-      // En producción: usar OAuth2 de SAP con xssec
-      try {
-        const xsenv = await import('@sap/xsenv');
-        const { XsuaaService } = await import('@sap/xssec');
-
-        xsenv.default.loadEnv();
-        const services = xsenv.default.getServices({ xsuaa: { name: "aicore-app-auth" } });
-        const credentials = services.xsuaa;
-
-        // Aquí iría la lógica de OAuth2 de SAP
-        // Por ahora, devolver error para indicar que debe usar OAuth2 completo
-        return res.status(501).json({
-          error: 'not_implemented',
-          error_description: 'En producción use OAuth2 completo de SAP'
-        });
-
-      } catch (sapError) {
-        console.error('[AUTH] Error SAP OAuth2:', sapError);
-        return res.status(500).json({
-          error: 'sap_auth_error',
-          error_description: 'Error en autenticación SAP'
-        });
-      }
-    } else {
-      // En desarrollo: login simple con Basic Auth
-      console.log('[AUTH] Modo desarrollo - usando login simple');
-
-      // Extraer credenciales de Basic Auth
-      const authHeader = req.headers.authorization;
-
-      let username, password;
-
-      if (authHeader && authHeader.startsWith('Basic ')) {
-        // Decodificar Basic Auth
-        const base64Credentials = authHeader.split(' ')[1];
-        const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-        [username, password] = credentials.split(':');
-      } else {
-        // Usar credenciales del body (fallback)
-        username = req.body.username;
-        password = req.body.password;
-      }
-
-      // Validar credenciales
-      if (!username || !password) {
-        return res.status(400).json({
-          error: 'invalid_request',
-          error_description: 'Username and password required'
-        });
-      }
-
-      if (username !== DEV_CREDENTIALS.username || password !== DEV_CREDENTIALS.password) {
-        return res.status(401).json({
-          error: 'invalid_grant',
-          error_description: 'Invalid username or password'
-        });
-      }
-
-      // Generar token JWT simple para desarrollo
-      const token = jwt.sign(
-        {
-          sub: username,
-          name: username,
-          preferred_username: username,
-          email: `${username}@local.com`,
-          jti: generateJti()
-        },
-        'dev-secret-key', // En desarrollo usar clave simple
-        { expiresIn: '12h' }
-      );
-
-      console.log(`[AUTH] Login desarrollo exitoso para usuario: ${username}`);
-
-      // Respuesta compatible con SAP OAuth2
-      res.json({
-        access_token: token,
-        token_type: 'bearer',
-        expires_in: 43199,
-        scope: 'uaa.resource',
-        jti: generateJti()
-      });
-    }
+    // Este endpoint podría usarse para refresh tokens o validación
+    // Pero por ahora, devolver error indicando que no se usa
+    return res.status(410).json({
+      error: 'gone',
+      error_description: 'Este endpoint ya no se usa. El frontend llama directamente a SAP OAuth2'
+    });
 
   } catch (error) {
-    console.error('[AUTH] Error en login:', error);
+    console.error('[AUTH] Error en endpoint token:', error);
     res.status(500).json({
       error: 'server_error',
       error_description: 'Internal server error'

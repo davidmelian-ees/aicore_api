@@ -88,18 +88,34 @@ INSTRUCCIONES DE VALIDACIÓN:
    - Sugerencias de corrección específicas
    - Campos variables detectados
 
-4. FORMATO DE RESPUESTA:
-   🔴 ERRORES CRÍTICOS:
-   - [Lista de errores que impiden continuar]
-   
-   🟡 ADVERTENCIAS:
-   - [Lista de problemas menores]
-   
-   ✅ SUGERENCIAS:
-   - [Correcciones específicas recomendadas]
-   
-   📋 CAMPOS VARIABLES DETECTADOS:
-   - [Lista de variables SAP encontradas]
+4. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
+================================================================================
+
+🔴 ERRORES CRÍTICOS:
+- [Lista específica de errores que impiden continuar]
+- [Cada error en una línea separada]
+
+🟡 ADVERTENCIAS:
+- [Lista de problemas menores que permiten continuar]
+- [Cada advertencia en una línea separada]
+
+✅ SUGERENCIAS:
+- [Correcciones específicas recomendadas]
+- [Cada sugerencia en una línea separada]
+
+📋 CAMPOS VARIABLES DETECTADOS:
+- [Lista de variables SAP encontradas]
+- [Cada variable en una línea separada]
+
+================================================================================
+
+IMPORTANTE:
+- Usa EXACTAMENTE los emojis y títulos mostrados arriba
+- Cada sección debe empezar con el emoji correspondiente
+- Usa guiones (-) para listas
+- No uses números ni letras para listas
+- Si no hay elementos en una sección, omítela completamente
+- Mantén el formato limpio sin símbolos extra (#, *, etc.)
 
 ================================================================================
 TEXTO DEL PLIEGO A VALIDAR:
@@ -108,16 +124,153 @@ TEXTO DEL PLIEGO A VALIDAR:
 ${textForAnalysis}
 
 ================================================================================
-GENERA EL INFORME DE VALIDACIÓN:
+GENERA EL INFORME SIGUIENDO EL FORMATO EXACTO:
 ================================================================================`;
 }
 
 /**
- * Genera un PDF con el contenido original + lista de correcciones al final
- * @param {string} originalPdfPath - Ruta del PDF original
- * @param {string} customPrompt - Prompt para generar correcciones
- * @returns {Promise<Object>} - PDF con correcciones listadas
+ * Genera un PDF con lista de correcciones basado en contexto RAG
+ * @param {string} prompt - Prompt personalizado para la validación
+ * @param {string} contextId - ID del contexto RAG a usar
+ * @returns {Promise<Object>} - PDF con correcciones basadas en contexto
  */
+export async function generatePDFWithCorrectionsFromContext(prompt, contextId) {
+  const startTime = Date.now();
+  try {
+    console.log(`[PDF-CORRECTION] Generando PDF desde contexto RAG: ${contextId}`);
+
+    // 1. Cargar prompts de validación
+    const prompts = await loadValidationPrompts();
+
+    // 2. Buscar documentos relevantes en el contexto RAG
+    console.log(`[PDF-CORRECTION] Buscando documentos en contexto: ${contextId}`);
+
+    const ragResults = await searchContext(
+      `errores pliegos validación tags SAP campos variables ${prompt.substring(0, 200)}`,
+      {
+        contextId: contextId,
+        topK: 15 // Más documentos para análisis de contexto
+      }
+    );
+
+    if (!ragResults || ragResults.length === 0) {
+      throw new Error(`No se encontraron documentos relevantes en el contexto ${contextId}`);
+    }
+
+    console.log(`[PDF-CORRECTION] Encontrados ${ragResults.length} documentos relevantes`);
+
+    // 3. Preparar el texto del contexto para análisis
+    const contextText = ragResults
+      .map(result => `DOCUMENTO: ${result.metadata?.fileName || 'Sin nombre'}
+CONTENIDO: ${result.content}
+RELEVANCIA: ${result.similarity}
+TIPO: ${result.metadata?.type || 'Desconocido'}
+---`)
+      .join('\n\n');
+
+    // Limitar el texto si es muy largo
+    let textForAnalysis = contextText;
+    if (contextText.length > 30000) {
+      console.warn(`[PDF-CORRECTION] Texto de contexto muy largo: ${contextText.length} caracteres, truncando...`);
+      textForAnalysis = contextText.substring(0, 30000) + '\n\n[TEXTO DE CONTEXTO TRUNCADO...]';
+    }
+
+    // 4. Construir prompt específico para análisis de contexto
+    const contextAnalysisPrompt = `ANÁLISIS DE CONTEXTO PARA VALIDACIÓN DE PLIEGOS
+================================================================================
+
+CONTEXTO DISPONIBLE (Documentos de referencia):
+${textForAnalysis}
+
+================================================================================
+INSTRUCCIONES DEL USUARIO:
+${prompt}
+
+================================================================================
+TAREA: Analiza los documentos del contexto y genera un informe de validación
+que ayude a identificar patrones de error y buenas prácticas en pliegos SAP.
+
+El análisis debe incluir:
+1. Errores comunes encontrados en los documentos
+2. Patrones de variables SAP detectados
+3. Estructuras correctas identificadas
+4. Recomendaciones para validación automática
+5. Casos de uso específicos encontrados
+
+================================================================================`;
+
+    console.log(`[PDF-CORRECTION] Generando análisis con SAP AI Core (${contextAnalysisPrompt.length} caracteres)...`);
+
+    let correctionsReport;
+    try {
+      const client = getAiCoreClient('gpt-4o');
+      const response = await client.run({
+        messages: [{ role: 'user', content: contextAnalysisPrompt }]
+      });
+
+      correctionsReport = response.getContent();
+
+      if (!correctionsReport || correctionsReport.trim().length === 0) {
+        throw new Error('SAP AI Core devolvió una respuesta vacía');
+      }
+
+      console.log(`[PDF-CORRECTION] Análisis generado: ${correctionsReport.length} caracteres`);
+
+    } catch (aiError) {
+      console.error(`[PDF-CORRECTION] Error detallado en SAP AI Core:`, {
+        message: aiError.message,
+        status: aiError.status || aiError.code,
+        response: aiError.response?.data || 'No response data',
+        promptLength: contextAnalysisPrompt.length
+      });
+
+      // Fallback: generar reporte básico sin IA
+      console.log(`[PDF-CORRECTION] Usando fallback sin IA...`);
+      correctionsReport = `ANÁLISIS DE CONTEXTO - REPORTE BÁSICO
+
+No se pudo generar análisis automático con IA.
+
+Documentos analizados: ${ragResults.length}
+Contexto utilizado: ${contextId}
+
+Se encontraron ${ragResults.length} documentos relevantes que pueden servir como referencia
+para validación manual de pliegos SAP.
+
+Para análisis completo, verificar conexión con SAP AI Core.`;
+    }
+
+    // 5. Crear PDF SOLO con el informe de análisis de contexto
+    const newPdf = await PDFDocument.create();
+
+    // 6. Añadir páginas del informe
+    await addContextAnalysisReportPages(newPdf, correctionsReport, contextId, ragResults.length);
+
+    // 7. Generar PDF final
+    const finalPdfBytes = await newPdf.save();
+    const pdfBuffer = Buffer.from(finalPdfBytes);
+
+    console.log(`[PDF-CORRECTION] PDF de análisis de contexto generado: ${pdfBuffer.length} bytes`);
+
+    return {
+      success: true,
+      pdfBuffer,
+      contextId,
+      documentsAnalyzed: ragResults.length,
+      analysisReport: correctionsReport,
+      metadata: {
+        processedAt: new Date().toISOString(),
+        contextId: contextId,
+        documentsCount: ragResults.length,
+        analysisLength: correctionsReport.length,
+        processingTime: Date.now() - startTime
+      }
+    };
+
+  } catch (error) {
+    console.error('[PDF-CORRECTION] Error generando PDF desde contexto:', error);
+    throw new Error(`Error generando análisis de contexto: ${error.message}`);
+  }
+}
 export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null) {
   const startTime = Date.now();
   try {
@@ -264,10 +417,269 @@ RELEVANCIA: ${result.similarity}
 }
 
 /**
- * Añade páginas del informe de validación al PDF con formato mejorado
+ * Añade páginas del informe de análisis de archivo + contexto al PDF
  * @param {PDFDocument} pdf - Documento PDF
- * @param {string} validationReport - Informe de validación
+ * @param {string} analysisReport - Informe de análisis
+ * @param {string} contextId - ID del contexto
+ * @param {number} documentsCount - Número de documentos de referencia
+ * @param {string} fileName - Nombre del archivo analizado
  */
+async function addFileAndContextAnalysisReportPages(pdf, analysisReport, contextId, documentsCount, fileName) {
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
+
+  const pageHeight = 792; // Tamaño carta
+  const pageWidth = 612;
+  const margin = 50;
+  const lineHeight = 16;
+  const maxWidth = pageWidth - 2 * margin;
+  const maxLinesPerPage = Math.floor((pageHeight - 2 * margin - 80) / lineHeight);
+
+  let currentPage = pdf.addPage([pageWidth, pageHeight]);
+  let yPosition = pageHeight - margin;
+  let lineCount = 0;
+
+  // Título principal
+  currentPage.drawText('ANÁLISIS DE PLIEGO CON CONTEXTO', {
+    x: margin,
+    y: yPosition,
+    size: 18,
+    font: boldFont,
+    color: rgb(0, 0, 0)
+  });
+
+  yPosition -= 30;
+
+  // Información del archivo y contexto
+  currentPage.drawText(`Archivo analizado: ${fileName}`, {
+    x: margin,
+    y: yPosition,
+    size: 12,
+    font: font,
+    color: rgb(0.4, 0.4, 0.4)
+  });
+
+  yPosition -= 20;
+
+  currentPage.drawText(`Contexto de referencia: ${contextId}`, {
+    x: margin,
+    y: yPosition,
+    size: 12,
+    font: font,
+    color: rgb(0.4, 0.4, 0.4)
+  });
+
+  yPosition -= 20;
+
+  currentPage.drawText(`Documentos de referencia: ${documentsCount}`, {
+    x: margin,
+    y: yPosition,
+    size: 12,
+    font: font,
+    color: rgb(0.4, 0.4, 0.4)
+  });
+
+  yPosition -= 30;
+
+  // Fecha y hora
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES');
+  currentPage.drawText(`Generado: ${dateStr}`, {
+    x: margin,
+    y: yPosition,
+    size: 10,
+    font: font,
+    color: rgb(0.5, 0.5, 0.5)
+  });
+
+  yPosition -= 40;
+  lineCount += 7;
+
+  // Procesar el contenido línea por línea
+  const lines = analysisReport.split('\n');
+
+  for (const line of lines) {
+    // Limpiar línea de respuesta de IA antes de procesar
+    const cleanedLine = cleanAIResponseLine(line.trim());
+
+    // Verificar si necesitamos nueva página
+    if (lineCount >= maxLinesPerPage) {
+      currentPage = pdf.addPage([pageWidth, pageHeight]);
+      yPosition = pageHeight - margin;
+      lineCount = 0;
+
+      // Título en nueva página
+      currentPage.drawText('ANÁLISIS DE PLIEGO (continuación)', {
+        x: margin,
+        y: yPosition,
+        size: 16,
+        font: boldFont,
+        color: rgb(0, 0, 0)
+      });
+
+      yPosition -= 40;
+      lineCount += 2;
+    }
+
+    // Procesar línea
+    const processedLine = processLineFormatting(cleanedLine);
+
+    if (processedLine.text.length === 0) {
+      // Línea vacía - añadir espacio
+      yPosition -= lineHeight * 0.5;
+      lineCount += 0.5;
+      continue;
+    }
+
+    // Dividir líneas largas
+    const wrappedLines = wrapText(processedLine.text, maxWidth, processedLine.isBold ? boldFont : font, processedLine.fontSize);
+
+    for (const wrappedLine of wrappedLines) {
+      if (lineCount >= maxLinesPerPage) {
+        currentPage = pdf.addPage([pageWidth, pageHeight]);
+        yPosition = pageHeight - margin;
+        lineCount = 0;
+      }
+
+      // Limpiar caracteres especiales para WinAnsi
+      const cleanLine = cleanTextForPDF(wrappedLine);
+
+      currentPage.drawText(cleanLine, {
+        x: margin + processedLine.indent,
+        y: yPosition,
+        size: processedLine.fontSize,
+        font: processedLine.isBold ? boldFont : font,
+        color: processedLine.color
+      });
+
+      yPosition -= lineHeight;
+      lineCount++;
+    }
+  }
+}
+async function addContextAnalysisReportPages(pdf, analysisReport, contextId, documentsCount) {
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
+
+  const pageHeight = 792; // Tamaño carta
+  const pageWidth = 612;
+  const margin = 50;
+  const lineHeight = 16;
+  const maxWidth = pageWidth - 2 * margin;
+  const maxLinesPerPage = Math.floor((pageHeight - 2 * margin - 80) / lineHeight);
+
+  let currentPage = pdf.addPage([pageWidth, pageHeight]);
+  let yPosition = pageHeight - margin;
+  let lineCount = 0;
+
+  // Título principal
+  currentPage.drawText('ANÁLISIS DE CONTEXTO PARA VALIDACIÓN', {
+    x: margin,
+    y: yPosition,
+    size: 18,
+    font: boldFont,
+    color: rgb(0, 0, 0)
+  });
+
+  yPosition -= 30;
+
+  // Información del contexto
+  currentPage.drawText(`Contexto: ${contextId}`, {
+    x: margin,
+    y: yPosition,
+    size: 12,
+    font: font,
+    color: rgb(0.4, 0.4, 0.4)
+  });
+
+  yPosition -= 20;
+
+  currentPage.drawText(`Documentos analizados: ${documentsCount}`, {
+    x: margin,
+    y: yPosition,
+    size: 12,
+    font: font,
+    color: rgb(0.4, 0.4, 0.4)
+  });
+
+  yPosition -= 30;
+
+  // Fecha y hora
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES');
+  currentPage.drawText(`Generado: ${dateStr}`, {
+    x: margin,
+    y: yPosition,
+    size: 10,
+    font: font,
+    color: rgb(0.5, 0.5, 0.5)
+  });
+
+  yPosition -= 40;
+  lineCount += 6;
+
+  // Procesar el contenido línea por línea
+  const lines = analysisReport.split('\n');
+
+  for (const line of lines) {
+    // Limpiar línea de respuesta de IA antes de procesar
+    const cleanedLine = cleanAIResponseLine(line.trim());
+
+    // Verificar si necesitamos nueva página
+    if (lineCount >= maxLinesPerPage) {
+      currentPage = pdf.addPage([pageWidth, pageHeight]);
+      yPosition = pageHeight - margin;
+      lineCount = 0;
+
+      // Título en nueva página
+      currentPage.drawText('ANÁLISIS DE CONTEXTO (continuación)', {
+        x: margin,
+        y: yPosition,
+        size: 16,
+        font: boldFont,
+        color: rgb(0, 0, 0)
+      });
+
+      yPosition -= 40;
+      lineCount += 2;
+    }
+
+    // Procesar línea
+    const processedLine = processLineFormatting(cleanedLine);
+
+    if (processedLine.text.length === 0) {
+      // Línea vacía - añadir espacio
+      yPosition -= lineHeight * 0.5;
+      lineCount += 0.5;
+      continue;
+    }
+
+    // Dividir líneas largas
+    const wrappedLines = wrapText(processedLine.text, maxWidth, processedLine.isBold ? boldFont : font, processedLine.fontSize);
+
+    for (const wrappedLine of wrappedLines) {
+      if (lineCount >= maxLinesPerPage) {
+        currentPage = pdf.addPage([pageWidth, pageHeight]);
+        yPosition = pageHeight - margin;
+        lineCount = 0;
+      }
+
+      // Limpiar caracteres especiales para WinAnsi
+      const cleanLine = cleanTextForPDF(wrappedLine);
+
+      currentPage.drawText(cleanLine, {
+        x: margin + processedLine.indent,
+        y: yPosition,
+        size: processedLine.fontSize,
+        font: processedLine.isBold ? boldFont : font,
+        color: processedLine.color
+      });
+
+      yPosition -= lineHeight;
+      lineCount++;
+    }
+  }
+}
 async function addValidationReportPages(pdf, validationReport) {
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -312,6 +724,9 @@ async function addValidationReportPages(pdf, validationReport) {
   const lines = validationReport.split('\n');
   
   for (const line of lines) {
+    // Limpiar línea de respuesta de IA antes de procesar
+    const cleanedLine = cleanAIResponseLine(line.trim());
+    
     // Verificar si necesitamos nueva página
     if (lineCount >= maxLinesPerPage) {
       currentPage = pdf.addPage([pageWidth, pageHeight]);
@@ -332,7 +747,7 @@ async function addValidationReportPages(pdf, validationReport) {
     }
     
     // Procesar línea
-    const processedLine = processLineFormatting(line.trim());
+    const processedLine = processLineFormatting(cleanedLine);
     
     if (processedLine.text.length === 0) {
       // Línea vacía - añadir espacio
@@ -377,43 +792,90 @@ function processLineFormatting(line) {
   let fontSize = 12;
   let color = rgb(0, 0, 0);
   let indent = 0;
-  
+
+  // Limpiar texto primero - remover símbolos "#" inesperados
+  text = text.replace(/^#+\s*/g, '').trim();
+
   // Detectar y procesar texto en negritas **TEXTO**
   if (text.includes('**')) {
     text = text.replace(/\*\*(.*?)\*\*/g, '$1');
     isBold = true;
   }
-  
-  // Detectar títulos y secciones (tanto emojis como texto limpio)
-  if (text.startsWith('🔴') || text.startsWith('[ERROR CRITICO]') || text.startsWith('ERRORES CRÍTICOS')) {
+
+  // Convertir texto a minúsculas para comparación pero mantener original para display
+  const textLower = text.toLowerCase();
+
+  // Detectar títulos y secciones con múltiples patrones
+  if (text.startsWith('🔴') || text.startsWith('[ERROR CRITICO]') ||
+      text.startsWith('ERRORES CRÍTICOS') || textLower.includes('errores críticos') ||
+      text.startsWith('# ERRORES CRÍTICOS') || text.startsWith('### ERRORES CRÍTICOS')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0.8, 0, 0); // Rojo
-  } else if (text.startsWith('🟡') || text.startsWith('[ADVERTENCIA]') || text.startsWith('ADVERTENCIAS')) {
+    // Limpiar marcadores adicionales
+    text = text.replace(/^🔴\s*|^\[ERROR CRITICO\]\s*|^ERRORES CRÍTICOS\s*|^#+\s*ERRORES CRÍTICOS\s*/i, '').trim();
+    if (!text) text = 'ERRORES CRÍTICOS:';
+  } else if (text.startsWith('🟡') || text.startsWith('[ADVERTENCIA]') ||
+             text.startsWith('ADVERTENCIAS') || textLower.includes('advertencias') ||
+             text.startsWith('# ADVERTENCIAS') || text.startsWith('### ADVERTENCIAS')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0.8, 0.6, 0); // Naranja
-  } else if (text.startsWith('✅') || text.startsWith('[SUGERENCIA]') || text.startsWith('SUGERENCIAS')) {
+    // Limpiar marcadores adicionales
+    text = text.replace(/^🟡\s*|^\[ADVERTENCIA\]\s*|^ADVERTENCIAS\s*|^#+\s*ADVERTENCIAS\s*/i, '').trim();
+    if (!text) text = 'ADVERTENCIAS:';
+  } else if (text.startsWith('✅') || text.startsWith('[SUGERENCIA]') ||
+             text.startsWith('SUGERENCIAS') || textLower.includes('sugerencias') ||
+             text.startsWith('# SUGERENCIAS') || text.startsWith('### SUGERENCIAS')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0, 0.6, 0); // Verde
-  } else if (text.startsWith('📋') || text.startsWith('[CAMPOS VARIABLES]') || text.startsWith('CAMPOS VARIABLES')) {
+    // Limpiar marcadores adicionales
+    text = text.replace(/^✅\s*|^\[SUGERENCIA\]\s*|^SUGERENCIAS\s*|^#+\s*SUGERENCIAS\s*/i, '').trim();
+    if (!text) text = 'SUGERENCIAS:';
+  } else if (text.startsWith('📋') || text.startsWith('[CAMPOS VARIABLES]') ||
+             text.startsWith('CAMPOS VARIABLES') || textLower.includes('campos variables') ||
+             text.startsWith('# CAMPOS VARIABLES') || text.startsWith('### CAMPOS VARIABLES')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0, 0, 0.8); // Azul
-  } else if (text.startsWith('===') || text.includes('================')) {
+    // Limpiar marcadores adicionales
+    text = text.replace(/^📋\s*|^\[CAMPOS VARIABLES\]\s*|^CAMPOS VARIABLES\s*|^#+\s*CAMPOS VARIABLES\s*/i, '').trim();
+    if (!text) text = 'CAMPOS VARIABLES DETECTADOS:';
+  } else if (text.startsWith('===') || text.includes('================') ||
+             text.startsWith('---') || text.includes('----------')) {
     // Separadores - hacer más pequeños
     fontSize = 10;
     color = rgb(0.6, 0.6, 0.6);
+  } else if (textLower.startsWith('error') || textLower.includes('crítico') ||
+             textLower.includes('problema grave')) {
+    // Detectar líneas que mencionan errores críticos
+    isBold = true;
+    fontSize = 13;
+    color = rgb(0.7, 0, 0); // Rojo más claro
+  } else if (textLower.startsWith('advertencia') || textLower.includes('cuidado') ||
+             textLower.includes('revisar')) {
+    // Detectar líneas que mencionan advertencias
+    fontSize = 13;
+    color = rgb(0.7, 0.5, 0); // Naranja más claro
+  } else if (textLower.startsWith('sugerencia') || textLower.includes('recomend') ||
+             textLower.includes('considera')) {
+    // Detectar líneas que mencionan sugerencias
+    fontSize = 13;
+    color = rgb(0, 0.5, 0); // Verde más claro
   }
-  
-  // Detectar elementos de lista
-  if (text.startsWith('- ') || text.startsWith('• ')) {
+
+  // Detectar elementos de lista con más patrones
+  if (text.startsWith('- ') || text.startsWith('• ') || text.startsWith('· ') ||
+      /^\d+\.\s/.test(text) || /^[a-zA-Z]\.\s/.test(text)) {
     indent = 20;
-  } else if (text.startsWith('  - ') || text.startsWith('  • ')) {
+  } else if (text.startsWith('  - ') || text.startsWith('  • ') || text.startsWith('  · ') ||
+             /^  \d+\.\s/.test(text) || /^  [a-zA-Z]\.\s/.test(text)) {
     indent = 40;
+  } else if (text.startsWith('    - ') || text.startsWith('    • ') || text.startsWith('    · ')) {
+    indent = 60;
   }
-  
+
   return { text, isBold, fontSize, color, indent };
 }
 
@@ -422,6 +884,8 @@ function processLineFormatting(line) {
  */
 function cleanTextForPDF(text) {
   return text
+    // Limpiar símbolos "#" al inicio de líneas
+    .replace(/^#+\s*/gm, '')
     // Reemplazar emojis comunes con texto
     .replace(/🔴/g, '[ERROR CRITICO]')
     .replace(/🟡/g, '[ADVERTENCIA]')
@@ -430,8 +894,33 @@ function cleanTextForPDF(text) {
     .replace(/⚠️/g, '[ATENCION]')
     .replace(/❌/g, '[X]')
     .replace(/✔️/g, '[OK]')
-    // Limpiar otros caracteres especiales
+    .replace(/💡/g, '[IDEA]')
+    .replace(/🔍/g, '[BUSCAR]')
+    .replace(/📊/g, '[ESTADISTICAS]')
+    .replace(/🏗️/g, '[CONSTRUCCION]')
+    .replace(/📄/g, '[DOCUMENTO]')
+    // Limpiar otros caracteres especiales Unicode que no están en WinAnsi
     .replace(/[^\x20-\x7E\u00A0-\u00FF]/g, '?')
+    // Limpiar secuencias de puntos o guiones largos que podrían ser separadores
+    .replace(/[-]{3,}/g, '---')
+    .replace(/[=]{3,}/g, '===')
+    // Normalizar espacios múltiples
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Limpia líneas de respuesta de IA para eliminar formatos inesperados
+ */
+function cleanAIResponseLine(line) {
+  return line
+    // Remover marcadores markdown no deseados
+    .replace(/^#{1,6}\s*/g, '')
+    .replace(/^\*+\s*/g, '')
+    .replace(/^•+\s*/g, '')
+    // Limpiar texto entre paréntesis o corchetes al inicio si son marcadores
+    .replace(/^\([^)]+\)\s*/g, '')
+    .replace(/^\[[^\]]+\]\s*/g, '')
     // Normalizar espacios
     .replace(/\s+/g, ' ')
     .trim();
