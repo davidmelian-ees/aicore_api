@@ -30,10 +30,27 @@ app.use((req, res, next) => {
   }
   
   if (isProduction) {
-    // En producción, solo permitir el dominio específico del frontend
-    if (origin === 'https://rag-dashboard-ui.cfapps.eu10-005.hana.ondemand.com') {
+    // En producción, permitir localhost para desarrollo local + dominio de producción
+    const allowedOrigins = [
+      'https://rag-dashboard-ui.cfapps.eu10-005.hana.ondemand.com',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3001'
+    ];
+    
+    if (origin && allowedOrigins.includes(origin)) {
       res.header('Access-Control-Allow-Origin', origin);
-      console.log(`[CORS] Permitido origen de producción: ${origin}`);
+      console.log(`[CORS] ✅ Producción - permitiendo origen: ${origin}`);
+    } else if (!origin) {
+      // Para requests sin origin (como Postman)
+      res.header('Access-Control-Allow-Origin', '*');
+      console.log(`[CORS] ✅ Sin origin - permitiendo *`);
+    } else {
+      console.log(`[CORS] ⚠️ Origen no permitido en producción: ${origin}`);
+      // En producción, rechazar orígenes no permitidos
+      res.status(403).json({ error: 'CORS not allowed' });
+      return;
     }
   } else {
     // En desarrollo, permitir localhost en cualquier puerto
@@ -71,17 +88,67 @@ app.use((req, res, next) => {
   next();
 });
 
+// Middleware de validación de tokens SAP
+const validateSAPToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      error: 'unauthorized',
+      error_description: 'Token Bearer requerido'
+    });
+  }
+
+  const token = authHeader.substring(7); // Remover 'Bearer '
+
+  try {
+    // Decodificar JWT para validar estructura básica
+    const decoded = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+
+    // Verificar que sea un token de SAP (básico)
+    if (!decoded.iss || !decoded.exp) {
+      throw new Error('Token inválido');
+    }
+
+    // Verificar expiración
+    const now = Math.floor(Date.now() / 1000);
+    if (decoded.exp < now) {
+      return res.status(401).json({
+        error: 'token_expired',
+        error_description: 'Token expirado'
+      });
+    }
+
+    // Agregar información del usuario al request
+    req.user = {
+      client_id: decoded.client_id || decoded.sub,
+      scope: decoded.scope || [],
+      iss: decoded.iss
+    };
+
+    console.log(`[AUTH] ✅ Token válido para client: ${req.user.client_id}`);
+    next();
+
+  } catch (error) {
+    console.error('[AUTH] ❌ Error validando token:', error.message);
+    return res.status(401).json({
+      error: 'invalid_token',
+      error_description: 'Token inválido'
+    });
+  }
+};
+
 console.log(`🌐 CORS configurado para ${isProduction ? 'producción' : 'desarrollo'}`);
 
 // Middleware de parsing JSON (después de CORS)
 app.use(express.json());
 
-// Inicializar autenticación (después de CORS y JSON)
+// Aplicar validación de tokens SAP a rutas protegidas
 if (isProduction) {
-  console.log('🔐 Inicializando autenticación para producción...');
-  initAuth(app);
+  console.log('🔐 Aplicando validación de tokens SAP a rutas protegidas...');
+  app.use('/api', validateSAPToken);
 } else {
-  console.log('🔓 Modo desarrollo - autenticación deshabilitada para APIs, pero auth endpoints disponibles');
+  console.log('🔓 Modo desarrollo - autenticación deshabilitada para APIs');
 }
 
 // Configurar rutas de la API
