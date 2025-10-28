@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación Completa - Sistema RAG con SAP AI Core - David Melián</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        nav {
+            background: #343a40;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        nav ul {
+            list-style: none;
+            text-align: center;
+        }
+        
+        nav li {
+            display: inline;
+            margin: 0 15px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover {
+            background: #495057;
+        }
+        
+        section {
+            background: white;
+            margin: 20px 0;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #495057;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 2.2em;
+        }
+        
+        h3 {
+            color: #6c757d;
+            margin: 25px 0 15px 0;
+            font-size: 1.6em;
+        }
+        
+        h4 {
+            color: #6c757d;
+            margin: 20px 0 10px 0;
+            font-size: 1.3em;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .success {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .list-item {
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .list-item::before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .endpoint {
+            background: #e9ecef;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .get { background: #28a745; }
+        .post { background: #007bff; }
+        .delete { background: #dc3545; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .badge.primary { background: #007bff; color: white; }
+        .badge.success { background: #28a745; color: white; }
+        .badge.warning { background: #ffc107; color: black; }
+        .badge.danger { background: #dc3545; color: white; }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #343a40;
+            color: white;
+            margin-top: 40px;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .toc ul {
+            list-style: none;
+        }
+        
+        .toc li {
+            margin: 5px 0;
+        }
+        
+        .toc a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            nav li {
+                display: block;
+                margin: 5px 0;
+            }
+            
+            section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📚 Sistema RAG con SAP AI Core/Revisión de pliegos</h1>
+            <p class="subtitle">Documentación Completa del Sistema de Recuperación Aumentada por Generación</p>
+            <p><strong>Versión:</strong> 1.0.0 | <strong>Fecha:</strong> Octubre 2025 | <strong>Proyecto:</strong> AI Core API | <strong>Creada por:</strong> David Melián</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#introduccion">Introducción</a></li>
+                <li><a href="#arquitectura">Arquitectura</a></li>
+                <li><a href="#instalacion">Instalación</a></li>
+                <li><a href="#api">API Reference</a></li>
+                <li><a href="#funcionalidades">Funcionalidades</a></li>
+                <li><a href="#guias">Guías de Uso</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section id="introduccion">
+            <h2>🎯 Resumen</h2>
+            
+            <h3>Descripción del Proyecto</h3>
+            <p>El <strong>Sistema RAG (Retrieval-Augmented Generation)</strong> es una solución completa que integra <strong>SAP AI Core</strong> con <strong>ChromaDB</strong> para proporcionar capacidades avanzadas de búsqueda semántica y chat conversacional basado en documentos corporativos.</p>
+            
+            <h3>Características Principales</h3>
+            <div class="list-item">✅ <strong>Integración completa con SAP AI Core</strong> para embeddings y generación de texto</div>
+            <div class="list-item">✅ <strong>ChromaDB embebido</strong> para persistencia vectorial en Cloud Foundry</div>
+            <div class="list-item">✅ <strong>Procesamiento multi-formato</strong>: TXT, DOCX, MD, JSON, CSV, PDF, XLSX, XLS</div>
+            <div class="list-item">✅ <strong>API REST completa</strong> con endpoints para gestión de documentos</div>
+            <div class="list-item">✅ <strong>Chat conversacional</strong> usando contexto de documentos indexados</div>
+            <div class="list-item">✅ <strong>Fallback automático</strong> a almacenamiento en memoria</div>
+            <div class="list-item">✅ <strong>Autenticación XSUAA</strong> para entornos de producción</div>
+            <div class="list-item">✅ <strong>Despliegue en Cloud Foundry</strong> con configuración automática</div>
+            
+            <h3>Beneficios del Negocio</h3>
+            <div class="list-item">📈 <strong>Acceso Inteligente a Información</strong>: Búsqueda semántica en documentos corporativos</div>
+            <div class="list-item">🤖 <strong>Automatización de Consultas</strong>: Chat bot que responde basándose en documentación oficial</div>
+            <div class="list-item">☁️ <strong>Escalabilidad</strong>: Arquitectura cloud-native en SAP BTP</div>
+            <div class="list-item">🔒 <strong>Seguridad</strong>: Integración con XSUAA para control de acceso</div>
+            <div class="list-item">🛠️ <strong>Mantenimiento Simplificado</strong>: Configuración automática y fallbacks</div>
+            
+            <h3>Componentes del Sistema</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Componente</th>
+                        <th>Propósito</th>
+                        <th>Tecnologías</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Backend API</strong></td>
+                        <td>Servidor principal con lógica de negocio</td>
+                        <td>Node.js, Express.js, ES6 Modules</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sistema RAG</strong></td>
+                        <td>Búsqueda semántica y chat conversacional</td>
+                        <td>SAP AI Core, ChromaDB, Embeddings</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Corrección PDFs</strong></td>
+                        <td>Corrección ortográfica automática de documentos</td>
+                        <td>pdf-lib, pdfjs-dist, SAP AI Core</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Validación Pliegos</strong></td>
+                        <td>Análisis estructural de documentos SAP</td>
+                        <td>IA generativa, Patrones de validación</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Frontend React</strong></td>
+                        <td>Interfaz de usuario para gestión del sistema</td>
+                        <td>React, Axios, OAuth2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="arquitectura">
+            <h2>🏗️ Arquitectura del Sistema</h2>
+            
+            <h3>Arquitectura General</h3>
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="../Images/diagrama.png" alt="Diagrama de Arquitectura del Sistema RAG" style="max-width: 100%; height: auto; border: 1px solid #dee2e6; border-radius: 5px;">
+                <p style="margin-top: 10px; font-size: 0.9em; color: #6c757d;"><em>Diagrama general de la arquitectura del sistema</em></p>
+            </div>
+            
+            <h3>Flujo de Datos</h3>
+            <h4>1. Ingesta de Documentos</h4>
+            <div class="code-block">
+Documento → Procesamiento → Chunking → Embeddings (SAP AI Core) → ChromaDB/SQLite
+            </div>
+            
+            <h4>2. Búsqueda Semántica</h4>
+            <div class="code-block">
+Query → Embedding (SAP AI Core) → Búsqueda Vectorial (ChromaDB/SQLite) → Resultados Rankeados
+            </div>
+            
+            <h4>3. Chat RAG</h4>
+            <div class="code-block">
+Pregunta → Búsqueda Contexto → Prompt + Contexto → LLM (SAP AI Core) → Respuesta
+            </div>
+            
+            <h3>Estructura de Archivos del Backend</h3>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="../Images/jerarquia_carpetas.png" alt="Jerarquía de Carpetas del Backend" style="max-width: 100%; height: auto; border: 1px solid #dee2e6; border-radius: 5px;">
+                <p style="margin-top: 10px; font-size: 0.9em; color: #6c757d;"><em>Jerarquía visual de las carpetas del backend</em></p>
+            </div>
+            
+            <h3>Componentes por Entorno</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Componente</th>
+                        <th>Desarrollo Local</th>
+                        <th>Cloud Foundry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vector Store</strong></td>
+                        <td>ChromaDB Python Service</td>
+                        <td>ChromaDB Embebido</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Autenticación</strong></td>
+                        <td>Deshabilitada</td>
+                        <td>XSUAA</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Puerto</strong></td>
+                        <td>4000 + 8001</td>
+                        <td>Dinámico</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Persistencia</strong></td>
+                        <td>Archivos externos</td>
+                        <td>Archivos locales CF</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Datos</strong></td>
+                        <td>Upload manual</td>
+                        <td>Pre-cargados</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Dependencias Principales</h3>
+            <div class="code-block">
+{
+  "express": "^4.18.2",
+  "multer": "^1.4.5-lts.1",
+  "better-sqlite3": "^8.7.0",
+  "mammoth": "^1.6.0",
+  "xlsx": "^0.18.5",
+  "pdfjs-dist": "^4.0.379",
+  "pdf-lib": "^1.17.1",
+  "@sap/xssec": "^3.2.13",
+  "passport": "^0.6.0",
+  "cors": "^2.8.5",
+  "uuid": "^9.0.0"
+}
+            </div>
+        </section>
+
+        <section id="instalacion">
+            <h2>⚙️ Instalación y Configuración</h2>
+            
+            <h3>Prerequisitos</h3>
+            <div class="list-item">✅ <strong>Node.js 20.x</strong> o superior</div>
+            <div class="list-item">✅ <strong>Python 3.8+</strong> (para ChromaDB local)</div>
+            <div class="list-item">✅ <strong>SAP BTP Account</strong> con AI Core habilitado</div>
+            <div class="list-item">✅ <strong>CF CLI</strong> instalado (para despliegue)</div>
+            
+            <h3>Instalación Local</h3>
+            <div class="code-block">
+# 1. Clonar repositorio
+git clone [repository-url]
+cd aicore_api
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Configurar variables de entorno
+cp default-env.json.example default-env.json
+# Editar con credenciales SAP BTP
+
+# 4. Iniciar ChromaDB local (opcional)
+cd chroma_service
+start_service.bat
+
+# 5. En otra terminal, iniciar servidor
+npm start
+            </div>
+            
+            <h3>Variables de Entorno</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Desarrollo</th>
+                        <th>Producción</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>NODE_ENV</strong></td>
+                        <td>development</td>
+                        <td>production</td>
+                        <td>Entorno de ejecución</td>
+                    </tr>
+                    <tr>
+                        <td><strong>VECTOR_STORE_TYPE</strong></td>
+                        <td>python</td>
+                        <td>chroma</td>
+                        <td>Tipo de almacén vectorial</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PORT</strong></td>
+                        <td>4000</td>
+                        <td>CF_PORT</td>
+                        <td>Puerto del servidor</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RAG_CHUNK_SIZE</strong></td>
+                        <td>1000</td>
+                        <td>1000</td>
+                        <td>Tamaño de chunks</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RAG_CHUNK_OVERLAP</strong></td>
+                        <td>200</td>
+                        <td>200</td>
+                        <td>Solapamiento de chunks</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Configuración SAP AI Core</h3>
+            <div class="code-block">
+// auth/aiCoreClient.js
+const AICORE_CONFIG = {
+  authUrl: process.env.AICORE_AUTH_URL,
+  clientId: process.env.AICORE_CLIENT_ID,
+  clientSecret: process.env.AICORE_CLIENT_SECRET,
+  resourceGroup: process.env.AICORE_RESOURCE_GROUP,
+  baseUrl: process.env.AICORE_BASE_URL
+};
+            </div>
+            
+            <h3>Despliegue en Cloud Foundry</h3>
+            <h4>Configuración manifest.yml</h4>
+            <div class="code-block">
+---
+applications:
+  - name: ai_core_api
+    memory: 2048M
+    instances: 1
+    buildpacks:
+      - nodejs_buildpack
+    command: node server.js
+    services:
+      - aicore-app-auth
+    env:
+      NODE_ENV: production
+      VECTOR_STORE_TYPE: sqlite
+            </div>
+            
+            <h4>Proceso de Despliegue</h4>
+            <div class="code-block">
+# 1. Login en Cloud Foundry
+cf login -a https://api.cf.eu10-005.hana.ondemand.com
+
+# 2. Configurar target
+cf target -o "ORGANIZACION" -s "ESPACIO"
+
+# 3. Desplegar aplicación
+cf push
+
+# 4. Verificar estado
+cf apps
+cf logs ai_core_api --recent
+            </div>
+            
+            <h3>Scripts de Automatización</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Script</th>
+                        <th>Propósito</th>
+                        <th>Ubicación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>start-local-development.bat</strong></td>
+                        <td>Iniciar desarrollo completo</td>
+                        <td>Raíz del proyecto</td>
+                    </tr>
+                    <tr>
+                        <td><strong>deploy-backend.bat</strong></td>
+                        <td>Desplegar backend a CF</td>
+                        <td>Raíz del proyecto</td>
+                    </tr>
+                    <tr>
+                        <td><strong>cleanup-project.bat</strong></td>
+                        <td>Limpiar archivos temporales</td>
+                        <td>Backend</td>
+                    </tr>
+                    <tr>
+                        <td><strong>start-with-sqlite.bat</strong></td>
+                        <td>Iniciar con SQLite</td>
+                        <td>Backend</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="api">
+            <h2>📡 API Reference</h2>
+            
+            <h3>Base URLs</h3>
+            <div class="list-item">🌐 <strong>Desarrollo</strong>: http://localhost:4000</div>
+            <div class="list-item">☁️ <strong>Producción</strong>: https://tu-app.cfapps.sap.hana.ondemand.com</div>
+            
+            <h3>Endpoints de Salud</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span> /health
+            </div>
+            <div class="code-block">
+{
+  "status": "healthy",
+  "timestamp": "2024-10-08T12:30:00Z",
+  "environment": "production",
+  "vectorStore": "chroma"
+}
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/rag/health
+            </div>
+            <div class="code-block">
+{
+  "status": "healthy",
+  "message": "Sistema RAG funcionando correctamente",
+  "summary": {
+    "totalDocuments": 2,
+    "totalChunks": 15,
+    "embeddingDimension": 384,
+    "vectorStoreType": "chroma"
+  }
+}
+            </div>
+            
+            <h3>Gestión de Documentos</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/rag/documents
+            </div>
+            <p>Lista todos los documentos indexados con metadatos</p>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/rag/upload
+            </div>
+            <p>Sube y procesa un documento</p>
+            <div class="code-block">
+Content-Type: multipart/form-data
+Campos: document (file), tags (string), description (string)
+            </div>
+            
+            <div class="endpoint">
+                <span class="method delete">DELETE</span> /api/rag/documents/{documentId}
+            </div>
+            <p>Elimina un documento específico del índice</p>
+            
+            <h3>Búsqueda y Chat</h3>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/rag/search
+            </div>
+            <div class="code-block">
+{
+  "query": "políticas de vacaciones",
+  "topK": 5,
+  "minSimilarity": 0.3,
+  "documentId": "opcional"
+}
+            </div>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/rag/chat
+            </div>
+            <div class="code-block">
+{
+  "message": "¿Cuáles son las políticas de vacaciones?",
+  "maxTokens": 500,
+  "temperature": 0.7
+}
+            </div>
+            
+            <h3>Backup y Restauración</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/rag/download-db
+            </div>
+            <p>Descarga backup de base de datos SQLite</p>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/rag/upload-db
+            </div>
+            <p>Sube/restaura base de datos desde backup</p>
+            
+            <h3>Corrección de PDFs</h3>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/pdf-correction/generate-list
+            </div>
+            <p>Genera PDF con lista de correcciones al final</p>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/pdf-correction/apply-corrections
+            </div>
+            <p>Aplica correcciones directamente al PDF preservando formato</p>
+            
+            <h3>Validación de Pliegos</h3>
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/pliego-validation/validate
+            </div>
+            <p>Valida pliego y genera informe de errores</p>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/pliego-validation/validate-text
+            </div>
+            <p>Valida texto directo de pliego</p>
+            
+            <h3>Gestión de Contextos</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/rag/contexts
+            </div>
+            <p>Lista todos los contextos disponibles</p>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span> /api/rag/contexts
+            </div>
+            <div class="code-block">
+{
+  "name": "Documentos RRHH",
+  "description": "Políticas y procedimientos de recursos humanos"
+}
+            </div>
+            
+            <div class="endpoint">
+                <span class="method delete">DELETE</span> /api/rag/contexts/{contextId}
+            </div>
+            <p>Elimina un contexto y todos sus documentos</p>
+        </section>
+
+        <section id="funcionalidades">
+            <h2>🔧 Funcionalidades Principales</h2>
+            
+            <h3>1. Sistema RAG (Retrieval-Augmented Generation)</h3>
+            <div class="list-item">🔍 <strong>Búsqueda Semántica</strong>: Encuentra información relevante usando similitud de vectores</div>
+            <div class="list-item">💬 <strong>Chat Conversacional</strong>: Responde preguntas basándose en documentos indexados</div>
+            <div class="list-item">📚 <strong>Procesamiento Multi-formato</strong>: Soporte para TXT, DOCX, MD, JSON, CSV, PDF, XLSX, XLS</div>
+            <div class="list-item">🎯 <strong>Chunking Inteligente</strong>: Divide documentos en fragmentos con solapamiento</div>
+            <div class="list-item">🧠 <strong>Embeddings SAP AI Core</strong>: Generación de vectores usando modelos de SAP</div>
+            <div class="list-item">💾 <strong>Persistencia Vectorial</strong>: ChromaDB embebido o SQLite como fallback</div>
+            
+            <h3>2. Corrección Ortográfica de PDFs</h3>
+            <div class="list-item">📄 <strong>Dos Enfoques</strong>: Lista de correcciones o aplicación directa</div>
+            <div class="list-item">🎨 <strong>Preservación de Formato</strong>: Mantiene fuentes, colores y posiciones</div>
+            <div class="list-item">🤖 <strong>IA Automática</strong>: Detecta errores usando SAP AI Core</div>
+            <div class="list-item">🔧 <strong>Correcciones Manuales</strong>: Aplica cambios específicos</div>
+            <div class="list-item">🖥️ <strong>Interfaz Web</strong>: Herramienta de prueba en /public/pdf-correction-test.html</div>
+            
+            <h3>3. Validación Estructural de Pliegos SAP</h3>
+            <div class="list-item">🏗️ <strong>4 Tipos de Pliegos</strong>: Obra civil y edificación, abierto y simplificado</div>
+            <div class="list-item">📋 <strong>Detección Automática</strong>: Identifica tipo y modalidad por nomenclatura</div>
+            <div class="list-item">🚨 <strong>Errores Críticos</strong>: Tags SAP sin reemplazar, estructuras incorrectas</div>
+            <div class="list-item">⚠️ <strong>Advertencias</strong>: Problemas que permiten continuar</div>
+            <div class="list-item">✅ <strong>Sugerencias</strong>: Recomendaciones de mejora específicas</div>
+            <div class="list-item">📊 <strong>Puntuación de Calidad</strong>: Evaluación 0-100 de la estructura</div>
+            
+            <h3>4. Gestión de Contextos RAG</h3>
+            <div class="list-item">📁 <strong>Organización Lógica</strong>: Agrupa documentos por tema o departamento</div>
+            <div class="list-item">🎯 <strong>Búsqueda Filtrada</strong>: Limita consultas a contextos específicos</div>
+            <div class="list-item">📈 <strong>Estadísticas</strong>: Conteo de documentos por contexto</div>
+            <div class="list-item">🔄 <strong>Persistencia JSON</strong>: Contextos guardados en data/contexts.json</div>
+            
+            <h3>5. Sistema de Backup y Restauración</h3>
+            <div class="list-item">💾 <strong>Backup Automático</strong>: Descarga de base de datos SQLite</div>
+            <div class="list-item">🔄 <strong>Restauración</strong>: Subida y validación de backups</div>
+            <div class="list-item">📊 <strong>Información de BD</strong>: Estadísticas y estado de la base de datos</div>
+            <div class="list-item">🛡️ <strong>Scripts Automatizados</strong>: Gestión programada de backups</div>
+            
+            <h3>6. Autenticación y Seguridad</h3>
+            <div class="list-item">🔐 <strong>XSUAA</strong>: Autenticación OAuth2 en producción</div>
+            <div class="list-item">🚫 <strong>Deshabilitada en Desarrollo</strong>: Simplificación para testing</div>
+            <div class="list-item">🛡️ <strong>Middleware de Autenticación</strong>: Protección de rutas sensibles</div>
+            <div class="list-item">🔑 <strong>Tokens JWT</strong>: Gestión de sesiones seguras</div>
+            
+            <h3>7. Procesamiento de Documentos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Formato</th>
+                        <th>Librería</th>
+                        <th>Características</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>TXT</strong></td>
+                        <td>fs (Node.js)</td>
+                        <td>Texto plano, encoding UTF-8</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MD</strong></td>
+                        <td>fs (Node.js)</td>
+                        <td>Markdown con conversión a texto</td>
+                    </tr>
+                    <tr>
+                        <td><strong>JSON</strong></td>
+                        <td>JSON.parse</td>
+                        <td>Estructuras de datos, conversión a texto</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CSV</strong></td>
+                        <td>csv-parser</td>
+                        <td>Archivos tabulares, conversión a texto</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DOCX</strong></td>
+                        <td>mammoth</td>
+                        <td>Documentos Word, extracción de texto</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PDF</strong></td>
+                        <td>pdfjs-dist</td>
+                        <td>Documentos PDF, extracción de texto</td>
+                    </tr>
+                    <tr>
+                        <td><strong>XLSX/XLS</strong></td>
+                        <td>xlsx</td>
+                        <td>Hojas de cálculo, conversión a texto</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>8. Nomenclatura de Pliegos</h3>
+            <div class="highlight">
+                <strong>Formato Estándar:</strong> {ID_PLIEGO}_plec_{TIPO}_{MODALIDAD}[_{CATEGORIA}]
+            </div>
+            
+            <h4>Componentes:</h4>
+            <div class="list-item">🆔 <strong>ID_PLIEGO</strong>: CT####### (ej: CT1078146)</div>
+            <div class="list-item">🏗️ <strong>TIPO</strong>: edificacio_obert, edificacio_simplificat, obra_civil_obert, obra_civil_simplificat</div>
+            <div class="list-item">📋 <strong>MODALIDAD</strong>: amb_lots, sense_lots</div>
+            <div class="list-item">📂 <strong>CATEGORIA</strong>: vacío (terminado), validacion, validate</div>
+            
+            <h4>Contextos RAG por Categoría:</h4>
+            <div class="list-item">📝 <strong>PLANTILLAS_BASE</strong>: Plantillas limpias para referencia</div>
+            <div class="list-item">🏷️ <strong>PLANTILLAS_TAGS</strong>: Plantillas con marcadores SAP</div>
+            <div class="list-item">✅ <strong>PLIEGOS_TERMINADOS_ENTRENAMIENTO</strong>: Pliegos perfectos para IA</div>
+            <div class="list-item">🔍 <strong>DOCUMENTOS_VALIDACION</strong>: Pliegos para validar y corregir</div>
+        </section>
+
+        <section id="guias">
+            <h2>📖 Guías de Uso</h2>
+            
+            <h3>Subida y Procesamiento de Documentos</h3>
+            <div class="code-block">
+# Via API REST
+curl -X POST http://localhost:4000/api/rag/upload \
+  -F "document=@documento.pdf" \
+  -F "tags=politicas,empresa" \
+  -F "description=Políticas corporativas"
+
+# Via interfaz web (si existe)
+# Abrir http://localhost:4000/public/upload.html
+            </div>
+            
+            <h3>Búsqueda Semántica</h3>
+            <div class="code-block">
+# Búsqueda general
+curl -X POST http://localhost:4000/api/rag/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "trabajo remoto desde casa",
+    "topK": 3,
+    "minSimilarity": 0.4
+  }'
+
+# Búsqueda en documento específico
+curl -X POST http://localhost:4000/api/rag/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "beneficios empleados",
+    "topK": 5,
+    "documentId": "doc_123"
+  }'
+            </div>
+            
+            <h3>Chat Conversacional RAG</h3>
+            <div class="code-block">
+# Pregunta simple
+curl -X POST http://localhost:4000/api/rag/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "¿Cuáles son las políticas de vacaciones?"
+  }'
+
+# Pregunta compleja
+curl -X POST http://localhost:4000/api/rag/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Compara las políticas de trabajo remoto con las de vacaciones",
+    "maxTokens": 700,
+    "temperature": 0.6
+  }'
+            </div>
+            
+            <h3>Corrección de PDFs</h3>
+            <h4>Generar Lista de Correcciones:</h4>
+            <div class="code-block">
+curl -X POST http://localhost:4000/api/pdf-correction/generate-list \
+  -F "pdf=@documento.pdf"
+# Resultado: PDF con lista de correcciones al final
+            </div>
+            
+            <h4>Aplicar Correcciones Directas:</h4>
+            <div class="code-block">
+curl -X POST http://localhost:4000/api/pdf-correction/apply-corrections \
+  -F "pdf=@documento.pdf" \
+  -F "corrections=• tanbien -> también
+• recivir -> recibir
+• Dokumento -> Documento"
+# Resultado: PDF corregido con formato preservado
+            </div>
+            
+            <h3>Validación de Pliegos</h3>
+            <div class="code-block">
+# Validar pliego completo
+curl -X POST http://localhost:4000/api/pliego-validation/validate \
+  -F "file=@pliego.pdf"
+
+# Validar con contexto RAG adicional
+curl -X POST http://localhost:4000/api/pliego-validation/validate \
+  -F "file=@pliego.pdf" \
+  -F "contextId=DOCUMENTOS_VALIDACION"
+
+# Validar texto directo
+curl -X POST http://localhost:4000/api/pliego-validation/validate-text \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Contenido del pliego...",
+    "filename": "CT1078146_plec_edificacio_obert_amb_lots.pdf"
+  }'
+            </div>
+            
+            <h3>Gestión de Contextos</h3>
+            <div class="code-block">
+# Listar contextos
+curl http://localhost:4000/api/rag/contexts
+
+# Crear contexto
+curl -X POST http://localhost:4000/api/rag/contexts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Documentos Legales",
+    "description": "Contratos y documentos legales"
+  }'
+
+# Eliminar contexto
+curl -X DELETE http://localhost:4000/api/rag/contexts/{contextId}
+            </div>
+            
+            <h3>Backup y Restauración</h3>
+            <div class="code-block">
+# Descargar backup
+curl -o backup.db http://localhost:4000/api/rag/download-db
+
+# Información de base de datos
+curl http://localhost:4000/api/rag/db-info
+
+# Subir/restaurar backup
+curl -X POST http://localhost:4000/api/rag/upload-db \
+  -F "database=@backup.db"
+            </div>
+            
+            <h3>Interfaz Web de Prueba</h3>
+            <div class="list-item">🌐 <strong>Corrección PDFs</strong>: http://localhost:4000/public/pdf-correction-test.html</div>
+            <div class="list-item">📊 <strong>Dashboard Analytics</strong>: http://localhost:4000/analytics (si implementado)</div>
+            <div class="list-item">⚛️ <strong>Frontend React</strong>: http://localhost:3000 (proyecto separado)</div>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>🚨 Troubleshooting</h2>
+            
+            <h3>Problemas Comunes</h3>
+            
+            <div class="warning">
+                <strong>❌ Error: "ChromaDB no disponible"</strong>
+                <br><strong>Síntomas:</strong> Logs muestran fallback a memoria
+                <br><strong>Solución:</strong>
+                <ul>
+                    <li>Verificar configuración VECTOR_STORE_TYPE</li>
+                    <li>En local: iniciar chroma_service/start_service.bat</li>
+                    <li>En CF: verificar que ChromaDB embebido se inicialice</li>
+                </ul>
+            </div>
+            
+            <div class="warning">
+                <strong>❌ Error: "SAP AI Core no responde"</strong>
+                <br><strong>Síntomas:</strong> Timeouts en generación de embeddings
+                <br><strong>Solución:</strong>
+                <ul>
+                    <li>Verificar credenciales en default-env.json</li>
+                    <li>Comprobar servicios bindeados: cf services</li>
+                    <li>Verificar conectividad de red</li>
+                </ul>
+            </div>
+            
+            <div class="warning">
+                <strong>❌ Error: "Memory limit exceeded"</strong>
+                <br><strong>Síntomas:</strong> Aplicación se reinicia frecuentemente
+                <br><strong>Solución:</strong>
+                <pre>memory: 1G</pre>
+                <p>O via CLI: cf scale ai_core_api -m 1G</p>
+            </div>
+            
+            <div class="warning">
+                <strong>❌ Error: "No documents found"</strong>
+                <br><strong>Síntomas:</strong> Búsquedas no devuelven resultados
+                <br><strong>Solución:</strong>
+                <ul>
+                    <li>Verificar que documentos se cargaron: GET /api/rag/documents</li>
+                    <li>Revisar logs de inicialización</li>
+                    <li>Re-ejecutar ingesta: node scripts/ingest-documents.js</li>
+                </ul>
+            </div>
+            
+            <h3>Códigos de Error</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Solución</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge danger">500</span></td>
+                        <td>Error interno del servidor</td>
+                        <td>Revisar logs detallados</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge danger">503</span></td>
+                        <td>Servicio no disponible</td>
+                        <td>Verificar dependencias</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge warning">400</span></td>
+                        <td>Request malformado</td>
+                        <td>Validar formato JSON</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge warning">404</span></td>
+                        <td>Documento no encontrado</td>
+                        <td>Verificar ID del documento</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge warning">413</span></td>
+                        <td>Archivo demasiado grande</td>
+                        <td>Reducir tamaño o aumentar límites</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Herramientas de Diagnóstico</h3>
+            <div class="code-block">
+# Script de diagnóstico
+node tests/test_python_chroma.js > diagnostic.log 2>&1
+
+# Verificación de servicios
+curl https://app-url/health
+curl https://app-url/api/rag/health
+curl https://app-url/api/rag/stats
+            </div>
+            
+            <h3>Logs del Sistema</h3>
+            <div class="list-item">📝 <strong>Cloud Foundry</strong>: cf logs ai_core_api</div>
+            <div class="list-item">💻 <strong>Local</strong>: Consola del servidor</div>
+            <div class="list-item">🏷️ <strong>Tipos de Logs</strong>:
+                <ul>
+                    <li>[RAG] - Operaciones del sistema RAG</li>
+                    <li>[CHROMA] - Operaciones ChromaDB</li>
+                    <li>[EMBED] - Generación de embeddings</li>
+                    <li>[DOC] - Procesamiento de documentos</li>
+                    <li>[API] - Requests HTTP</li>
+                </ul>
+            </div>
+            
+            <h3>Comandos de Monitoreo</h3>
+            <div class="code-block">
+# Cloud Foundry
+cf app ai_core_api
+cf logs ai_core_api --recent
+cf events ai_core_api
+
+# Health checks automáticos
+while true; do
+  curl -f https://tu-app.cfapps.sap.hana.ondemand.com/health || echo "ALERT: App down"
+  sleep 60
+done
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 - Sistema RAG con SAP AI Core y ChromaDB | Versión de Documentación: 1.0.0 | Última Actualización: Octubre 2025</p>
+            <p><strong>Equipo de Desarrollo</strong> | <strong>Contacto:</strong> equipo@empresa.com | <strong>Repositorio:</strong> https://github.com/davidmelian-ees/aicore_api</p>
+        </div>
+    </footer>
+</body>
+</html>
