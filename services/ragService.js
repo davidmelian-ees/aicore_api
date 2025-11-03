@@ -501,10 +501,14 @@ export async function listDocuments(contextId = null) {
  */
 export async function getDocumentInfo(documentId) {
   try {
+    console.log('[RAG] Obteniendo info del documento:', documentId);
     const store = await getVectorStore();
     const chunks = await store.getDocumentChunks(documentId);
     
+    console.log('[RAG] Chunks encontrados:', chunks.length);
+    
     if (chunks.length === 0) {
+      console.log('[RAG] No se encontraron chunks para el documento:', documentId);
       return null;
     }
     
@@ -517,16 +521,24 @@ export async function getDocumentInfo(documentId) {
       totalChunks: chunks.length,
       fileSize: firstChunk.metadata?.fileSize,
       uploadedAt: firstChunk.metadata?.uploadedAt,
-      chunks: chunks.map(chunk => ({
-        id: chunk.id,
-        chunkIndex: chunk.metadata?.chunkIndex,
-        preview: chunk.content.substring(0, 200) + '...',
-        length: chunk.content.length
-      }))
+      chunks: chunks.map(chunk => {
+        // Validar que chunk.content sea un string
+        const content = typeof chunk.content === 'string' ? chunk.content : String(chunk.content || '');
+        const contentLength = content.length;
+        const preview = contentLength > 0 ? content.substring(0, Math.min(200, contentLength)) + '...' : 'Sin contenido';
+        
+        return {
+          id: chunk.id,
+          chunkIndex: chunk.metadata?.chunkIndex,
+          preview: preview,
+          length: contentLength
+        };
+      })
     };
     
   } catch (error) {
     console.error('[RAG] Error obteniendo info del documento:', error);
+    console.error('[RAG] Stack trace:', error.stack);
     throw new Error(`Error obteniendo información del documento: ${error.message}`);
   }
 }
