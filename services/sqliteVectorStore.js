@@ -256,6 +256,30 @@ class SQLiteVectorStore {
   }
 
   /**
+   * Obtiene todos los chunks de un documento específico
+   * @param {string} documentId - ID del documento
+   * @returns {Array<Object>} - Array de chunks del documento
+   */
+  getDocumentChunks(documentId) {
+    this._ensureInitialized();
+
+    const stmt = this.db.prepare(`
+      SELECT id, content, metadata, chunk_index
+      FROM documents 
+      WHERE document_id = ?
+      ORDER BY chunk_index ASC
+    `);
+
+    const rows = stmt.all(documentId);
+    
+    return rows.map(row => ({
+      id: row.id,
+      content: row.content,
+      metadata: JSON.parse(row.metadata)
+    }));
+  }
+
+  /**
    * Elimina un documento y todos sus chunks
    */
   deleteDocument(documentId) {
