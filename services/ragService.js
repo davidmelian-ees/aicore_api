@@ -217,6 +217,25 @@ export async function indexDocument(filePath, mimeType, metadata = {}) {
     console.log(`[RAG] Documento procesado: ${fileMetadata.fileName}`);
     console.log(`[RAG] Total de chunks: ${chunks.length}`);
     
+    // Si hay análisis de logos, añadirlo como chunk adicional al principio
+    if (metadata.logoAnalysis && typeof metadata.logoAnalysis === 'string') {
+      console.log('[RAG] 📝 Añadiendo análisis de logos como contexto adicional');
+      
+      // Crear chunk especial con el análisis de logos
+      const logoChunk = {
+        content: `\n\n=== ANÁLISIS DE LOGOS DEL DOCUMENTO ===\n\n${metadata.logoAnalysis}\n\n=== FIN DEL ANÁLISIS ===\n\n`,
+        index: -1, // Índice especial para identificarlo
+        metadata: {
+          isLogoAnalysis: true,
+          documentName: metadata.originalName || fileMetadata.fileName
+        }
+      };
+      
+      // Añadir al principio del array de chunks
+      chunks.unshift(logoChunk);
+      console.log(`[RAG] ✅ Análisis de logos añadido. Total chunks: ${chunks.length}`);
+    }
+    
     // Generar embeddings para todos los chunks usando SAP AI Core
     console.log(`[RAG] Generando embeddings con SAP AI Core...`);
     const chunkTexts = chunks.map(chunk => chunk.content);
@@ -417,6 +436,14 @@ INSTRUCCIONES:
 - Sé preciso y conciso
 - Si hay información contradictoria, menciónalo
 
+IMPORTANTE - ANÁLISIS DE LOGOS:
+- Cada documento PDF puede incluir un "ANÁLISIS DE LOGOS" al principio
+- Este análisis indica si el documento tiene el logo obligatorio de "Infraestructuras de Cataluña"
+- Si un documento NO tiene el logo obligatorio (❌ LOGO OBLIGATORIO: NO), es un ERROR CRÍTICO
+- Los documentos oficiales DEBEN tener el logo institucional en la parte superior
+- Usa esta información para responder preguntas sobre logos, validación y cumplimiento de normativa
+- Cuando te pregunten sobre logos, busca el "ANÁLISIS DE LOGOS" en el contexto
+
 CONTEXTO:
 ${contextText}`;
 
@@ -441,6 +468,15 @@ ${contextText}`;
       .filter(Boolean)
     )];
     
+    // Extraer información de logos de los documentos usados
+    const logoInfo = contextResults
+      .filter(r => r.metadata?.hasRequiredLogo !== undefined)
+      .map(r => ({
+        fileName: r.metadata?.fileName,
+        hasRequiredLogo: r.metadata?.hasRequiredLogo,
+        logoConfidence: r.metadata?.logoConfidence
+      }));
+    
     console.log(`[RAG] Respuesta generada exitosamente`);
     
     return {
@@ -452,7 +488,8 @@ ${contextText}`;
         hasContext: true,
         model,
         queryLength: query.length,
-        responseLength: answer.length
+        responseLength: answer.length,
+        logoInfo: logoInfo.length > 0 ? logoInfo : undefined
       }
     };
     
@@ -501,10 +538,14 @@ export async function listDocuments(contextId = null) {
  */
 export async function getDocumentInfo(documentId) {
   try {
+    console.log('[RAG] Obteniendo info del documento:', documentId);
     const store = await getVectorStore();
     const chunks = await store.getDocumentChunks(documentId);
     
+    console.log('[RAG] Chunks encontrados:', chunks.length);
+    
     if (chunks.length === 0) {
+      console.log('[RAG] No se encontraron chunks para el documento:', documentId);
       return null;
     }
     
@@ -517,16 +558,24 @@ export async function getDocumentInfo(documentId) {
       totalChunks: chunks.length,
       fileSize: firstChunk.metadata?.fileSize,
       uploadedAt: firstChunk.metadata?.uploadedAt,
-      chunks: chunks.map(chunk => ({
-        id: chunk.id,
-        chunkIndex: chunk.metadata?.chunkIndex,
-        preview: chunk.content.substring(0, 200) + '...',
-        length: chunk.content.length
-      }))
+      chunks: chunks.map(chunk => {
+        // Validar que chunk.content sea un string
+        const content = typeof chunk.content === 'string' ? chunk.content : String(chunk.content || '');
+        const contentLength = content.length;
+        const preview = contentLength > 0 ? content.substring(0, Math.min(200, contentLength)) + '...' : 'Sin contenido';
+        
+        return {
+          id: chunk.id,
+          chunkIndex: chunk.metadata?.chunkIndex,
+          preview: preview,
+          length: contentLength
+        };
+      })
     };
     
   } catch (error) {
     console.error('[RAG] Error obteniendo info del documento:', error);
+    console.error('[RAG] Stack trace:', error.stack);
     throw new Error(`Error obteniendo información del documento: ${error.message}`);
   }
 }

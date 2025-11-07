@@ -321,6 +321,7 @@ router.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     endpoints: {
       generateList: 'POST /api/pdf-correction/generate-list',
+      generateListFromContext: 'POST /api/pdf-correction/generate-list-from-context',
       applyCorrections: 'POST /api/pdf-correction/apply-corrections',
       generateCorrections: 'POST /api/pdf-correction/generate-corrections',
       testWorkflow: 'POST /api/pdf-correction/test-workflow',
@@ -330,9 +331,45 @@ router.get('/health', (req, res) => {
 });
 
 /**
- * GET /api/pdf-correction/test-ai-core
- * Prueba la conectividad con SAP AI Core
+ * POST /api/pdf-correction/generate-list-from-context
+ * Genera un PDF con lista de correcciones basado en contexto RAG
  */
+router.post('/generate-list-from-context', async (req, res) => {
+  try {
+    const { prompt, contextId } = req.body;
+
+    if (!prompt || !contextId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Se requieren prompt y contextId'
+      });
+    }
+
+    console.log(`[PDF-CORRECTION] Generando lista desde contexto: ${contextId}`);
+
+    const result = await generatePDFWithCorrectionsFromContext(
+      prompt,
+      contextId
+    );
+
+    // Configurar headers para descarga
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="correcciones-contexto-${contextId}.pdf"`,
+      'Content-Length': result.pdfBuffer.length
+    });
+
+    res.send(result.pdfBuffer);
+
+  } catch (error) {
+    console.error('[PDF-CORRECTION] Error en generate-list-from-context:', error);
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
 router.get('/test-ai-core', async (req, res) => {
   try {
     console.log('[PDF-CORRECTION] Probando conexión SAP AI Core...');
