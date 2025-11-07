@@ -217,6 +217,25 @@ export async function indexDocument(filePath, mimeType, metadata = {}) {
     console.log(`[RAG] Documento procesado: ${fileMetadata.fileName}`);
     console.log(`[RAG] Total de chunks: ${chunks.length}`);
     
+    // Si hay análisis de logos, añadirlo como chunk adicional al principio
+    if (metadata.logoAnalysis && typeof metadata.logoAnalysis === 'string') {
+      console.log('[RAG] 📝 Añadiendo análisis de logos como contexto adicional');
+      
+      // Crear chunk especial con el análisis de logos
+      const logoChunk = {
+        content: `\n\n=== ANÁLISIS DE LOGOS DEL DOCUMENTO ===\n\n${metadata.logoAnalysis}\n\n=== FIN DEL ANÁLISIS ===\n\n`,
+        index: -1, // Índice especial para identificarlo
+        metadata: {
+          isLogoAnalysis: true,
+          documentName: metadata.originalName || fileMetadata.fileName
+        }
+      };
+      
+      // Añadir al principio del array de chunks
+      chunks.unshift(logoChunk);
+      console.log(`[RAG] ✅ Análisis de logos añadido. Total chunks: ${chunks.length}`);
+    }
+    
     // Generar embeddings para todos los chunks usando SAP AI Core
     console.log(`[RAG] Generando embeddings con SAP AI Core...`);
     const chunkTexts = chunks.map(chunk => chunk.content);
@@ -417,6 +436,14 @@ INSTRUCCIONES:
 - Sé preciso y conciso
 - Si hay información contradictoria, menciónalo
 
+IMPORTANTE - ANÁLISIS DE LOGOS:
+- Cada documento PDF puede incluir un "ANÁLISIS DE LOGOS" al principio
+- Este análisis indica si el documento tiene el logo obligatorio de "Infraestructuras de Cataluña"
+- Si un documento NO tiene el logo obligatorio (❌ LOGO OBLIGATORIO: NO), es un ERROR CRÍTICO
+- Los documentos oficiales DEBEN tener el logo institucional en la parte superior
+- Usa esta información para responder preguntas sobre logos, validación y cumplimiento de normativa
+- Cuando te pregunten sobre logos, busca el "ANÁLISIS DE LOGOS" en el contexto
+
 CONTEXTO:
 ${contextText}`;
 
@@ -441,6 +468,15 @@ ${contextText}`;
       .filter(Boolean)
     )];
     
+    // Extraer información de logos de los documentos usados
+    const logoInfo = contextResults
+      .filter(r => r.metadata?.hasRequiredLogo !== undefined)
+      .map(r => ({
+        fileName: r.metadata?.fileName,
+        hasRequiredLogo: r.metadata?.hasRequiredLogo,
+        logoConfidence: r.metadata?.logoConfidence
+      }));
+    
     console.log(`[RAG] Respuesta generada exitosamente`);
     
     return {
@@ -452,7 +488,8 @@ ${contextText}`;
         hasContext: true,
         model,
         queryLength: query.length,
-        responseLength: answer.length
+        responseLength: answer.length,
+        logoInfo: logoInfo.length > 0 ? logoInfo : undefined
       }
     };
     

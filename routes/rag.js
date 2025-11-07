@@ -20,6 +20,7 @@ import {
 import { processDocument } from '../services/documentProcessor.js';
 import { persistenceManager } from '../services/persistenceManager.js';
 import { backupService } from '../services/backupService.js';
+import { logoDetectionService } from '../services/logoDetectionService.js';
 
 const router = express.Router();
 
@@ -250,17 +251,69 @@ router.post("/upload", upload.single('document'), async (req, res) => {
 
     console.log(`[RAG API] Procesando archivo: ${req.file.originalname}`);
 
+    // Detectar logos si es un PDF
+    let logoDetection = null;
+    let logoReport = null;
+    let logoDescription = null;
+    
+    if (req.file.mimetype === 'application/pdf' || path.extname(req.file.originalname).toLowerCase() === '.pdf') {
+      console.log('[RAG API] 🔍 Detectando logos en PDF...');
+      
+      try {
+        logoDetection = await logoDetectionService.detectLogosInPDF(req.file.path);
+        logoReport = logoDetectionService.generateLogoValidationReport(logoDetection, req.file.originalname);
+        logoDescription = logoDetectionService.generateLogoDescription(logoDetection, req.file.originalname);
+        
+        console.log(`[RAG API] Logo obligatorio: ${logoDetection.analysis.hasRequiredLogo ? '✅ SÍ' : '❌ NO'}`);
+      } catch (logoError) {
+        console.warn('[RAG API] ⚠️ Error detectando logos:', logoError.message);
+        // Continuar sin detección de logos
+      }
+    }
+
+    // Preparar metadatos enriquecidos con información de logos
+    const metadata = {
+      originalName: req.file.originalname,
+      uploadedBy: req.body.uploadedBy || 'anonymous',
+      uploadedAt: new Date().toISOString(),
+      tags: req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [],
+      contextId: req.body.contextId || 'default',
+      // Información de logos
+      hasLogos: logoDetection?.hasLogos || false,
+      hasRequiredLogo: logoDetection?.analysis.hasRequiredLogo || false,
+      logoConfidence: logoDetection?.analysis.confidence || 'unknown',
+      totalImages: logoDetection?.totalImages || 0,
+      headerImages: logoDetection?.headerImages?.length || 0,
+      footerImages: logoDetection?.footerImages?.length || 0
+    };
+
+    // Si es PDF con detección de logos, crear archivo temporal con texto + análisis
+    let filePathToIndex = req.file.path;
+    
+    if (logoDescription && req.file.mimetype === 'application/pdf') {
+      // Crear archivo de texto temporal con el análisis de logos
+      // Este texto se añadirá al contenido del PDF para que la IA lo aprenda
+      const tempTextPath = req.file.path + '_logo_analysis.txt';
+      
+      try {
+        // Escribir el análisis de logos en un archivo temporal
+        await fs.writeFile(tempTextPath, logoDescription, 'utf-8');
+        
+        // Añadir referencia al análisis en metadatos
+        metadata.logoAnalysisFile = tempTextPath;
+        metadata.logoAnalysis = logoDescription;
+        
+        console.log('[RAG API] 📝 Análisis de logos guardado para indexación');
+      } catch (writeError) {
+        console.warn('[RAG API] ⚠️ No se pudo guardar análisis de logos:', writeError.message);
+      }
+    }
+
     // Indexar el documento usando SAP AI Core
     const result = await indexDocument(
-      req.file.path,
+      filePathToIndex,
       req.file.mimetype,
-      {
-        originalName: req.file.originalname,
-        uploadedBy: req.body.uploadedBy || 'anonymous',
-        uploadedAt: new Date().toISOString(),
-        tags: req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [],
-        contextId: req.body.contextId || 'default'
-      }
+      metadata
     );
 
     // Opcional: eliminar el archivo temporal después de indexarlo
@@ -273,7 +326,8 @@ router.post("/upload", upload.single('document'), async (req, res) => {
     res.json({
       success: true,
       message: "Documento indexado exitosamente con SAP AI Core",
-      document: result
+      document: result,
+      logoDetection: logoReport // Incluir reporte de logos en la respuesta
     });
 
   } catch (error) {
@@ -1061,6 +1115,66 @@ router.delete('/backup/:filename', async (req, res) => {
       success: false,
       error: 'Error eliminando backup',
       details: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/rag/validate-logos
+ * Valida la presencia de logos en un PDF sin subirlo al RAG
+ */
+router.post('/validate-logos', uploadPliego.single('pdf'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ 
+        success: false,
+        error: "No se proporcionó ningún archivo PDF" 
+      });
+    }
+
+    console.log(`[RAG API] 🔍 Validando logos en: ${req.file.originalname}`);
+
+    // Detectar logos
+    const logoDetection = await logoDetectionService.detectLogosInPDF(req.file.path);
+    const logoReport = logoDetectionService.generateLogoValidationReport(logoDetection, req.file.originalname);
+    const logoDescription = logoDetectionService.generateLogoDescription(logoDetection, req.file.originalname);
+
+    // Limpiar archivo temporal
+    try {
+      await fs.unlink(req.file.path);
+    } catch (unlinkError) {
+      console.warn(`[RAG API] No se pudo eliminar archivo temporal: ${unlinkError.message}`);
+    }
+
+    res.json({
+      success: true,
+      message: "Validación de logos completada",
+      report: logoReport,
+      description: logoDescription,
+      details: {
+        totalImages: logoDetection.totalImages,
+        headerImages: logoDetection.headerImages.length,
+        footerImages: logoDetection.footerImages.length,
+        pagesWithImages: logoDetection.pagesWithImages
+      }
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error en /validate-logos:", error);
+    
+    // Limpiar archivo en caso de error
+    if (req.file?.path) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.warn(`[RAG API] No se pudo limpiar archivo tras error: ${unlinkError.message}`);
+      }
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      error: "Error validando logos",
+      details: error.message 
     });
   }
 });
