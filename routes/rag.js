@@ -76,7 +76,7 @@ const upload = multer({
 const uploadDB = multer({ 
   storage,
   limits: {
-    fileSize: 100 * 1024 * 1024 // 100MB límite para bases de datos
+    fileSize: 500 * 1024 * 1024 // 500MB límite para bases de datos (aumentado para backups grandes)
   },
   fileFilter: (req, file, cb) => {
     // Permitir archivos .db y SQLite

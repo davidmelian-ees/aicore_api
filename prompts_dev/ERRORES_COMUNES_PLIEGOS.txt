@@ -110,6 +110,93 @@ generador de pliegos y requieren validación automática prioritaria.
    - "obras" → debe ser "obres"
    - "proyecto" → debe ser "projecte"
 
+7. NUMERACIÓN SECUENCIAL INCORRECTA:
+   ❌ PROBLEMA: Saltos en la numeración de puntos del pliego
+   
+   VALIDACIONES:
+   - Detectar saltos en numeración principal (ej: 1. 2. 4. ← falta el 3.)
+   - Verificar subnumeración correcta (ej: 3.1, 3.2, 3.3)
+   - Validar jerarquía de niveles (ej: 3.1.1, 3.1.2)
+   - Alertar sobre posibles puntos faltantes
+   
+   EJEMPLOS CORRECTOS:
+   ✅ 1.
+   ✅ 2.
+   ✅ 3.
+   ✅ 3.1
+   ✅ 3.1.1
+   ✅ 3.1.2
+   ✅ 3.2
+   ✅ 4.
+   
+   EJEMPLOS INCORRECTOS:
+   ❌ 1.
+   ❌ 4. ← FALTA 2. y 3.
+   
+   ❌ 3.
+   ❌ 3.1
+   ❌ 3.3 ← FALTA 3.2
+   
+   SEVERIDAD:
+   - Salto de 1 punto: ⚠️ ADVERTENCIA (puede ser intencional)
+   - Salto de 2+ puntos: 🔴 ERROR CRÍTICO (probablemente faltan secciones)
+
+8. TABLAS APLICA/NO APLICA INCOMPLETAS:
+   ❌ PROBLEMA: Campos vacíos en tablas que requieren "APLICA" o "NO APLICA"
+   
+   VALIDACIONES:
+   - Detectar tablas con columnas APLICA/NO APLICA
+   - Verificar que TODOS los campos estén rellenados
+   - Identificar celdas vacías o con solo espacios
+   - Validar que no haya valores ambiguos
+   
+   PATRONES A DETECTAR:
+   - Tablas con encabezados "APLICA" o "NO APLICA"
+   - Celdas vacías en columnas de aplicabilidad
+   - Valores incorrectos (ej: "SÍ", "NO", "N/A" en lugar de "APLICA"/"NO APLICA")
+   
+   EJEMPLOS CORRECTOS:
+   ✅ | Requisito | APLICA | NO APLICA |
+      | Req 1    |   X    |           |
+      | Req 2    |        |     X     |
+   
+   EJEMPLOS INCORRECTOS:
+   ❌ | Requisito | APLICA | NO APLICA |
+      | Req 1    |        |           | ← CAMPO VACÍO
+      | Req 2    |   X    |     X     | ← AMBOS MARCADOS
+   
+   SEVERIDAD:
+   - Campo vacío: 🔴 ERROR CRÍTICO (debe estar rellenado)
+   - Ambos marcados: 🔴 ERROR CRÍTICO (excluyentes)
+   - Valor incorrecto: 🟡 ADVERTENCIA (formato no estándar)
+
+9. SECCIONES OBLIGATORIAS FALTANTES:
+   ❌ PROBLEMA: Faltan apartados obligatorios según el tipo de pliego
+   
+   SECCIONES OBLIGATORIAS EN TODOS LOS PLIEGOS:
+   - OBJETO DEL CONTRATO
+   - PRESUPUESTO
+   - PLAZO DE EJECUCIÓN
+   - CONDICIONES TÉCNICAS
+   - CRITERIOS DE ADJUDICACIÓN
+   - GARANTÍAS
+   - PENALIDADES
+   - MODIFICACIÓN DEL CONTRATO
+   - SUBCONTRATACIÓN
+   - REVISIÓN DE PRECIOS
+   
+   VALIDACIONES:
+   - Verificar presencia de todas las secciones obligatorias
+   - Detectar secciones con contenido vacío
+   - Validar que las secciones estén en orden lógico
+   - Identificar secciones duplicadas
+   
+   SEVERIDAD:
+   - Sección obligatoria faltante: 🔴 ERROR CRÍTICO
+   - Sección vacía: 🟡 ADVERTENCIA
+   - Sección duplicada: 🟡 ADVERTENCIA
+   - Orden incorrecto: 🟡 ADVERTENCIA
+
 ================================================================================
                         NIVELES DE CRITICIDAD
 ================================================================================
@@ -118,11 +205,20 @@ generador de pliegos y requieren validación automática prioritaria.
 - Tags SAP sin rellenar
 - Campos SÍ/NO duplicados
 - Cantidad de lotes incorrecta
+- Saltos de 2+ puntos en numeración (probablemente faltan secciones)
+- Tablas APLICA/NO APLICA con campos vacíos
+- Tablas APLICA/NO APLICA con ambas opciones marcadas
+- Secciones obligatorias faltantes
 
 🟡 ADVERTENCIA (Permite continuar):
 - Formato de fecha incorrecto
 - Formato de importes incorrecto
 - Palabras en castellano detectadas
+- Salto de 1 punto en numeración (puede ser intencional)
+- Secciones vacías
+- Secciones duplicadas
+- Orden incorrecto de secciones
+- Valores no estándar en tablas APLICA/NO APLICA
 
 ================================================================================
                         INTEGRACIÓN CON VALIDACIÓN
@@ -168,6 +264,29 @@ LOTES:
 PALABRAS CASTELLANAS:
 - /\b(presupuesto|contrato|licitación|adjudicación|obras|proyecto)\b/gi
 
+NUMERACIÓN:
+- /^(\d+(?:\.\d+)*)\.\s+/gm (detectar numeración: 1., 2.1, 3.1.1, etc.)
+- Validar secuencia: extraer números y verificar continuidad
+
+TABLAS APLICA/NO APLICA:
+- /APLICA|NO APLICA/gi (detectar tablas con estos encabezados)
+- /\|\s*\|\s*\|/g (detectar celdas vacías en tablas)
+- /APLICA:\s*$/gim (detectar campos APLICA vacíos)
+- /NO APLICA:\s*$/gim (detectar campos NO APLICA vacíos)
+
+SECCIONES OBLIGATORIAS:
+- Buscar texto exacto (case-insensitive):
+  - "OBJETO DEL CONTRATO" o "OBJECTE DEL CONTRACTE"
+  - "PRESUPUESTO" o "PRESSUPOST"
+  - "PLAZO DE EJECUCIÓN" o "TERMINI D'EXECUCIÓ"
+  - "CONDICIONES TÉCNICAS" o "CONDICIONS TÈCNIQUES"
+  - "CRITERIOS DE ADJUDICACIÓN" o "CRITERIS D'ADJUDICACIÓ"
+  - "GARANTÍAS" o "GARANTIES"
+  - "PENALIDADES" o "PENALITATS"
+  - "MODIFICACIÓN DEL CONTRATO" o "MODIFICACIÓ DEL CONTRACTE"
+  - "SUBCONTRATACIÓN" o "SUBCONTRACTACIÓ"
+  - "REVISIÓN DE PRECIOS" o "REVISIÓ DE PREUS"
+
 ================================================================================
                             EJEMPLOS DE ERRORES
 ================================================================================
@@ -190,6 +309,22 @@ PALABRAS CASTELLANAS:
 
 ❌ IDIOMA INCORRECTO:
 "presupuesto de licitación" (debe ser "pressupost de licitació")
+
+❌ NUMERACIÓN CON SALTO:
+"1. Introducción
+ 2. Objeto del contrato
+ 5. Presupuesto" ← FALTA 3. y 4. (ERROR CRÍTICO)
+
+❌ TABLA APLICA/NO APLICA VACÍA:
+"| Requisito ISO 9001 | APLICA | NO APLICA |
+ | Certificación      |        |           |" ← CAMPO VACÍO (ERROR CRÍTICO)
+
+❌ TABLA APLICA/NO APLICA AMBIGUA:
+"| Requisito | APLICA | NO APLICA |
+ | Req 1    |   X    |     X     |" ← AMBOS MARCADOS (ERROR CRÍTICO)
+
+❌ SECCIÓN OBLIGATORIA FALTANTE:
+Pliego sin apartado "GARANTÍAS" (ERROR CRÍTICO)
 
 ================================================================================
                                 NOTAS
