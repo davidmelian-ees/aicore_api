@@ -141,7 +141,9 @@ const validateSAPToken = (req, res, next) => {
 console.log(`🌐 CORS configurado para ${isProduction ? 'producción' : 'desarrollo'}`);
 
 // Middleware de parsing JSON (después de CORS)
-app.use(express.json());
+// Aumentar límites para permitir bases de datos grandes
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ limit: '500mb', extended: true }));
 
 // Aplicar validación de tokens SAP a rutas protegidas
 if (isProduction) {
