@@ -144,31 +144,97 @@ generador de pliegos y requieren validación automática prioritaria.
 8. TABLAS APLICA/NO APLICA INCOMPLETAS:
    ❌ PROBLEMA: Campos vacíos en tablas que requieren "APLICA" o "NO APLICA"
    
-   VALIDACIONES:
-   - Detectar tablas con columnas APLICA/NO APLICA
-   - Verificar que TODOS los campos estén rellenados
-   - Identificar celdas vacías o con solo espacios
-   - Validar que no haya valores ambiguos
+   ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+   DEBES CONTAR LAS COLUMNAS "APLICA" Y "NO APLICA" EN CADA FILA.
+   CADA FILA DEBE TENER EXACTAMENTE 2 VALORES (UNO EN CADA COLUMNA).
+   SI UNA FILA TIENE SOLO 1 VALOR O MÁS DE 2, ES UN ERROR CRÍTICO.
+   
+   PROCESO DE VALIDACIÓN PASO A PASO:
+   
+   PASO 1: Identificar tablas con encabezados "APLICA" y "NO APLICA"
+   PASO 2: Para CADA fila de la tabla:
+           - Contar cuántos valores "APLICA" hay
+           - Contar cuántos valores "NO APLICA" hay
+           - Contar cuántos campos vacíos hay
+   PASO 3: Validar que cada fila tenga EXACTAMENTE:
+           - 1 valor en columna APLICA (puede ser "APLICA" o vacío)
+           - 1 valor en columna NO APLICA (puede ser "NO APLICA" o vacío)
+           - TOTAL: 2 columnas, al menos 1 debe tener valor
+   PASO 4: Reportar filas con:
+           - Ambas columnas vacías (ERROR CRÍTICO)
+           - Solo 1 columna cuando debería haber 2 (ERROR CRÍTICO)
+           - Ambas columnas con valor (ERROR CRÍTICO - excluyentes)
+   
+   EJEMPLO REAL DE ERROR (DEBES DETECTAR ESTO):
+   
+   Texto del pliego:
+   "1.03 Compromís sobre subcontractació    APLICA    APLICA
+    1.04 Compromís sobre emissions CO2eq    APLICA
+    1.05 Declaracions Ambientals            APLICA    APLICA
+    1.06 Utilització de fusta certificada   APLICA"
+   
+   ANÁLISIS QUE DEBES HACER:
+   
+   Fila 1.03: "APLICA" + "APLICA" = 2 valores ✅ CORRECTO
+   Fila 1.04: "APLICA" + [VACÍO] = 1 valor ❌ ERROR (falta columna NO APLICA)
+   Fila 1.05: "APLICA" + "APLICA" = 2 valores ✅ CORRECTO
+   Fila 1.06: "APLICA" + [VACÍO] = 1 valor ❌ ERROR (falta columna NO APLICA)
+   
+   REPORTE QUE DEBES GENERAR:
+   "🔴 ERROR CRÍTICO: Tabla APLICA/NO APLICA incompleta
+    
+    Las siguientes filas tienen campos vacíos:
+    
+    • Fila 1.04 (Compromís sobre emissions CO2eq):
+      - Columna APLICA: APLICA ✓
+      - Columna NO APLICA: [VACÍO] ❌
+      Debe tener valor en ambas columnas o marcar solo una
+    
+    • Fila 1.06 (Utilització de fusta certificada):
+      - Columna APLICA: APLICA ✓
+      - Columna NO APLICA: [VACÍO] ❌
+      Debe tener valor en ambas columnas o marcar solo una"
    
    PATRONES A DETECTAR:
    - Tablas con encabezados "APLICA" o "NO APLICA"
+   - Filas con solo 1 valor cuando la tabla tiene 2 columnas
    - Celdas vacías en columnas de aplicabilidad
    - Valores incorrectos (ej: "SÍ", "NO", "N/A" en lugar de "APLICA"/"NO APLICA")
    
    EJEMPLOS CORRECTOS:
-   ✅ | Requisito | APLICA | NO APLICA |
-      | Req 1    |   X    |           |
-      | Req 2    |        |     X     |
+   ✅ | Criterio | APLICA | NO APLICA |
+      | 1.01     | APLICA | APLICA    | ← Ambas columnas con valor
+      | 1.02     | APLICA | APLICA    | ← Ambas columnas con valor
+   
+   ✅ | Criterio | APLICA | NO APLICA |
+      | 1.01     |   X    |           | ← Solo APLICA marcado
+      | 1.02     |        |     X     | ← Solo NO APLICA marcado
    
    EJEMPLOS INCORRECTOS:
-   ❌ | Requisito | APLICA | NO APLICA |
-      | Req 1    |        |           | ← CAMPO VACÍO
-      | Req 2    |   X    |     X     | ← AMBOS MARCADOS
+   ❌ | Criterio | APLICA | NO APLICA |
+      | 1.01     | APLICA | APLICA    | ← OK
+      | 1.02     | APLICA |           | ← ERROR: Falta valor en NO APLICA
+      | 1.03     | APLICA | APLICA    | ← OK
+      | 1.04     | APLICA |           | ← ERROR: Falta valor en NO APLICA
+   
+   ❌ | Criterio | APLICA | NO APLICA |
+      | 1.01     |        |           | ← ERROR: Ambas vacías
+      | 1.02     |   X    |     X     | ← ERROR: Ambas marcadas (excluyentes)
+   
+   VALIDACIONES ESPECÍFICAS:
+   - Contar columnas en el encabezado de la tabla
+   - Contar valores en cada fila
+   - Comparar: ¿número de valores en fila == número de columnas?
+   - Si NO coincide: ERROR CRÍTICO
+   - Identificar exactamente qué filas tienen el problema
+   - Reportar número de fila y nombre del criterio afectado
    
    SEVERIDAD:
-   - Campo vacío: 🔴 ERROR CRÍTICO (debe estar rellenado)
-   - Ambos marcados: 🔴 ERROR CRÍTICO (excluyentes)
-   - Valor incorrecto: 🟡 ADVERTENCIA (formato no estándar)
+   - Campo vacío en tabla de 2 columnas: 🔴 ERROR CRÍTICO
+   - Fila con solo 1 valor cuando tabla tiene 2 columnas: 🔴 ERROR CRÍTICO
+   - Ambas columnas vacías: 🔴 ERROR CRÍTICO
+   - Ambas columnas marcadas (excluyentes): 🔴 ERROR CRÍTICO
+   - Valor incorrecto (SÍ/NO en lugar de APLICA): 🟡 ADVERTENCIA
 
 9. SECCIONES OBLIGATORIAS FALTANTES:
    ❌ PROBLEMA: Faltan apartados obligatorios según el tipo de pliego
@@ -200,24 +266,62 @@ generador de pliegos y requieren validación automática prioritaria.
 10. INCOHERENCIA NUMÉRICA EN PRESUPUESTOS Y LOTES:
     ❌ PROBLEMA: Las sumas de lotes no coinciden con el presupuesto total declarado
     
-    VALIDACIONES:
-    - Extraer presupuesto total de licitación (IVA incluido e IVA no incluido)
-    - Extraer importes de cada lote de la tabla
-    - Sumar importes de todos los lotes
-    - Comparar suma con presupuesto total declarado
-    - Validar coherencia con margen de error de ±0.50€ (redondeos)
+    ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+    DEBES REALIZAR CÁLCULOS MATEMÁTICOS EXPLÍCITOS. NO ASUMAS QUE LOS NÚMEROS SON CORRECTOS.
+    EXTRAE CADA NÚMERO, SÚMALOS MANUALMENTE Y COMPARA CON EL TOTAL DECLARADO.
     
-    EJEMPLO DE ERROR:
-    ❌ PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
-       Lot 1: 241.840,28 euros
-       Lot 2: 1.942,72 euros
-       SUMA: 243.783,00 euros ← NO COINCIDE (diferencia: 153,00 euros)
+    PROCESO PASO A PASO OBLIGATORIO:
     
-    EJEMPLO CORRECTO:
+    PASO 1: Buscar la línea "PRESSUPOST DE LICITACIÓ" o "PRESUPUESTO DE LICITACIÓN"
+    PASO 2: Extraer el importe total con IVA incluido (primer número)
+    PASO 3: Extraer el importe total sin IVA (segundo número después de la coma)
+    PASO 4: Buscar la tabla de lotes inmediatamente después
+    PASO 5: Extraer TODOS los importes de la columna "Pressupost euros (IVA inclòs)"
+    PASO 6: SUMAR manualmente todos los importes de lotes (con IVA)
+    PASO 7: COMPARAR: suma_lotes vs presupuesto_total_declarado
+    PASO 8: CALCULAR diferencia absoluta: |presupuesto_declarado - suma_lotes|
+    PASO 9: REPORTAR si diferencia > 0.50€
+    
+    EJEMPLO REAL DE ERROR (DEBES DETECTAR ESTO):
+    
+    Texto del pliego:
+    "PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs), 201.600,00 euros (IVA no inclòs)
+     
+     Lot | Descripció                      | Pressupost (IVA inclòs) | TOTAL (IVA no inclòs)
+     1   | Carretera de Rubí al Papiol     | 241.840,28             | 200.694,44
+     2   | Carretera del Papiol a Mira-Sol | 1.942,72               | 1.605,56"
+    
+    ANÁLISIS QUE DEBES HACER:
+    
+    1. Presupuesto declarado (IVA inclòs): 243.936,00 euros
+    2. Importes de lotes extraídos:
+       - Lot 1: 241.840,28 euros
+       - Lot 2: 1.942,72 euros
+    3. SUMA MANUAL: 241.840,28 + 1.942,72 = 243.783,00 euros
+    4. COMPARACIÓN: 243.936,00 (declarado) vs 243.783,00 (suma real)
+    5. DIFERENCIA: 243.936,00 - 243.783,00 = 153,00 euros
+    6. CONCLUSIÓN: ERROR CRÍTICO (diferencia > 100€)
+    
+    REPORTE QUE DEBES GENERAR:
+    "🔴 ERROR CRÍTICO: Incoherencia numérica en presupuesto de licitación
+     
+     Presupuesto declarado: 243.936,00€ (IVA inclòs)
+     Suma de lotes: 243.783,00€
+     Diferencia: 153,00€
+     
+     Detalle de lotes:
+     - Lot 1: 241.840,28€
+     - Lot 2: 1.942,72€
+     - SUMA: 243.783,00€
+     
+     El presupuesto declarado NO coincide con la suma de lotes.
+     Posible error en el importe del Lot 2 (debería ser 2.095,72€ en lugar de 1.942,72€)"
+    
+    EJEMPLO CORRECTO (para comparación):
     ✅ PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
        Lot 1: 241.840,28 euros
        Lot 2: 2.095,72 euros
-       SUMA: 243.936,00 euros ← COINCIDE EXACTAMENTE
+       SUMA: 241.840,28 + 2.095,72 = 243.936,00 euros ← COINCIDE EXACTAMENTE
     
     PATRONES A DETECTAR:
     - "PRESSUPOST DE LICITACIÓ:" o "PRESUPUESTO DE LICITACIÓN:"

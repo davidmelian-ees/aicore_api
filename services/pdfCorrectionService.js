@@ -80,15 +80,37 @@ ${ragContext}
 INSTRUCCIONES DE VALIDACIÓN:
 ================================================================================
 
-1. ANALIZA el siguiente texto de pliego
+⚠️ INSTRUCCIONES CRÍTICAS OBLIGATORIAS:
+
+1. ANALIZA el siguiente texto de pliego MINUCIOSAMENTE
+
 2. IDENTIFICA errores según los patrones definidos arriba
-3. GENERA un informe detallado con:
+
+3. REALIZA CÁLCULOS MATEMÁTICOS EXPLÍCITOS:
+   - Si encuentras "PRESSUPOST DE LICITACIÓ" o "PRESUPUESTO DE LICITACIÓN"
+   - EXTRAE el importe total declarado
+   - BUSCA la tabla de lotes inmediatamente después
+   - EXTRAE todos los importes de cada lote
+   - SUMA manualmente: Lot1 + Lot2 + Lot3 + ... = TOTAL
+   - COMPARA: ¿TOTAL calculado == TOTAL declarado?
+   - Si NO coinciden: REPORTA como ERROR CRÍTICO con cálculos explícitos
+
+4. VALIDA TABLAS APLICA/NO APLICA COLUMNA POR COLUMNA:
+   - Si encuentras tabla con columnas "APLICA" y "NO APLICA"
+   - CUENTA el número de columnas en el encabezado (debe ser 2)
+   - Para CADA fila: CUENTA cuántos valores tiene
+   - Si una fila tiene solo 1 valor cuando la tabla tiene 2 columnas: ERROR CRÍTICO
+   - IDENTIFICA exactamente qué filas tienen campos vacíos
+   - REPORTA con número de fila y nombre del criterio
+
+5. GENERA un informe detallado con:
    - Errores críticos (bloquean generación)
    - Advertencias (permiten continuar)
    - Sugerencias de corrección específicas
    - Campos variables detectados
+   - CÁLCULOS EXPLÍCITOS para errores numéricos
 
-4. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
+5. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
 ================================================================================
 
 🔴 ERRORES CRÍTICOS:
@@ -117,6 +139,40 @@ IMPORTANTE:
 - Si no hay elementos en una sección, omítela completamente
 - Mantén el formato limpio sin símbolos extra (#, *, etc.)
 
+⚠️ EJEMPLO 1 - VALIDACIÓN NUMÉRICA OBLIGATORIA:
+
+Si encuentras en el texto:
+"PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
+ Lot 1: 241.840,28 euros
+ Lot 2: 1.942,72 euros"
+
+DEBES hacer:
+1. Extraer: 243.936,00 (presupuesto declarado)
+2. Extraer lotes: 241.840,28 y 1.942,72
+3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
+4. COMPARAR: 243.936,00 ≠ 243.783,00
+5. DIFERENCIA: 153,00 euros
+6. REPORTAR: "🔴 ERROR CRÍTICO: Incoherencia numérica - Presupuesto declarado (243.936,00€) no coincide con suma de lotes (243.783,00€). Diferencia: 153,00€"
+
+⚠️ EJEMPLO 2 - VALIDACIÓN TABLAS APLICA/NO APLICA:
+
+Si encuentras en el texto:
+"1.03 Compromís sobre subcontractació    APLICA    APLICA
+ 1.04 Compromís sobre emissions CO2eq    APLICA
+ 1.05 Declaracions Ambientals            APLICA    APLICA
+ 1.06 Utilització de fusta certificada   APLICA"
+
+DEBES hacer:
+1. Identificar tabla con 2 columnas: APLICA | NO APLICA
+2. Contar valores por fila:
+   - Fila 1.03: 2 valores ✅
+   - Fila 1.04: 1 valor ❌ (falta columna NO APLICA)
+   - Fila 1.05: 2 valores ✅
+   - Fila 1.06: 1 valor ❌ (falta columna NO APLICA)
+3. REPORTAR: "🔴 ERROR CRÍTICO: Tabla APLICA/NO APLICA incompleta. Filas 1.04 y 1.06 tienen solo 1 valor cuando deberían tener 2 (una por cada columna)"
+
+NO asumas que las tablas están completas. SIEMPRE cuenta los valores por fila.
+
 ================================================================================
 TEXTO DEL PLIEGO A VALIDAR:
 ================================================================================
@@ -125,6 +181,9 @@ ${textForAnalysis}
 
 ================================================================================
 GENERA EL INFORME SIGUIENDO EL FORMATO EXACTO:
+RECUERDA: 
+- VERIFICA TODAS LAS SUMAS Y CÁLCULOS NUMÉRICOS
+- CUENTA LOS VALORES EN CADA FILA DE TABLAS APLICA/NO APLICA
 ================================================================================`;
 }
 
