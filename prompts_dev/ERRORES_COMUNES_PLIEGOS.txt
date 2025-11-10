@@ -197,6 +197,58 @@ generador de pliegos y requieren validación automática prioritaria.
    - Sección duplicada: 🟡 ADVERTENCIA
    - Orden incorrecto: 🟡 ADVERTENCIA
 
+10. INCOHERENCIA NUMÉRICA EN PRESUPUESTOS Y LOTES:
+    ❌ PROBLEMA: Las sumas de lotes no coinciden con el presupuesto total declarado
+    
+    VALIDACIONES:
+    - Extraer presupuesto total de licitación (IVA incluido e IVA no incluido)
+    - Extraer importes de cada lote de la tabla
+    - Sumar importes de todos los lotes
+    - Comparar suma con presupuesto total declarado
+    - Validar coherencia con margen de error de ±0.50€ (redondeos)
+    
+    EJEMPLO DE ERROR:
+    ❌ PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
+       Lot 1: 241.840,28 euros
+       Lot 2: 1.942,72 euros
+       SUMA: 243.783,00 euros ← NO COINCIDE (diferencia: 153,00 euros)
+    
+    EJEMPLO CORRECTO:
+    ✅ PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
+       Lot 1: 241.840,28 euros
+       Lot 2: 2.095,72 euros
+       SUMA: 243.936,00 euros ← COINCIDE EXACTAMENTE
+    
+    PATRONES A DETECTAR:
+    - "PRESSUPOST DE LICITACIÓ:" o "PRESUPUESTO DE LICITACIÓN:"
+    - Tablas con columnas "Lot", "Lote", "Pressupost", "Presupuesto"
+    - Importes en formato: 123.456,78 euros
+    - Menciones "(IVA inclòs)" o "(IVA no inclòs)"
+    
+    VALIDACIONES ESPECÍFICAS:
+    - Extraer presupuesto total con IVA incluido
+    - Extraer presupuesto total sin IVA
+    - Sumar lotes con IVA incluido
+    - Sumar lotes sin IVA
+    - Comparar ambas sumas (con IVA y sin IVA)
+    - Validar que diferencia sea < 0.50€ (tolerancia por redondeos)
+    
+    CÁLCULOS A REALIZAR:
+    1. Identificar sección "DADES ECONÒMIQUES" o "DATOS ECONÓMICOS"
+    2. Extraer línea con "PRESSUPOST DE LICITACIÓ" o similar
+    3. Extraer dos importes: (IVA inclòs) y (IVA no inclòs)
+    4. Buscar tabla de lotes posterior
+    5. Extraer todos los importes de la columna de presupuesto
+    6. Sumar importes de lotes
+    7. Comparar: |suma_lotes - presupuesto_total| < 0.50€
+    
+    SEVERIDAD:
+    - Diferencia > 100€: 🔴 ERROR CRÍTICO (error de cálculo grave)
+    - Diferencia 1€ - 100€: 🟡 ADVERTENCIA (posible error de redondeo)
+    - Diferencia < 1€: ✅ CORRECTO (tolerancia aceptable)
+    - Falta tabla de lotes cuando se declaran lotes: 🔴 ERROR CRÍTICO
+    - Número de lotes en tabla ≠ número declarado: 🔴 ERROR CRÍTICO
+
 ================================================================================
                         NIVELES DE CRITICIDAD
 ================================================================================
@@ -209,6 +261,9 @@ generador de pliegos y requieren validación automática prioritaria.
 - Tablas APLICA/NO APLICA con campos vacíos
 - Tablas APLICA/NO APLICA con ambas opciones marcadas
 - Secciones obligatorias faltantes
+- Incoherencia numérica > 100€ entre presupuesto total y suma de lotes
+- Falta tabla de lotes cuando se declaran lotes
+- Número de lotes en tabla diferente al declarado
 
 🟡 ADVERTENCIA (Permite continuar):
 - Formato de fecha incorrecto
@@ -219,6 +274,7 @@ generador de pliegos y requieren validación automática prioritaria.
 - Secciones duplicadas
 - Orden incorrecto de secciones
 - Valores no estándar en tablas APLICA/NO APLICA
+- Incoherencia numérica 1€-100€ entre presupuesto y lotes (posible redondeo)
 
 ================================================================================
                         INTEGRACIÓN CON VALIDACIÓN
@@ -287,6 +343,15 @@ SECCIONES OBLIGATORIAS:
   - "SUBCONTRATACIÓN" o "SUBCONTRACTACIÓ"
   - "REVISIÓN DE PRECIOS" o "REVISIÓ DE PREUS"
 
+COHERENCIA NUMÉRICA PRESUPUESTOS:
+- /PRESSUPOST DE LICITACIÓ:\s*([\d.,]+)\s*euros\s*\(IVA inclòs\)/gi
+- /PRESUPUESTO DE LICITACIÓN:\s*([\d.,]+)\s*euros\s*\(IVA incluido\)/gi
+- /Lot\s*\d+.*?([\d.,]+)\s*euros/gi (extraer importes de lotes)
+- Convertir formato catalán (123.456,78) a número para cálculos
+- Sumar todos los importes de lotes
+- Calcular diferencia absoluta: |presupuesto_total - suma_lotes|
+- Clasificar según diferencia: <1€ OK, 1-100€ WARNING, >100€ ERROR
+
 ================================================================================
                             EJEMPLOS DE ERRORES
 ================================================================================
@@ -325,6 +390,30 @@ SECCIONES OBLIGATORIAS:
 
 ❌ SECCIÓN OBLIGATORIA FALTANTE:
 Pliego sin apartado "GARANTÍAS" (ERROR CRÍTICO)
+
+❌ INCOHERENCIA NUMÉRICA EN PRESUPUESTO:
+"2.- DADES ECONÒMIQUES:
+ 
+PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs), 201.600,00 euros (IVA no inclòs)
+ 
+Lot | Descripció                    | Pressupost (IVA inclòs)
+1   | Carretera de Rubí al Papiol   | 241.840,28
+2   | Carretera del Papiol a Mira-Sol | 1.942,72
+
+SUMA LOTES: 241.840,28 + 1.942,72 = 243.783,00 euros
+PRESUPUESTO DECLARADO: 243.936,00 euros
+DIFERENCIA: 153,00 euros ← ERROR CRÍTICO (>100€)"
+
+✅ COHERENCIA NUMÉRICA CORRECTA:
+"PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
+ 
+Lot | Descripció                    | Pressupost (IVA inclòs)
+1   | Carretera de Rubí al Papiol   | 241.840,28
+2   | Carretera del Papiol a Mira-Sol | 2.095,72
+
+SUMA LOTES: 241.840,28 + 2.095,72 = 243.936,00 euros
+PRESUPUESTO DECLARADO: 243.936,00 euros
+DIFERENCIA: 0,00 euros ← CORRECTO"
 
 ================================================================================
                                 NOTAS
