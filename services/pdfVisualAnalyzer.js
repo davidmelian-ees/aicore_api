@@ -323,4 +323,4 @@ class PDFVisualAnalyzer {
     }
 }
 
-module.exports = new PDFVisualAnalyzer();
+export default new PDFVisualAnalyzer();
