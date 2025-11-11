@@ -1,5 +1,5 @@
-const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
-const fs = require('fs').promises;
+import * as pdfjsLib from 'pdfjs-dist';
+import { promises as fs } from 'fs';
 
 class PDFVisualAnalyzer {
     
