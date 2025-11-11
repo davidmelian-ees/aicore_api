@@ -46,7 +46,9 @@ async function loadValidationPrompts() {
 }
 
 // Función para construir el prompt de validación específico
-async function buildValidationPrompt(textForAnalysis, prompts, ragContext = '') {
+async function buildValidationPrompt(textForAnalysis, ragContext = null, learnedPatterns = null) {
+  const prompts = await loadValidationPrompts();
+  
   if (!prompts) {
     // Fallback si no se pueden cargar los prompts
     return `Analiza el siguiente texto de pliego y genera un informe de validación con errores encontrados:
@@ -76,6 +78,23 @@ ${prompts.nomenclatura}
 ${ragContext ? `CONTEXTO RAG ADICIONAL (EJEMPLOS Y PLANTILLAS):
 ${ragContext}
 
+` : ''}${learnedPatterns ? `
+================================================================================
+PATRONES APRENDIDOS DEL CONTEXTO (VALIDACIÓN BASADA EN EJEMPLOS REALES):
+================================================================================
+
+⚠️ INSTRUCCIÓN CRÍTICA: Los siguientes patrones fueron extraídos de ${learnedPatterns.documentsAnalyzed} pliegos reales del contexto.
+DEBES validar que el pliego actual siga estos patrones comunes.
+Si el pliego NO tiene algún elemento que aparece en el 70%+ de los documentos, REPORTA como ADVERTENCIA.
+
+${learnedPatterns.patternsText || 'Analizando patrones...'}
+
+VALIDACIÓN DE ANOMALÍAS:
+- Si una sección aparece en 8+ documentos pero NO en este: 🟡 ADVERTENCIA
+- Si un punto de numeración aparece en 8+ documentos pero NO en este: 🟡 ADVERTENCIA  
+- Si una tabla común aparece en 8+ documentos pero NO en este: 🟡 ADVERTENCIA
+- Si el orden de secciones es diferente al patrón común: 🟡 ADVERTENCIA
+
 ` : ''}================================================================================
 INSTRUCCIONES DE VALIDACIÓN:
 ================================================================================
@@ -103,14 +122,22 @@ INSTRUCCIONES DE VALIDACIÓN:
    - IDENTIFICA exactamente qué filas tienen campos vacíos
    - REPORTA con número de fila y nombre del criterio
 
-5. GENERA un informe detallado con:
+5. DETECTA COMENTARIOS DE DESARROLLADORES Y TAGS SAP:
+   - BUSCA texto con nombre + dos puntos: "Oriol:", "David:", "Maria:"
+   - BUSCA instrucciones técnicas: "S'haurà de treure", "no treure", "Escollir"
+   - BUSCA variables SAP sin reemplazar que empiecen con Z: ZRM_, ZVRM_, ZVRM_QDC_
+   - BUSCA referencias a tablas SAP: "si hi ha valors a la taula ZRM_"
+   - BUSCA condiciones técnicas: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000"
+   - Si encuentras CUALQUIERA de estos: ERROR CRÍTICO
+
+6. GENERA un informe detallado con:
    - Errores críticos (bloquean generación)
    - Advertencias (permiten continuar)
    - Sugerencias de corrección específicas
    - Campos variables detectados
    - CÁLCULOS EXPLÍCITOS para errores numéricos
 
-5. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
+7. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
 ================================================================================
 
 🔴 ERRORES CRÍTICOS:
@@ -173,6 +200,39 @@ DEBES hacer:
 
 NO asumas que las tablas están completas. SIEMPRE cuenta los valores por fila.
 
+⚠️ EJEMPLO 3 - DETECCIÓN DE COMENTARIOS DE DESARROLLADORES:
+
+Si encuentras en el texto:
+"Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o 
+ZVRM_QDC_MAT_LIC -> Escollir quina de les 2) S'haurà de treure el text en groc."
+
+DEBES hacer:
+1. Detectar nombre + dos puntos: "Oriol:"
+2. Detectar instrucciones técnicas: "S'haurà de treure", "Escollir quina de les 2"
+3. Detectar tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
+4. Detectar referencias a tablas SAP: "si hi ha valors a la taula"
+5. REPORTAR: "🔴 ERROR CRÍTICO: Comentario de desarrollador detectado
+   - Línea: 'Oriol: En cas que apliqui el CO2...'
+   - Contiene: Instrucciones técnicas que deben eliminarse
+   - Tags SAP sin reemplazar: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC"
+
+⚠️ EJEMPLO 4 - DETECCIÓN DE CONDICIONES TÉCNICAS SAP:
+
+Si encuentras:
+"Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula següent"
+
+DEBES hacer:
+1. Detectar nombre + dos puntos: "Oriol:"
+2. Detectar condición técnica: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000"
+3. Detectar tag SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
+4. Detectar instrucción: "no treure la taula"
+5. REPORTAR: "🔴 ERROR CRÍTICO: Comentario de desarrollador con condición técnica SAP
+   - Línea: 'Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000...'
+   - Tag SAP sin reemplazar: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
+   - Este texto debe eliminarse completamente del pliego final"
+
+BUSCA ACTIVAMENTE estos patrones en TODO el documento.
+
 ================================================================================
 TEXTO DEL PLIEGO A VALIDAR:
 ================================================================================
@@ -184,7 +244,89 @@ GENERA EL INFORME SIGUIENDO EL FORMATO EXACTO:
 RECUERDA: 
 - VERIFICA TODAS LAS SUMAS Y CÁLCULOS NUMÉRICOS
 - CUENTA LOS VALORES EN CADA FILA DE TABLAS APLICA/NO APLICA
+- BUSCA COMENTARIOS DE DESARROLLADORES (Oriol:, David:, etc.)
+- BUSCA TAGS SAP SIN REEMPLAZAR (ZRM_, ZVRM_, etc.)
 ================================================================================`;
+}
+
+/**
+ * Analiza patrones comunes en documentos del contexto RAG
+ * @param {string} contextId - ID del contexto a analizar
+ * @returns {Promise<Object>} - Patrones detectados
+ */
+async function analyzeContextPatterns(contextId) {
+  try {
+    console.log(`[PDF-CORRECTION] 🔍 Analizando patrones en contexto: ${contextId}`);
+    
+    // Buscar todos los documentos del contexto para análisis de patrones
+    const ragResults = await searchContext(
+      `estructura secciones puntos numeración índice tabla contenidos`,
+      {
+        contextId: contextId,
+        topK: 30 // Más documentos para mejor análisis de patrones
+      }
+    );
+
+    if (!ragResults || ragResults.length === 0) {
+      console.log('[PDF-CORRECTION] ⚠️ No hay documentos en el contexto para análisis');
+      return null;
+    }
+
+    // Construir contexto para análisis de patrones
+    const documentsContext = ragResults
+      .map((result, index) => {
+        const metadata = result.metadata || {};
+        return `
+DOCUMENTO ${index + 1}: ${metadata.filename || 'Sin nombre'}
+${result.content}
+---`;
+      })
+      .join('\n');
+
+    console.log(`[PDF-CORRECTION] 📊 Analizando ${ragResults.length} documentos para detectar patrones...`);
+
+    // Prompt para que la IA extraiga patrones comunes
+    const patternAnalysisPrompt = `Analiza los siguientes ${ragResults.length} documentos de pliegos y extrae PATRONES COMUNES:
+
+${documentsContext}
+
+INSTRUCCIONES:
+1. Identifica secciones que aparecen en TODOS o MAYORÍA de documentos
+2. Detecta puntos de numeración que se repiten (ej: punto 18, punto 25, etc.)
+3. Encuentra tablas o estructuras comunes
+4. Identifica campos variables que siempre están presentes
+5. Detecta orden típico de secciones
+
+FORMATO DE RESPUESTA:
+
+SECCIONES COMUNES (aparecen en X de ${ragResults.length} documentos):
+- [Nombre de sección]: [Frecuencia]
+
+PUNTOS DE NUMERACIÓN COMUNES:
+- Punto [número]: [Descripción] - Aparece en [X] documentos
+
+TABLAS COMUNES:
+- [Tipo de tabla]: [Frecuencia]
+
+CAMPOS VARIABLES COMUNES:
+- [Nombre del campo]: [Frecuencia]
+
+ORDEN TÍPICO DE SECCIONES:
+1. [Sección 1]
+2. [Sección 2]
+...
+
+Genera SOLO los patrones que aparecen en al menos el 70% de los documentos.`;
+
+    return {
+      documentsAnalyzed: ragResults.length,
+      analysisPrompt: patternAnalysisPrompt
+    };
+
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error analizando patrones:', error);
+    return null;
+  }
 }
 
 /**
@@ -201,7 +343,32 @@ export async function generatePDFWithCorrectionsFromContext(prompt, contextId) {
     // 1. Cargar prompts de validación
     const prompts = await loadValidationPrompts();
 
-    // 2. Buscar documentos relevantes en el contexto RAG
+    // 2. NUEVO: Analizar patrones del contexto
+    const patternsAnalysis = await analyzeContextPatterns(contextId);
+    
+    // 2.1 Si hay patrones, extraerlos con la IA
+    let learnedPatterns = null;
+    if (patternsAnalysis) {
+      console.log(`[PDF-CORRECTION] 🤖 Extrayendo patrones con IA...`);
+      try {
+        const client = getAiCoreClient('gpt-4o');
+        const patternResponse = await client.run({
+          messages: [{ role: 'user', content: patternsAnalysis.analysisPrompt }]
+        });
+        
+        const patternsText = patternResponse.getContent();
+        learnedPatterns = {
+          documentsAnalyzed: patternsAnalysis.documentsAnalyzed,
+          patternsText: patternsText
+        };
+        
+        console.log(`[PDF-CORRECTION] ✅ Patrones extraídos de ${patternsAnalysis.documentsAnalyzed} documentos`);
+      } catch (error) {
+        console.error('[PDF-CORRECTION] ⚠️ Error extrayendo patrones:', error.message);
+      }
+    }
+
+    // 3. Buscar documentos relevantes en el contexto RAG
     console.log(`[PDF-CORRECTION] Buscando documentos en contexto: ${contextId}`);
 
     const ragResults = await searchContext(
@@ -234,29 +401,12 @@ TIPO: ${result.metadata?.type || 'Desconocido'}
       textForAnalysis = contextText.substring(0, 30000) + '\n\n[TEXTO DE CONTEXTO TRUNCADO...]';
     }
 
-    // 4. Construir prompt específico para análisis de contexto
-    const contextAnalysisPrompt = `ANÁLISIS DE CONTEXTO PARA VALIDACIÓN DE PLIEGOS
-================================================================================
-
-CONTEXTO DISPONIBLE (Documentos de referencia):
-${textForAnalysis}
-
-================================================================================
-INSTRUCCIONES DEL USUARIO:
-${prompt}
-
-================================================================================
-TAREA: Analiza los documentos del contexto y genera un informe de validación
-que ayude a identificar patrones de error y buenas prácticas en pliegos SAP.
-
-El análisis debe incluir:
-1. Errores comunes encontrados en los documentos
-2. Patrones de variables SAP detectados
-3. Estructuras correctas identificadas
-4. Recomendaciones para validación automática
-5. Casos de uso específicos encontrados
-
-================================================================================`;
+    // 4. Construir prompt con patrones aprendidos
+    const contextAnalysisPrompt = await buildValidationPrompt(
+      `${prompt}\n\n${textForAnalysis}`,
+      textForAnalysis,
+      learnedPatterns
+    );
 
     console.log(`[PDF-CORRECTION] Generando análisis con SAP AI Core (${contextAnalysisPrompt.length} caracteres)...`);
 

@@ -353,12 +353,68 @@ generador de pliegos y requieren validación automática prioritaria.
     - Falta tabla de lotes cuando se declaran lotes: 🔴 ERROR CRÍTICO
     - Número de lotes en tabla ≠ número declarado: 🔴 ERROR CRÍTICO
 
+11. COMENTARIOS DE DESARROLLADORES Y TAGS SAP SIN REEMPLAZAR:
+    PROBLEMA: El pliego contiene comentarios de desarrollo o tags SAP sin reemplazar
+    
+    INSTRUCCION CRITICA PARA LA IA:
+    DEBES BUSCAR ACTIVAMENTE CUALQUIER TEXTO QUE PAREZCA SER:
+    - Un comentario de un desarrollador
+    - Una instruccion tecnica sobre que hacer
+    - Una variable SAP sin reemplazar (empieza con Z)
+    - Texto resaltado o con formato de borrador
+    
+    PATRONES A DETECTAR:
+    
+    1. COMENTARIOS DE DESARROLLADORES:
+       - Texto con nombre + dos puntos: "Oriol:", "David:", "Maria:", "Joan:"
+       - Instrucciones en catalan: "S'haura de treure", "no treure la taula", "Escollir quina de les 2"
+       - Referencias a tablas SAP: "si hi ha valors a la taula ZRM_", "a la taula ZVRM_"
+       - Condiciones tecnicas: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000", "En cas que apliqui"
+       - Instrucciones sobre columnas: "quan no hi hagi lots, a la columna material"
+    
+    2. TAGS SAP SIN REEMPLAZAR (Variables que empiezan con Z):
+       - ZRM_DM_MAT_CO2
+       - ZVRM_QDC_MAT_LIC
+       - ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
+       - Cualquier variable: Z[A-Z_]+
+    
+    3. TEXTO RESALTADO CON INSTRUCCIONES:
+       - Texto en amarillo con instrucciones
+       - Texto en rojo con comentarios
+       - Placeholders o borradores visibles
+       - Instrucciones entre parentesis
+    
+    EJEMPLOS REALES DE ERRORES:
+    
+    ERROR 1:
+    "Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o 
+    ZVRM_QDC_MAT_LIC -> Escollir quina de les 2) S'haura de treure el text en groc."
+    
+    REPORTE ESPERADO:
+    "ERROR CRITICO: Comentario de desarrollador detectado
+     - Linea: 'Oriol: En cas que apliqui el CO2...'
+     - Contiene: Nombre desarrollador + instrucciones tecnicas
+     - Tags SAP sin reemplazar: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC"
+    
+    ERROR 2:
+    "Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula seguent"
+    
+    REPORTE ESPERADO:
+    "ERROR CRITICO: Comentario de desarrollador detectado
+     - Linea: 'Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000...'
+     - Contiene: Condicion tecnica SAP
+     - Tag SAP sin reemplazar: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT"
+    
+    SEVERIDAD: ERROR CRITICO (bloquea generacion)
+
 ================================================================================
                         NIVELES DE CRITICIDAD
 ================================================================================
 
 🔴 CRÍTICO (Bloquea generación):
 - Tags SAP sin rellenar
+- Comentarios de desarrolladores en el texto (Oriol:, David:, etc.)
+- Tags SAP sin reemplazar (ZRM_, ZVRM_, etc.)
 - Campos SÍ/NO duplicados
 - Cantidad de lotes incorrecta
 - Saltos de 2+ puntos en numeración (probablemente faltan secciones)
@@ -423,6 +479,18 @@ LOTES:
 
 PALABRAS CASTELLANAS:
 - /\b(presupuesto|contrato|licitación|adjudicación|obras|proyecto)\b/gi
+
+COMENTARIOS DE DESARROLLADORES:
+- /^[A-Z][a-z]+:\s+/gm (Oriol:, David:, Maria:)
+- /S'haurà de treure/gi
+- /no treure/gi
+- /Escollir quina de les/gi
+- /si hi ha valors a la taula/gi
+
+TAGS SAP SIN REEMPLAZAR (Variables Z):
+- /\bZ[A-Z_]+[A-Z0-9_]*\b/g
+- /ZVRM_[A-Z_]+/g
+- /ZRM_[A-Z_]+/g
 
 NUMERACIÓN:
 - /^(\d+(?:\.\d+)*)\.\s+/gm (detectar numeración: 1., 2.1, 3.1.1, etc.)
