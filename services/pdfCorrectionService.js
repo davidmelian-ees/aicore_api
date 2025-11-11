@@ -115,6 +115,13 @@ INSTRUCCIONES DE VALIDACIÓN:
 
 2. IDENTIFICA errores según los patrones definidos arriba
 
+⚠️ OBLIGATORIO - UBICACIÓN DE ERRORES:
+   Para CADA error detectado, DEBES incluir:
+   - 📍 Ubicación: El apartado/sección exacto donde se encuentra (ej: "18.- DOCUMENTACIÓ A PRESENTAR")
+   - 📄 Contexto: La tabla, cuadro o párrafo específico donde aparece el error
+   
+   NUNCA reportes un error sin indicar su ubicación exacta en el documento.
+
 3. REALIZA CÁLCULOS MATEMÁTICOS EXPLÍCITOS:
    - Si encuentras "PRESSUPOST DE LICITACIÓ" o "PRESUPUESTO DE LICITACIÓN"
    - EXTRAE el importe total declarado
@@ -146,17 +153,20 @@ INSTRUCCIONES DE VALIDACIÓN:
    - Sugerencias de corrección específicas
    - Campos variables detectados
    - CÁLCULOS EXPLÍCITOS para errores numéricos
+   - UBICACIÓN EXACTA de cada error (sección, apartado, tabla)
 
 7. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
 ================================================================================
 
 🔴 ERRORES CRÍTICOS:
-- [Lista específica de errores que impiden continuar]
-- [Cada error en una línea separada]
+- [Descripción del error]
+  📍 Ubicación: [Sección/Apartado exacto donde se encuentra]
+  📄 Contexto: [Tabla, cuadro o párrafo específico]
 
 🟡 ADVERTENCIAS:
-- [Lista de problemas menores que permiten continuar]
-- [Cada advertencia en una línea separada]
+- [Descripción de la advertencia]
+  📍 Ubicación: [Sección/Apartado exacto donde se encuentra]
+  📄 Contexto: [Tabla, cuadro o párrafo específico]
 
 ✅ SUGERENCIAS:
 - [Correcciones específicas recomendadas]
@@ -176,10 +186,24 @@ IMPORTANTE:
 - Si no hay elementos en una sección, omítela completamente
 - Mantén el formato limpio sin símbolos extra (#, *, etc.)
 
-⚠️ EJEMPLO 1 - VALIDACIÓN NUMÉRICA OBLIGATORIA:
+⚠️ EJEMPLO 1 - FORMATO CON UBICACIÓN (TAG SIN REEMPLAZAR):
 
 Si encuentras en el texto:
-"PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
+"18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
+ QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
+ {B}CRITERIS{/B}    APLICA    NO APLICA"
+
+DEBES REPORTAR:
+🔴 ERRORES CRÍTICOS:
+- Tag SAP sin reemplazar: {B}CRITERIS{/B}
+  📍 Ubicación: Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
+  📄 Contexto: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
+
+⚠️ EJEMPLO 2 - VALIDACIÓN NUMÉRICA CON UBICACIÓN:
+
+Si encuentras en el texto:
+"2.- DADES ECONÒMIQUES
+ PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
  Lot 1: 241.840,28 euros
  Lot 2: 1.942,72 euros"
 
@@ -189,12 +213,18 @@ DEBES hacer:
 3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
 4. COMPARAR: 243.936,00 ≠ 243.783,00
 5. DIFERENCIA: 153,00 euros
-6. REPORTAR: "🔴 ERROR CRÍTICO: Incoherencia numérica - Presupuesto declarado (243.936,00€) no coincide con suma de lotes (243.783,00€). Diferencia: 153,00€"
+6. REPORTAR:
+🔴 ERRORES CRÍTICOS:
+- Incoherencia numérica: Presupuesto declarado (243.936,00€) no coincide con suma de lotes (243.783,00€). Diferencia: 153,00€
+  📍 Ubicación: Apartado 2.- DADES ECONÒMIQUES
+  📄 Contexto: PRESSUPOST DE LICITACIÓ - Tabla de lotes
 
-⚠️ EJEMPLO 2 - VALIDACIÓN TABLAS APLICA/NO APLICA:
+⚠️ EJEMPLO 3 - VALIDACIÓN TABLAS APLICA/NO APLICA CON UBICACIÓN:
 
 Si encuentras en el texto:
-"1.03 Compromís sobre subcontractació    APLICA    APLICA
+"15.- CRITERIS D'ADJUDICACIÓ
+ QUADRE RESUM DE CRITERIS
+ 1.03 Compromís sobre subcontractació    APLICA    APLICA
  1.04 Compromís sobre emissions CO2eq    APLICA
  1.05 Declaracions Ambientals            APLICA    APLICA
  1.06 Utilització de fusta certificada   APLICA"
@@ -206,25 +236,31 @@ DEBES hacer:
    - Fila 1.04: 1 valor ❌ (falta columna NO APLICA)
    - Fila 1.05: 2 valores ✅
    - Fila 1.06: 1 valor ❌ (falta columna NO APLICA)
-3. REPORTAR: "🔴 ERROR CRÍTICO: Tabla APLICA/NO APLICA incompleta. Filas 1.04 y 1.06 tienen solo 1 valor cuando deberían tener 2 (una por cada columna)"
+3. REPORTAR:
+🔴 ERRORES CRÍTICOS:
+- Tabla APLICA/NO APLICA incompleta. Filas 1.04 y 1.06 tienen solo 1 valor cuando deberían tener 2
+  📍 Ubicación: Apartado 15.- CRITERIS D'ADJUDICACIÓ
+  📄 Contexto: QUADRE RESUM DE CRITERIS - Filas 1.04 (emissions CO2eq) y 1.06 (fusta certificada)
 
 NO asumas que las tablas están completas. SIEMPRE cuenta los valores por fila.
 
-⚠️ EJEMPLO 3 - DETECCIÓN DE COMENTARIOS DE DESARROLLADORES:
+⚠️ EJEMPLO 4 - DETECCIÓN DE COMENTARIOS DE DESARROLLADORES CON UBICACIÓN:
 
 Si encuentras en el texto:
-"Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o 
-ZVRM_QDC_MAT_LIC -> Escollir quina de les 2) S'haurà de treure el text en groc."
+"12.- CRITERIS DE SOSTENIBILITAT
+ Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o 
+ ZVRM_QDC_MAT_LIC -> Escollir quina de les 2) S'haurà de treure el text en groc."
 
 DEBES hacer:
 1. Detectar nombre + dos puntos: "Oriol:"
 2. Detectar instrucciones técnicas: "S'haurà de treure", "Escollir quina de les 2"
 3. Detectar tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
 4. Detectar referencias a tablas SAP: "si hi ha valors a la taula"
-5. REPORTAR: "🔴 ERROR CRÍTICO: Comentario de desarrollador detectado
-   - Línea: 'Oriol: En cas que apliqui el CO2...'
-   - Contiene: Instrucciones técnicas que deben eliminarse
-   - Tags SAP sin reemplazar: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC"
+5. REPORTAR:
+🔴 ERRORES CRÍTICOS:
+- Comentario de desarrollador detectado: "Oriol: En cas que apliqui el CO2..."
+  📍 Ubicación: Apartado 12.- CRITERIS DE SOSTENIBILITAT
+  📄 Contexto: Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
 
 ⚠️ EJEMPLO 4 - DETECCIÓN DE CONDICIONES TÉCNICAS SAP:
 
