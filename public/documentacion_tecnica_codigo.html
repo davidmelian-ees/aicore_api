@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación Técnica - Sistema de Validación de Pliegos - David Melián</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f8f9fa; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 40px 0; text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 2.8em; margin-bottom: 10px; }
+        .subtitle { font-size: 1.2em; opacity: 0.9; }
+        nav { background: #343a40; padding: 15px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        nav ul { list-style: none; display: flex; justify-content: center; flex-wrap: wrap; }
+        nav li { margin: 0 15px; }
+        nav a { color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; transition: background 0.3s; }
+        nav a:hover { background: #495057; }
+        .section { background: white; margin: 30px 0; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #1e3c72; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #2a5298; }
+        h3 { color: #2a5298; margin-top: 25px; margin-bottom: 15px; }
+        h4 { color: #495057; margin-top: 20px; margin-bottom: 10px; }
+        .code-block { background: #282c34; color: #abb2bf; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.5; }
+        .code-inline { background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; color: #d63384; font-size: 0.9em; }
+        .file-path { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 15px; margin: 15px 0; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 0.9em; }
+        .function-signature { background: #d1ecf1; border-left: 4px solid #0c5460; padding: 15px; margin: 15px 0; border-radius: 5px; font-family: 'Courier New', monospace; }
+        .flow-diagram { background: #f8f9fa; border: 2px solid #dee2e6; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .info-box { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .success-box { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background: #2a5298; color: white; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600; margin: 0 5px; }
+        .badge-new { background: #28a745; color: white; }
+        .badge-critical { background: #dc3545; color: white; }
+        footer { text-align: center; padding: 30px 0; color: #6c757d; margin-top: 50px; }
+        .toc { background: #e9ecef; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .toc ul { list-style: none; padding-left: 20px; }
+        .toc li { margin: 8px 0; }
+        .toc a { color: #1e3c72; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📚 Documentación Técnica</h1>
+            <p class="subtitle">Sistema de Validación de Pliegos SAP - Implementación y Código</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Última actualización: 11 de Noviembre de 2025</p>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#arquitectura">Arquitectura</a></li>
+            <li><a href="#validacion-numerica">Validación Numérica</a></li>
+            <li><a href="#validacion-tablas">Validación Tablas</a></li>
+            <li><a href="#patrones-aprendidos">Patrones Aprendidos</a></li>
+            <li><a href="#funciones-clave">Funciones Clave</a></li>
+            <li><a href="#prompts">Sistema de Prompts</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        
+        <!-- TABLA DE CONTENIDOS -->
+        <div class="section">
+            <h2>📑 Tabla de Contenidos</h2>
+            <div class="toc">
+                <ul>
+                    <li><a href="#arquitectura">1. Arquitectura del Sistema</a></li>
+                    <li><a href="#validacion-numerica">2. Validación Numérica (Coherencia de Presupuestos)</a></li>
+                    <li><a href="#validacion-tablas">3. Validación de Tablas APLICA/NO APLICA</a></li>
+                    <li><a href="#patrones-aprendidos">4. Sistema de Aprendizaje de Patrones</a></li>
+                    <li><a href="#funciones-clave">5. Funciones Clave del Código</a></li>
+                    <li><a href="#prompts">6. Sistema de Prompts</a></li>
+                    <li><a href="#endpoints">7. Endpoints y APIs</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ARQUITECTURA -->
+        <div class="section" id="arquitectura">
+            <h2>🏗️ 1. Arquitectura del Sistema</h2>
+            
+            <h3>Estructura de Archivos</h3>
+            
+            <div class="file-path">
+📁 aicore_api/<br>
+├── 📁 routes/<br>
+│   └── pdfCorrection.js          ← Endpoints HTTP<br>
+├── 📁 services/<br>
+│   ├── pdfCorrectionService.js   ← Lógica principal de validación<br>
+│   ├── ragService.js             ← Búsqueda en contexto RAG<br>
+│   └── sqliteVectorStore.js      ← Almacenamiento de vectores<br>
+├── 📁 prompts_dev/<br>
+│   ├── ERRORES_COMUNES_PLIEGOS.txt<br>
+│   ├── PLIEGOS_VALIDATION_SYSTEM.txt<br>
+│   ├── NOMENCLATURA_PLIEGOS.txt<br>
+│   └── PLIEGOS_ERRORES_EJEMPLOS.txt<br>
+└── 📁 public/<br>
+    └── documentacion_tecnica_codigo.html  ← Este archivo
+            </div>
+
+            <h3>Componentes Principales</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Componente</th>
+                        <th>Archivo</th>
+                        <th>Responsabilidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Endpoints HTTP</strong></td>
+                        <td><code>routes/pdfCorrection.js</code></td>
+                        <td>Recepción de PDFs, orquestación de validación</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Motor de Validación</strong></td>
+                        <td><code>services/pdfCorrectionService.js</code></td>
+                        <td>Construcción de prompts, llamadas a IA, análisis de patrones</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sistema RAG</strong></td>
+                        <td><code>services/ragService.js</code></td>
+                        <td>Búsqueda semántica en contextos</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Base de Prompts</strong></td>
+                        <td><code>prompts_dev/*.txt</code></td>
+                        <td>Reglas de validación, ejemplos, patrones</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Flujo de Datos</h3>
+            
+            <div class="flow-diagram">
+                <pre>
+┌─────────────┐
+│  Usuario    │
+│  Sube PDF   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────────────────────────────────┐
+│  POST /api/pdf-correction/generate-list-from-context        │
+│  (routes/pdfCorrection.js líneas 61-120)                    │
+└──────┬──────────────────────────────────────────────────────┘
+       │
+       ▼
+┌─────────────────────────────────────────────────────────────┐
+│  generatePDFWithCorrectionsFromContext()                    │
+│  (services/pdfCorrectionService.js líneas 295-420)          │
+│                                                              │
+│  1. Cargar prompts de validación                            │
+│  2. 🆕 Analizar patrones del contexto                        │
+│  3. 🆕 Extraer patrones con IA                               │
+│  4. Buscar documentos relevantes en RAG                      │
+│  5. Construir prompt con patrones aprendidos                 │
+│  6. Enviar a SAP AI Core                                     │
+│  7. Generar PDF con informe                                  │
+└──────┬──────────────────────────────────────────────────────┘
+       │
+       ▼
+┌─────────────┐
+│  PDF con    │
+│  Informe de │
+│  Validación │
+└─────────────┘
+                </pre>
+            </div>
+        </div>
+
+        <!-- VALIDACIÓN NUMÉRICA -->
+        <div class="section" id="validacion-numerica">
+            <h2>🧮 2. Validación Numérica</h2>
+            
+            <div class="success-box">
+                <strong>🆕 Nueva Funcionalidad:</strong> La IA realiza cálculos matemáticos explícitos para validar coherencia entre presupuesto total y suma de lotes.
+            </div>
+
+            <h3>Ubicación en el Código</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Líneas</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>prompts_dev/ERRORES_COMUNES_PLIEGOS.txt</code></td>
+                        <td>200-290</td>
+                        <td>Definición completa del error #10</td>
+                    </tr>
+                    <tr>
+                        <td><code>services/pdfCorrectionService.js</code></td>
+                        <td>87-96</td>
+                        <td>Instrucciones en prompt principal</td>
+                    </tr>
+                    <tr>
+                        <td><code>services/pdfCorrectionService.js</code></td>
+                        <td>142-155</td>
+                        <td>Ejemplo explícito de validación</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Proceso de Validación</h3>
+            
+            <div class="flow-diagram">
+                <pre>
+PASO 1: Buscar "PRESSUPOST DE LICITACIÓ"
+         ↓
+PASO 2: Extraer importe total (IVA inclòs)
+         ↓
+PASO 3: Buscar tabla de lotes
+         ↓
+PASO 4: Extraer TODOS los importes de lotes
+         ↓
+PASO 5: SUMAR manualmente: Lot1 + Lot2 + ...
+         ↓
+PASO 6: COMPARAR: suma vs presupuesto declarado
+         ↓
+PASO 7: CALCULAR diferencia absoluta
+         ↓
+PASO 8: REPORTAR si diferencia > 0.50€
+                </pre>
+            </div>
+
+            <h3>Código del Prompt</h3>
+            
+            <div class="function-signature">
+<strong>Archivo:</strong> services/pdfCorrectionService.js<br>
+<strong>Líneas:</strong> 87-96<br><br>
+3. REALIZA CÁLCULOS MATEMÁTICOS EXPLÍCITOS:<br>
+   - Si encuentras "PRESSUPOST DE LICITACIÓ"<br>
+   - EXTRAE el importe total declarado<br>
+   - BUSCA la tabla de lotes<br>
+   - EXTRAE todos los importes de cada lote<br>
+   - SUMA manualmente: Lot1 + Lot2 + Lot3 + ...<br>
+   - COMPARA: ¿TOTAL calculado == TOTAL declarado?<br>
+   - Si NO coinciden: REPORTA como ERROR CRÍTICO
+            </div>
+
+            <h3>Niveles de Severidad</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Diferencia</th>
+                        <th>Severidad</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>&lt; 1€</td>
+                        <td><span class="badge" style="background: #28a745; color: white;">✅ OK</span></td>
+                        <td>Tolerancia por redondeo</td>
+                    </tr>
+                    <tr>
+                        <td>1€ - 100€</td>
+                        <td><span class="badge" style="background: #ffc107; color: black;">🟡 WARNING</span></td>
+                        <td>Posible error de redondeo</td>
+                    </tr>
+                    <tr>
+                        <td>&gt; 100€</td>
+                        <td><span class="badge badge-critical">🔴 CRÍTICO</span></td>
+                        <td>Error de cálculo grave</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- VALIDACIÓN TABLAS -->
+        <div class="section" id="validacion-tablas">
+            <h2>📊 3. Validación de Tablas APLICA/NO APLICA</h2>
+            
+            <div class="success-box">
+                <strong>🆕 Nueva Funcionalidad:</strong> La IA cuenta valores columna por columna para detectar filas incompletas.
+            </div>
+
+            <h3>Ubicación en el Código</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Líneas</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>prompts_dev/ERRORES_COMUNES_PLIEGOS.txt</code></td>
+                        <td>144-237</td>
+                        <td>Definición completa del error #8</td>
+                    </tr>
+                    <tr>
+                        <td><code>services/pdfCorrectionService.js</code></td>
+                        <td>98-104</td>
+                        <td>Instrucciones en prompt principal</td>
+                    </tr>
+                    <tr>
+                        <td><code>services/pdfCorrectionService.js</code></td>
+                        <td>157-174</td>
+                        <td>Ejemplo explícito de validación</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Proceso de Validación</h3>
+            
+            <div class="flow-diagram">
+                <pre>
+PASO 1: Identificar tabla con encabezados "APLICA" y "NO APLICA"
+         ↓
+PASO 2: Contar número de columnas en encabezado (debe ser 2)
+         ↓
+PASO 3: Para CADA fila:
+         - Contar valores "APLICA"
+         - Contar valores "NO APLICA"
+         - Contar campos vacíos
+         ↓
+PASO 4: Validar: ¿cada fila tiene 2 valores?
+         ↓
+PASO 5: REPORTAR filas con solo 1 valor
+                </pre>
+            </div>
+
+            <h3>Código del Prompt</h3>
+            
+            <div class="function-signature">
+<strong>Archivo:</strong> services/pdfCorrectionService.js<br>
+<strong>Líneas:</strong> 98-104<br><br>
+4. VALIDA TABLAS APLICA/NO APLICA COLUMNA POR COLUMNA:<br>
+   - Si encuentras tabla con columnas "APLICA" y "NO APLICA"<br>
+   - CUENTA el número de columnas en el encabezado (debe ser 2)<br>
+   - Para CADA fila: CUENTA cuántos valores tiene<br>
+   - Si una fila tiene solo 1 valor: ERROR CRÍTICO<br>
+   - IDENTIFICA exactamente qué filas tienen campos vacíos<br>
+   - REPORTA con número de fila y nombre del criterio
+            </div>
+        </div>
+
+        <!-- PATRONES APRENDIDOS -->
+        <div class="section" id="patrones-aprendidos">
+            <h2>🧠 4. Sistema de Aprendizaje de Patrones</h2>
+            
+            <div class="success-box">
+                <strong>🆕 Nueva Funcionalidad:</strong> La IA aprende automáticamente de todos los pliegos en el contexto RAG y detecta anomalías.
+            </div>
+
+            <h3>Ubicación en el Código</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Función</th>
+                        <th>Archivo</th>
+                        <th>Líneas</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>analyzeContextPatterns()</code></td>
+                        <td>services/pdfCorrectionService.js</td>
+                        <td>195-268</td>
+                        <td>Analiza 30 documentos y construye prompt de análisis</td>
+                    </tr>
+                    <tr>
+                        <td><code>Extracción con IA</code></td>
+                        <td>services/pdfCorrectionService.js</td>
+                        <td>308-325</td>
+                        <td>Llama a SAP AI Core para extraer patrones</td>
+                    </tr>
+                    <tr>
+                        <td><code>buildValidationPrompt()</code></td>
+                        <td>services/pdfCorrectionService.js</td>
+                        <td>81-97</td>
+                        <td>Integra patrones aprendidos en prompt de validación</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Flujo Técnico Completo</h3>
+            
+            <div class="flow-diagram">
+                <pre>
+┌──────────────────────────────────────────────────────────┐
+│  1. analyzeContextPatterns(contextId)                    │
+│     Líneas 195-268                                       │
+│                                                           │
+│     • Busca 30 documentos del contexto                   │
+│     • Construye prompt de análisis                       │
+│     • Retorna: { documentsAnalyzed, analysisPrompt }     │
+└────────────────────┬─────────────────────────────────────┘
+                     │
+                     ▼
+┌──────────────────────────────────────────────────────────┐
+│  2. Extracción de Patrones con IA                        │
+│     Líneas 308-325                                       │
+│                                                           │
+│     const client = getAiCoreClient('gpt-4o');            │
+│     const response = await client.run({                  │
+│       messages: [{ role: 'user',                         │
+│                    content: analysisPrompt }]            │
+│     });                                                  │
+│                                                           │
+│     IA extrae:                                           │
+│     • Secciones comunes (70%+ frecuencia)                │
+│     • Puntos de numeración recurrentes                   │
+│     • Tablas típicas                                     │
+│     • Campos variables estándar                          │
+│     • Orden habitual de secciones                        │
+└────────────────────┬─────────────────────────────────────┘
+                     │
+                     ▼
+┌──────────────────────────────────────────────────────────┐
+│  3. buildValidationPrompt(text, ragContext, patterns)    │
+│     Líneas 81-97                                         │
+│                                                           │
+│     Incluye en el prompt:                                │
+│     ${learnedPatterns ? `                                │
+│       PATRONES APRENDIDOS DEL CONTEXTO:                  │
+│       ${learnedPatterns.patternsText}                    │
+│                                                           │
+│       VALIDACIÓN DE ANOMALÍAS:                           │
+│       - Si sección aparece en 8+ docs pero NO aquí:      │
+│         🟡 ADVERTENCIA                                   │
+│     ` : ''}                                              │
+└────────────────────┬─────────────────────────────────────┘
+                     │
+                     ▼
+┌──────────────────────────────────────────────────────────┐
+│  4. IA Valida Documento Contra Patrones                  │
+│                                                           │
+│     Detecta anomalías automáticamente                    │
+└──────────────────────────────────────────────────────────┘
+                </pre>
+            </div>
+
+            <h3>Código de analyzeContextPatterns()</h3>
+            
+            <div class="function-signature">
+<strong>Archivo:</strong> services/pdfCorrectionService.js<br>
+<strong>Líneas:</strong> 195-268<br><br>
+async function analyzeContextPatterns(contextId) {<br>
+&nbsp;&nbsp;// Buscar 30 documentos del contexto<br>
+&nbsp;&nbsp;const ragResults = await searchContext(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;`estructura secciones puntos numeración índice`,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ contextId: contextId, topK: 30 }<br>
+&nbsp;&nbsp;);<br>
+<br>
+&nbsp;&nbsp;// Construir prompt para análisis<br>
+&nbsp;&nbsp;const patternAnalysisPrompt = `<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Analiza los siguientes ${ragResults.length} documentos<br>
+&nbsp;&nbsp;&nbsp;&nbsp;y extrae PATRONES COMUNES:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1. Secciones que aparecen en MAYORÍA de documentos<br>
+&nbsp;&nbsp;&nbsp;&nbsp;2. Puntos de numeración recurrentes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;3. Tablas comunes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;`;<br>
+<br>
+&nbsp;&nbsp;return { documentsAnalyzed, analysisPrompt };<br>
+}
+            </div>
+
+            <h3>Patrones que Detecta</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipo de Patrón</th>
+                        <th>Ejemplo</th>
+                        <th>Acción si Falta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Secciones Comunes</strong></td>
+                        <td>"18. GARANTÍAS" aparece en 9/10 documentos</td>
+                        <td>🟡 ADVERTENCIA: Sección no encontrada</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Puntos de Numeración</strong></td>
+                        <td>"25. MODIFICACIÓN" aparece en 8/10 documentos</td>
+                        <td>🟡 ADVERTENCIA: Punto ausente</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tablas Comunes</strong></td>
+                        <td>"Criterios de Valoración" en 10/10 documentos</td>
+                        <td>🟡 ADVERTENCIA: Tabla no detectada</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Orden de Secciones</strong></td>
+                        <td>Objeto → Presupuesto → Plazo → Garantías</td>
+                        <td>🟡 ADVERTENCIA: Orden diferente</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FUNCIONES CLAVE -->
+        <div class="section" id="funciones-clave">
+            <h2>⚙️ 5. Funciones Clave del Código</h2>
+            
+            <h3>Índice de Funciones</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Función</th>
+                        <th>Archivo</th>
+                        <th>Líneas</th>
+                        <th>Propósito</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>loadValidationPrompts()</code></td>
+                        <td>pdfCorrectionService.js</td>
+                        <td>18-46</td>
+                        <td>Carga archivos .txt de prompts_dev/</td>
+                    </tr>
+                    <tr>
+                        <td><code>buildValidationPrompt()</code></td>
+                        <td>pdfCorrectionService.js</td>
+                        <td>49-207</td>
+                        <td>Construye prompt completo con patrones</td>
+                    </tr>
+                    <tr>
+                        <td><code>analyzeContextPatterns()</code></td>
+                        <td>pdfCorrectionService.js</td>
+                        <td>195-268</td>
+                        <td>Analiza documentos y extrae patrones</td>
+                    </tr>
+                    <tr>
+                        <td><code>generatePDFWithCorrectionsFromContext()</code></td>
+                        <td>pdfCorrectionService.js</td>
+                        <td>295-420</td>
+                        <td>Función principal de validación con contexto</td>
+                    </tr>
+                    <tr>
+                        <td><code>generatePDFWithCorrectionsList()</code></td>
+                        <td>pdfCorrectionService.js</td>
+                        <td>430-580</td>
+                        <td>Validación simple sin contexto RAG</td>
+                    </tr>
+                    <tr>
+                        <td><code>searchContext()</code></td>
+                        <td>ragService.js</td>
+                        <td>Variable</td>
+                        <td>Búsqueda semántica en contexto RAG</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Detalle: generatePDFWithCorrectionsFromContext()</h3>
+            
+            <div class="info-box">
+                <strong>📍 Ubicación:</strong> services/pdfCorrectionService.js, líneas 295-420<br>
+                <strong>🎯 Propósito:</strong> Función principal que orquesta todo el proceso de validación con contexto RAG y patrones aprendidos
+            </div>
+
+            <div class="code-block">// Líneas 295-420
+export async function generatePDFWithCorrectionsFromContext(prompt, contextId) {
+  // 1. Cargar prompts de validación
+  const prompts = await loadValidationPrompts();
+
+  // 2. 🆕 Analizar patrones del contexto
+  const patternsAnalysis = await analyzeContextPatterns(contextId);
+  
+  // 3. 🆕 Extraer patrones con IA
+  let learnedPatterns = null;
+  if (patternsAnalysis) {
+    const client = getAiCoreClient('gpt-4o');
+    const patternResponse = await client.run({
+      messages: [{ role: 'user', content: patternsAnalysis.analysisPrompt }]
+    });
+    learnedPatterns = {
+      documentsAnalyzed: patternsAnalysis.documentsAnalyzed,
+      patternsText: patternResponse.getContent()
+    };
+  }
+
+  // 4. Buscar documentos relevantes en RAG
+  const ragResults = await searchContext(
+    `errores pliegos validación tags SAP ${prompt}`,
+    { contextId: contextId, topK: 15 }
+  );
+
+  // 5. Construir prompt con patrones aprendidos
+  const contextAnalysisPrompt = await buildValidationPrompt(
+    `${prompt}\n\n${textForAnalysis}`,
+    textForAnalysis,
+    learnedPatterns  // 🆕 Incluye patrones
+  );
+
+  // 6. Enviar a SAP AI Core
+  const client = getAiCoreClient('gpt-4o');
+  const response = await client.run({
+    messages: [{ role: 'user', content: contextAnalysisPrompt }]
+  });
+
+  // 7. Generar PDF con informe
+  return correctionsReport;
+}</div>
+
+            <h3>Detalle: buildValidationPrompt()</h3>
+            
+            <div class="info-box">
+                <strong>📍 Ubicación:</strong> services/pdfCorrectionService.js, líneas 49-207<br>
+                <strong>🎯 Propósito:</strong> Construye el prompt completo integrando prompts base + contexto RAG + patrones aprendidos
+            </div>
+
+            <div class="code-block">// Líneas 49-207
+async function buildValidationPrompt(textForAnalysis, ragContext, learnedPatterns) {
+  const prompts = await loadValidationPrompts();
+  
+  return `SISTEMA DE VALIDACIÓN DE PLIEGOS SAP
+================================================================================
+
+ERRORES COMUNES A DETECTAR:
+${prompts.erroresComunes}
+
+${ragContext ? `CONTEXTO RAG ADICIONAL:
+${ragContext}
+` : ''}
+
+${learnedPatterns ? `
+================================================================================
+PATRONES APRENDIDOS DEL CONTEXTO:
+================================================================================
+
+⚠️ INSTRUCCIÓN CRÍTICA: Los siguientes patrones fueron extraídos de 
+${learnedPatterns.documentsAnalyzed} pliegos reales del contexto.
+DEBES validar que el pliego actual siga estos patrones comunes.
+
+${learnedPatterns.patternsText}
+
+VALIDACIÓN DE ANOMALÍAS:
+- Si una sección aparece en 8+ documentos pero NO en este: 🟡 ADVERTENCIA
+- Si un punto aparece en 8+ documentos pero NO en este: 🟡 ADVERTENCIA
+` : ''}
+
+================================================================================
+INSTRUCCIONES DE VALIDACIÓN:
+================================================================================
+
+1. ANALIZA el texto MINUCIOSAMENTE
+2. REALIZA CÁLCULOS MATEMÁTICOS EXPLÍCITOS
+3. VALIDA TABLAS COLUMNA POR COLUMNA
+4. DETECTA ANOMALÍAS BASÁNDOTE EN PATRONES APRENDIDOS
+
+TEXTO DEL PLIEGO A VALIDAR:
+${textForAnalysis}
+`;</div>
+        </div>
+
+        <!-- SISTEMA DE PROMPTS -->
+        <div class="section" id="prompts">
+            <h2>📝 6. Sistema de Prompts</h2>
+            
+            <h3>Archivos de Prompts</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Ubicación</th>
+                        <th>Contenido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>ERRORES_COMUNES_PLIEGOS.txt</code></td>
+                        <td>prompts_dev/</td>
+                        <td>10 tipos de errores con ejemplos y validaciones</td>
+                    </tr>
+                    <tr>
+                        <td><code>PLIEGOS_VALIDATION_SYSTEM.txt</code></td>
+                        <td>prompts_dev/</td>
+                        <td>Sistema de validación estructural</td>
+                    </tr>
+                    <tr>
+                        <td><code>NOMENCLATURA_PLIEGOS.txt</code></td>
+                        <td>prompts_dev/</td>
+                        <td>Patrones de nomenclatura esperada</td>
+                    </tr>
+                    <tr>
+                        <td><code>PLIEGOS_ERRORES_EJEMPLOS.txt</code></td>
+                        <td>prompts_dev/</td>
+                        <td>Ejemplos específicos de errores y patrones SAP</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Errores Definidos en ERRORES_COMUNES_PLIEGOS.txt</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Error</th>
+                        <th>Líneas</th>
+                        <th>Severidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Tags SAP sin rellenar</td>
+                        <td>10-30</td>
+                        <td><span class="badge badge-critical">🔴 CRÍTICO</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Campos SÍ/NO duplicados</td>
+                        <td>32-55</td>
+                        <td><span class="badge badge-critical">🔴 CRÍTICO</span></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Formato de fechas incorrecto</td>
+                        <td>57-75</td>
+                        <td><span class="badge" style="background: #ffc107; color: black;">🟡 WARNING</span></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Formato de importes incorrecto</td>
+                        <td>77-95</td>
+                        <td><span class="badge" style="background: #ffc107; color: black;">🟡 WARNING</span></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Palabras en castellano</td>
+                        <td>97-115</td>
+                        <td><span class="badge" style="background: #ffc107; color: black;">🟡 WARNING</span></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Cantidad de lotes incorrecta</td>
+                        <td>117-135</td>
+                        <td><span class="badge badge-critical">🔴 CRÍTICO</span></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Saltos en numeración</td>
+                        <td>137-143</td>
+                        <td><span class="badge badge-critical">🔴 CRÍTICO</span></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Tablas APLICA/NO APLICA incompletas <span class="badge badge-new">NUEVO</span></td>
+                        <td>144-237</td>
+                        <td><span class="badge badge-critical">🔴 CRÍTICO</span></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Secciones obligatorias faltantes</td>
+                        <td>239-260</td>
+                        <td><span class="badge badge-critical">🔴 CRÍTICO</span></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Incoherencia numérica presupuestos <span class="badge badge-new">NUEVO</span></td>
+                        <td>200-290</td>
+                        <td><span class="badge badge-critical">🔴 CRÍTICO</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ENDPOINTS -->
+        <div class="section" id="endpoints">
+            <h2>🌐 7. Endpoints y APIs</h2>
+            
+            <h3>Endpoints Disponibles</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Método</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/api/pdf-correction/generate-list</code></td>
+                        <td>POST</td>
+                        <td>Validación simple sin contexto RAG</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/pdf-correction/generate-list-from-context</code></td>
+                        <td>POST</td>
+                        <td>Validación con contexto RAG + patrones aprendidos <span class="badge badge-new">NUEVO</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Ejemplo de Uso</h3>
+            
+            <div class="code-block">// Validación con contexto RAG y patrones aprendidos
+POST /api/pdf-correction/generate-list-from-context
+
+Content-Type: multipart/form-data
+
+Body:
+{
+  "file": [PDF del pliego],
+  "prompt": "Validar pliego de carreteras",
+  "contextId": "dc298384-bea0-49f3-9980-73436ebfbff0"
+}
+
+Respuesta:
+{
+  "success": true,
+  "pdfPath": "/uploads/validacion_pliego_20251111.pdf",
+  "corrections": "🔴 ERRORES CRÍTICOS:\n- Incoherencia numérica...\n\n🟡 ADVERTENCIAS:\n- Punto 18 no encontrado (aparece en 9/10 documentos)..."
+}</div>
+        </div>
+
+<!-- FIN CONTENIDO -->
+
+    </div>
+
+    <footer>
+        <p>&copy; 2025 David Melián - Sistema de Validación de Pliegos SAP</p>
+        <p style="margin-top: 10px; font-size: 0.9em;">Documentación Técnica Generada Automáticamente</p>
+    </footer>
+</body>
+</html>
