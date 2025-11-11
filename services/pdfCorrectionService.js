@@ -18,9 +18,13 @@ function cleanTextEncoding(text) {
   if (!text) return text;
   
   return text
-    // Reemplazar caracteres mal codificados comunes
-    .replace(/â‚¬/g, '€')           // Euro mal codificado
-    .replace(/Â€/g, '€')            // Euro mal codificado variante
+    // Reemplazar caracteres mal codificados comunes del euro
+    .replace(/â‚¬/g, 'EUR')         // Euro mal codificado
+    .replace(/Â€/g, 'EUR')          // Euro mal codificado variante
+    .replace(/€/g, 'EUR')           // Euro normal a EUR
+    .replace(/\?\)/g, ' EUR')       // ?) a EUR (común en PDFs mal codificados)
+    .replace(/\?{1,2}\s*\)/g, ' EUR') // ? o ?? seguido de ) a EUR
+    // Otros caracteres mal codificados
     .replace(/â€™/g, "'")           // Apóstrofe
     .replace(/â€œ/g, '"')           // Comilla doble apertura
     .replace(/â€\u009d/g, '"')      // Comilla doble cierre
@@ -36,17 +40,23 @@ function cleanTextEncoding(text) {
     .replace(/Ã±/g, 'ñ')            // ñ
     .replace(/Â·/g, '·')            // punt volat
     .replace(/â€¢/g, '•')           // bullet
-    .replace(/\?{2,}/g, '?')        // múltiples ? a uno solo
+    .replace(/\uFFFD/g, '')         // Carácter de reemplazo Unicode
+    .replace(/\?{2,}/g, '\n')       // múltiples ?? a salto de línea
     .replace(/\[DOCUMENTO\]/g, '')  // eliminar marcador [DOCUMENTO]
     // Normalizar saltos de línea
     .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
     // Limpiar espacios múltiples
     .replace(/  +/g, ' ')
-    // Normalizar formato de ubicación
-    .replace(/\?\?/g, '\n')
-    .replace(/📍 Ubicación:/g, '\n  📍 Ubicación:')
-    .replace(/📄 Contexto:/g, '\n  📄 Contexto:');
+    // Limpiar líneas vacías múltiples
+    .replace(/\n{3,}/g, '\n\n')
+    // Normalizar formato de ubicación (quitar solo emojis de ubicación/contexto)
+    .replace(/📍 Ubicación:/g, '\n  - Ubicación:')
+    .replace(/📄 Contexto:/g, '\n  - Contexto:')
+    // Limpiar espacios al inicio y final de líneas
+    .split('\n')
+    .map(line => line.trim())
+    .join('\n');
 }
 
 // Función para cargar prompts de validación
@@ -196,13 +206,13 @@ INSTRUCCIONES DE VALIDACIÓN:
 
 🔴 ERRORES CRÍTICOS:
 - [Descripción del error]
-  📍 Ubicación: [Sección/Apartado exacto donde se encuentra]
-  📄 Contexto: [Tabla, cuadro o párrafo específico]
+  - Ubicación: [Sección/Apartado exacto donde se encuentra]
+  - Contexto: [Tabla, cuadro o párrafo específico]
 
 🟡 ADVERTENCIAS:
 - [Descripción de la advertencia]
-  📍 Ubicación: [Sección/Apartado exacto donde se encuentra]
-  📄 Contexto: [Tabla, cuadro o párrafo específico]
+  - Ubicación: [Sección/Apartado exacto donde se encuentra]
+  - Contexto: [Tabla, cuadro o párrafo específico]
 
 ✅ SUGERENCIAS:
 - [Correcciones específicas recomendadas]
@@ -216,11 +226,13 @@ INSTRUCCIONES DE VALIDACIÓN:
 
 IMPORTANTE:
 - Usa EXACTAMENTE los emojis y títulos mostrados arriba
+- NO uses símbolos de euro (€), usa "EUR" en su lugar
 - Cada sección debe empezar con el emoji correspondiente
 - Usa guiones (-) para listas
 - No uses números ni letras para listas
 - Si no hay elementos en una sección, omítela completamente
 - Mantén el formato limpio sin símbolos extra (#, *, etc.)
+- Todos los importes deben expresarse como "29.040.000,00 EUR" (sin símbolo €)
 
 ⚠️ EJEMPLO 1 - FORMATO CON UBICACIÓN (TAG SIN REEMPLAZAR):
 
@@ -232,8 +244,8 @@ Si encuentras en el texto:
 DEBES REPORTAR:
 🔴 ERRORES CRÍTICOS:
 - Tag SAP sin reemplazar: {B}CRITERIS{/B}
-  📍 Ubicación: Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
-  📄 Contexto: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
+  - Ubicación: Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
+  - Contexto: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
 
 ⚠️ EJEMPLO 2 - VALIDACIÓN NUMÉRICA CON UBICACIÓN:
 
@@ -251,9 +263,9 @@ DEBES hacer:
 5. DIFERENCIA: 153,00 euros
 6. REPORTAR:
 🔴 ERRORES CRÍTICOS:
-- Incoherencia numérica: Presupuesto declarado (243.936,00€) no coincide con suma de lotes (243.783,00€). Diferencia: 153,00€
-  📍 Ubicación: Apartado 2.- DADES ECONÒMIQUES
-  📄 Contexto: PRESSUPOST DE LICITACIÓ - Tabla de lotes
+- Incoherencia numérica: Presupuesto declarado (243.936,00 EUR) no coincide con suma de lotes (243.783,00 EUR). Diferencia: 153,00 EUR
+  - Ubicación: Apartado 2.- DADES ECONÒMIQUES
+  - Contexto: PRESSUPOST DE LICITACIÓ - Tabla de lotes
 
 ⚠️ EJEMPLO 3 - VALIDACIÓN TABLAS APLICA/NO APLICA CON UBICACIÓN:
 
@@ -275,8 +287,8 @@ DEBES hacer:
 3. REPORTAR:
 🔴 ERRORES CRÍTICOS:
 - Tabla APLICA/NO APLICA incompleta. Filas 1.04 y 1.06 tienen solo 1 valor cuando deberían tener 2
-  📍 Ubicación: Apartado 15.- CRITERIS D'ADJUDICACIÓ
-  📄 Contexto: QUADRE RESUM DE CRITERIS - Filas 1.04 (emissions CO2eq) y 1.06 (fusta certificada)
+  - Ubicación: Apartado 15.- CRITERIS D'ADJUDICACIÓ
+  - Contexto: QUADRE RESUM DE CRITERIS - Filas 1.04 (emissions CO2eq) y 1.06 (fusta certificada)
 
 NO asumas que las tablas están completas. SIEMPRE cuenta los valores por fila.
 
@@ -295,8 +307,8 @@ DEBES hacer:
 5. REPORTAR:
 🔴 ERRORES CRÍTICOS:
 - Comentario de desarrollador detectado: "Oriol: En cas que apliqui el CO2..."
-  📍 Ubicación: Apartado 12.- CRITERIS DE SOSTENIBILITAT
-  📄 Contexto: Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
+  - Ubicación: Apartado 12.- CRITERIS DE SOSTENIBILITAT
+  - Contexto: Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
 
 ⚠️ EJEMPLO 4 - DETECCIÓN DE CONDICIONES TÉCNICAS SAP:
 
@@ -569,7 +581,10 @@ export async function generatePDFWithCorrectionsList(originalPdfPath, customProm
     
     // 1. Extraer texto del PDF original
     const documentData = await processDocument(originalPdfPath, 'application/pdf');
-    const originalText = documentData.chunks.map(chunk => chunk.content).join('\n\n');
+    let originalText = documentData.chunks.map(chunk => chunk.content).join('\n\n');
+    
+    // 1.5. Limpiar caracteres mal codificados del PDF antes de analizar
+    originalText = cleanTextEncoding(originalText);
     
     // 2. Limitar texto para SAP AI Core (máximo 50,000 caracteres)
     let textForAnalysis = originalText;
