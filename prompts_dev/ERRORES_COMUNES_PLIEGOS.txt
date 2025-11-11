@@ -422,6 +422,98 @@ generador de pliegos y requieren validación automática prioritaria.
     SEVERIDAD:
     - Formato inconsistente: 🟡 ADVERTENCIA
     - Más de 5 importes incorrectos: 🔴 ERROR CRÍTICO
+
+13. VALORES 0,00 € EN TABLAS SIN RELLENAR:
+    ❌ PROBLEMA: Tablas con valores "0,00 €" indican datos sin completar o plantillas sin rellenar
+    
+    ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+    LOS VALORES "0,00 €" EN TABLAS DE PRESUPUESTOS INDICAN DATOS INCOMPLETOS.
+    DEBES DETECTAR PATRONES DE TABLAS VACÍAS O SIN COMPLETAR.
+    
+    PROCESO DE VALIDACIÓN PASO A PASO:
+    
+    PASO 1: Buscar TODAS las tablas con columnas de importes monetarios
+    PASO 2: Para CADA tabla, identificar filas con valores "0,00 €"
+    PASO 3: Contar cuántas filas consecutivas tienen "0,00 €"
+    PASO 4: Verificar si la fila TOTAL tiene "0,00 €"
+    PASO 5: Reportar tablas con datos incompletos
+    
+    PATRONES CRÍTICOS A DETECTAR:
+    
+    1. FILA TOTAL CON 0,00 €:
+       Si la fila "TOTAL" tiene "0,00 €" en todas las columnas → ERROR CRÍTICO
+       Indica que la tabla completa está vacía
+    
+    2. MÚLTIPLES FILAS CONSECUTIVAS CON 0,00 €:
+       Si 3+ filas consecutivas tienen "0,00 €" → ERROR CRÍTICO
+       Indica sección de tabla sin completar
+    
+    3. TABLA DE LOTES CON CÓDIGO "000":
+       Si aparece "Lot: 000" o "Lote: 000" → ERROR CRÍTICO
+       Indica lote placeholder sin eliminar
+    
+    4. DESCRIPCIÓN VACÍA CON 0,00 €:
+       Si descripción está vacía Y importe es "0,00 €" → ERROR CRÍTICO
+       Indica fila sin datos
+    
+    EJEMPLOS REALES DE ERRORES:
+    
+    ERROR 1 - Tabla de lotes vacía:
+    "| Lot | Descripció de lot |
+     | 000 |                   |"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Tabla de lotes con código placeholder
+     - Lote con código '000' detectado
+     - Descripción vacía
+     - Debe eliminarse o completarse con datos reales"
+    
+    ERROR 2 - Tabla de presupuesto con ceros:
+    "| Lot | Descripció | Import base € | IVA € | Import total € (IVA inclòs) |
+     |     | TOTAL      | 0,00 €        | 0,00 €| 0,00 €                      |"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Tabla de presupuesto sin completar
+     - Fila TOTAL tiene todos los valores en 0,00 €
+     - Indica tabla vacía o sin datos
+     - Debe completarse con importes reales"
+    
+    ERROR 3 - Múltiples lotes vacíos:
+    "| Lot | Descripció | Pressupost (IVA inclòs) |
+     | 1   | Obra 1     | 150.000,00 €            |
+     | 2   | Obra 2     | 0,00 €                  |
+     | 3   | Obra 3     | 0,00 €                  |
+     | 4   | Obra 4     | 0,00 €                  |"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Múltiples lotes sin presupuesto
+     - Lotes 2, 3, 4 tienen presupuesto 0,00 €
+     - 3 lotes consecutivos sin completar
+     - Deben eliminarse o completarse con importes reales"
+    
+    EXCEPCIONES (NO REPORTAR):
+    
+    ✅ Si el documento explícitamente indica:
+       - "Sin presupuesto asignado"
+       - "Presupuesto pendiente de aprobación"
+       - "Importe a determinar"
+       - Entonces NO reportar como error
+    
+    ✅ Si solo 1-2 filas aisladas tienen 0,00 €:
+       - Puede ser intencional (lotes opcionales)
+       - Reportar como 🟡 ADVERTENCIA en lugar de ERROR
+    
+    PATRONES REGEX:
+    - Valores cero: 0,00\s*€|0\.00\s*€
+    - Código placeholder: (Lot|Lote)\s*[:|]\s*000
+    - Fila TOTAL: TOTAL.*?0,00\s*€
+    - Múltiples ceros: (0,00\s*€.*?){3,}
+    
+    SEVERIDAD:
+    - Fila TOTAL con 0,00 €: 🔴 ERROR CRÍTICO
+    - 3+ filas consecutivas con 0,00 €: 🔴 ERROR CRÍTICO
+    - Código "000" en lotes: 🔴 ERROR CRÍTICO
+    - 1-2 filas aisladas con 0,00 €: 🟡 ADVERTENCIA
     
     INSTRUCCION CRITICA PARA LA IA:
     DEBES BUSCAR ACTIVAMENTE CUALQUIER TEXTO QUE PAREZCA SER:
@@ -491,11 +583,15 @@ generador de pliegos y requieren validación automática prioritaria.
 - Incoherencia numérica > 100€ entre presupuesto total y suma de lotes
 - Falta tabla de lotes cuando se declaran lotes
 - Número de lotes en tabla diferente al declarado
+- Fila TOTAL con 0,00 € (Error #13 - Jesús Arenas)
+- 3+ filas consecutivas con 0,00 € (Error #13 - Jesús Arenas)
+- Código "000" en lotes (Error #13 - Jesús Arenas)
 
 🟡 ADVERTENCIA (Permite continuar):
 - Formato de fecha incorrecto
 - Formato de importes incorrecto
 - Formato de importes inconsistente (Error #12 - Jesús Arenas)
+- 1-2 filas aisladas con 0,00 € (Error #13 - Jesús Arenas)
 - Palabras en castellano detectadas
 - Salto de 1 punto en numeración (puede ser intencional)
 - Secciones vacías
