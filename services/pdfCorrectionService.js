@@ -13,6 +13,42 @@ import path from 'path';
  * 2. Aplicar correcciones directamente por replace
  */
 
+// Función para limpiar y normalizar texto con caracteres especiales
+function cleanTextEncoding(text) {
+  if (!text) return text;
+  
+  return text
+    // Reemplazar caracteres mal codificados comunes
+    .replace(/â‚¬/g, '€')           // Euro mal codificado
+    .replace(/Â€/g, '€')            // Euro mal codificado variante
+    .replace(/â€™/g, "'")           // Apóstrofe
+    .replace(/â€œ/g, '"')           // Comilla doble apertura
+    .replace(/â€\u009d/g, '"')      // Comilla doble cierre
+    .replace(/â€"/g, '-')           // Guión
+    .replace(/Ã /g, 'à')            // à catalana
+    .replace(/Ã¨/g, 'è')            // è catalana
+    .replace(/Ã©/g, 'é')            // é catalana
+    .replace(/Ã­/g, 'í')            // í catalana
+    .replace(/Ã²/g, 'ò')            // ò catalana
+    .replace(/Ã³/g, 'ó')            // ó catalana
+    .replace(/Ãº/g, 'ú')            // ú catalana
+    .replace(/Ã§/g, 'ç')            // ç catalana
+    .replace(/Ã±/g, 'ñ')            // ñ
+    .replace(/Â·/g, '·')            // punt volat
+    .replace(/â€¢/g, '•')           // bullet
+    .replace(/\?{2,}/g, '?')        // múltiples ? a uno solo
+    .replace(/\[DOCUMENTO\]/g, '')  // eliminar marcador [DOCUMENTO]
+    // Normalizar saltos de línea
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    // Limpiar espacios múltiples
+    .replace(/  +/g, ' ')
+    // Normalizar formato de ubicación
+    .replace(/\?\?/g, '\n')
+    .replace(/📍 Ubicación:/g, '\n  📍 Ubicación:')
+    .replace(/📄 Contexto:/g, '\n  📄 Contexto:');
+}
+
 // Función para cargar prompts de validación
 async function loadValidationPrompts() {
   try {
@@ -594,6 +630,9 @@ RELEVANCIA: ${result.similarity}
       if (!correctionsList || correctionsList.trim().length === 0) {
         throw new Error('SAP AI Core devolvió una respuesta vacía');
       }
+      
+      // Limpiar caracteres mal codificados
+      correctionsList = cleanTextEncoding(correctionsList);
       
       console.log(`[PDF-CORRECTION] Correcciones generadas: ${correctionsList.length} caracteres`);
       
