@@ -9,6 +9,7 @@ import {
   generateCorrections,
   testAiCoreConnection
 } from '../services/pdfCorrectionService.js';
+import pdfVisualAnalyzer from '../services/pdfVisualAnalyzer.js';
 
 const router = express.Router();
 
@@ -58,17 +59,31 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
 
     console.log(`[PDF-CORRECTION] Procesando: ${req.file.originalname}`);
 
-    const result = await generatePDFWithCorrectionsList(
-      req.file.path,
-      req.body.customPrompt || null,
-      req.body.contextId || null
-    );
+    // Ejecutar análisis visual y de IA en paralelo
+    const [aiResult, visualAnalysis] = await Promise.all([
+      generatePDFWithCorrectionsList(
+        req.file.path,
+        req.body.customPrompt || null,
+        req.body.contextId || null
+      ),
+      pdfVisualAnalyzer.analyzeAll(req.file.path)
+    ]);
+
+    // Generar reporte de errores visuales
+    const visualReport = pdfVisualAnalyzer.generateVisualErrorsReport(visualAnalysis);
+
+    // Combinar resultado de IA con análisis visual
+    const combinedResult = {
+      ...aiResult,
+      corrections: aiResult.corrections + visualReport,
+      visualAnalysis: visualAnalysis
+    };
 
     // Configurar headers para descarga
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="correcciones-${req.file.originalname}"`,
-      'Content-Length': result.pdfBuffer.length
+      'Content-Length': combinedResult.pdfBuffer.length
     });
 
     // Limpiar archivo temporal
@@ -78,7 +93,7 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
       console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError.message);
     }
 
-    res.send(result.pdfBuffer);
+    res.send(combinedResult.pdfBuffer);
 
   } catch (error) {
     console.error('[PDF-CORRECTION] Error en generate-list:', error);

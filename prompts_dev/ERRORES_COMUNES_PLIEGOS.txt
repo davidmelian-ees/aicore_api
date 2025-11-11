@@ -514,6 +514,308 @@ generador de pliegos y requieren validación automática prioritaria.
     - 3+ filas consecutivas con 0,00 €: 🔴 ERROR CRÍTICO
     - Código "000" en lotes: 🔴 ERROR CRÍTICO
     - 1-2 filas aisladas con 0,00 €: 🟡 ADVERTENCIA
+
+14. BULLETS VACÍOS O PERDIDOS:
+    ❌ PROBLEMA: Listas con bullets vacíos (sin contenido después del punto) o con estructura inconsistente
+    
+    ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+    LOS BULLETS VACÍOS INDICAN CONTENIDO FALTANTE O ERRORES DE FORMATO.
+    DEBES DETECTAR VIÑETAS SIN TEXTO ASOCIADO.
+    
+    PROCESO DE VALIDACIÓN PASO A PASO:
+    
+    PASO 1: Buscar TODAS las listas con viñetas (•, ○, -, números, letras)
+    PASO 2: Para CADA lista, verificar:
+            - ¿Hay bullets sin texto después?
+            - ¿Hay saltos de línea con bullet pero sin contenido?
+            - ¿Hay bullets seguidos sin texto entre ellos?
+    PASO 3: Identificar el tipo de bullet (letra, número, símbolo)
+    PASO 4: Reportar bullets vacíos con su ubicación exacta
+    
+    PATRONES CRÍTICOS A DETECTAR:
+    
+    1. BULLET SEGUIDO DE OTRO BULLET SIN TEXTO:
+       Patrón: "o\n\no Texto" → Primer "o" está vacío
+       Patrón: "•\n•" → Primer bullet vacío
+       Patrón: "-\n-" → Primer guion vacío
+    
+    2. NUMERACIÓN VACÍA:
+       Patrón: "1.\n2. Texto" → Punto 1 vacío
+       Patrón: "a)\nb) Texto" → Letra a) vacía
+    
+    3. BULLET CON SOLO ESPACIOS:
+       Patrón: "• \n• Texto" → Primer bullet solo tiene espacios
+       Patrón: "- \n- Texto" → Primer guion solo tiene espacios
+    
+    4. INDENTACIÓN INCORRECTA:
+       Bullet padre sin texto pero con bullets hijos
+       Indica estructura de lista mal formada
+    
+    EJEMPLO REAL DE ERROR (de las imágenes del cliente):
+    
+    ERROR 1 - Bullet vacío en lista:
+    "c) Les obligacions d'informació del Contractista...
+         Plec de Clàusules Administratives Particulars...
+         o
+         o Aplicable al contracte si l'import de subcontractació és igual o superior al 30%
+           del preu del contracte"
+    
+    ANÁLISIS:
+    - Primer "o" está vacío (sin texto después)
+    - Segundo "o" tiene texto completo
+    - El primer bullet debe eliminarse o completarse
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Bullet vacío detectado
+     
+     Sección: 'c) Les obligacions d'informació del Contractista'
+     
+     Estructura actual:
+     o [VACÍO]
+     o Aplicable al contracte si l'import...
+     
+     Acción requerida:
+     - Eliminar el primer bullet vacío
+     - O completar con el texto correspondiente"
+    
+    ERROR 2 - Numeración con punto vacío:
+    "18. GARANTIES
+     18.1
+     18.2 Garantia provisional
+     18.3 Garantia definitiva"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Punto de numeración vacío
+     
+     Sección: '18. GARANTIES'
+     Punto vacío: 18.1 (sin texto después)
+     
+     Puntos siguientes:
+     18.2 Garantia provisional
+     18.3 Garantia definitiva
+     
+     Acción requerida:
+     - Eliminar punto 18.1 vacío
+     - O renumerar: 18.1 Garantia provisional, 18.2 Garantia definitiva"
+    
+    ERROR 3 - Lista con múltiples bullets vacíos:
+    "Criteris de valoració:
+     •
+     •
+     • Experiència en projectes similars
+     • Capacitat tècnica"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Múltiples bullets vacíos
+     
+     Sección: 'Criteris de valoració'
+     Bullets vacíos detectados: 2
+     
+     Estructura actual:
+     • [VACÍO]
+     • [VACÍO]
+     • Experiència en projectes similars
+     • Capacitat tècnica
+     
+     Acción requerida:
+     - Eliminar los 2 bullets vacíos
+     - Verificar si falta contenido"
+    
+    PATRONES REGEX PARA DETECCIÓN:
+    
+    1. Bullets circulares:
+       - /^[○o]\s*$/gm (bullet vacío)
+       - /^[○o]\s*\n\s*[○o]/gm (dos bullets seguidos)
+    
+    2. Bullets con guion:
+       - /^-\s*$/gm (guion vacío)
+       - /^-\s*\n\s*-/gm (dos guiones seguidos)
+    
+    3. Bullets con punto:
+       - /^•\s*$/gm (punto vacío)
+       - /^•\s*\n\s*•/gm (dos puntos seguidos)
+    
+    4. Numeración:
+       - /^\d+\.\s*$/gm (número vacío)
+       - /^\d+\.\s*\n\s*\d+\./gm (números seguidos sin texto)
+    
+    5. Letras:
+       - /^[a-z]\)\s*$/gm (letra vacía)
+       - /^[a-z]\)\s*\n\s*[a-z]\)/gm (letras seguidas sin texto)
+    
+    VALIDACIONES ESPECÍFICAS:
+    
+    1. Contar bullets en la lista
+    2. Para cada bullet, verificar si tiene texto después
+    3. Medir longitud del texto (debe ser > 3 caracteres)
+    4. Verificar que no sea solo espacios o saltos de línea
+    5. Identificar posición exacta del bullet vacío
+    6. Reportar con contexto (sección, subsección)
+    
+    EXCEPCIONES (NO REPORTAR):
+    
+    ✅ Bullets intencionalmente vacíos con nota:
+       "• (Pendiente de completar)"
+       "• [A determinar]"
+       "• N/A"
+    
+    ✅ Listas con formato especial:
+       Tablas con bullets como separadores visuales
+    
+    SEVERIDAD:
+    - 1 bullet vacío: 🔴 ERROR CRÍTICO
+    - 2+ bullets vacíos: 🔴 ERROR CRÍTICO (alta prioridad)
+    - Bullet con solo espacios: 🔴 ERROR CRÍTICO
+    - Numeración vacía: 🔴 ERROR CRÍTICO
+
+15. LOTES CON CÓDIGO "000" SIN ELIMINAR:
+    ❌ PROBLEMA: Filas de lotes con código placeholder "000" que no fueron eliminadas de la plantilla
+    
+    ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+    EL CÓDIGO "000" ES UN PLACEHOLDER DE PLANTILLA QUE DEBE SER ELIMINADO.
+    CUALQUIER LOTE CON CÓDIGO "000" INDICA UNA PLANTILLA SIN LIMPIAR.
+    
+    PROCESO DE VALIDACIÓN PASO A PASO:
+    
+    PASO 1: Buscar TODAS las tablas de lotes en el documento
+    PASO 2: Para CADA tabla, buscar columna "Lot" o "Lote"
+    PASO 3: Identificar filas con código "000"
+    PASO 4: Verificar si la fila tiene descripción vacía
+    PASO 5: Reportar todas las filas con código "000"
+    
+    PATRONES CRÍTICOS A DETECTAR:
+    
+    1. CÓDIGO "000" EN COLUMNA DE LOTE:
+       | Lot | Descripció |
+       | 000 | ...        |
+       
+       Indica: Fila placeholder sin eliminar
+    
+    2. CÓDIGO "000" CON DESCRIPCIÓN VACÍA:
+       | Lot | Descripció de lot |
+       | 000 |                   |
+       
+       Indica: Fila completamente vacía de plantilla
+    
+    3. CÓDIGO "000" CON PRESUPUESTO 0,00 €:
+       | Lot | Descripció | Pressupost |
+       | 000 | ...        | 0,00 €     |
+       
+       Indica: Lote sin datos reales
+    
+    4. MÚLTIPLES FILAS CON "000":
+       Indica: Plantilla con múltiples lotes placeholder sin limpiar
+    
+    EJEMPLO REAL DE ERROR (de las imágenes del cliente):
+    
+    ERROR 1 - Lote con código 000:
+    "| Lot | Descripció de lot |
+     | 000 |                   |"
+    
+    ANÁLISIS:
+    - Código de lote: "000" (placeholder)
+    - Descripción: vacía
+    - Esta fila debe eliminarse completamente
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Lote con código placeholder detectado
+     
+     Tabla: Descripción de lotes
+     Fila detectada:
+     - Código lote: 000
+     - Descripción: [VACÍA]
+     
+     Acción requerida:
+     - Eliminar completamente esta fila de la tabla
+     - Es un placeholder de plantilla que no debe aparecer en el documento final"
+    
+    ERROR 2 - Múltiples lotes 000:
+    "| Lot | Descripció | Pressupost (IVA inclòs) |
+     | 1   | Obra real  | 150.000,00 €            |
+     | 000 |            | 0,00 €                  |
+     | 000 |            | 0,00 €                  |"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Múltiples lotes placeholder detectados
+     
+     Tabla: Presupuesto de lotes
+     Lotes con código '000': 2 filas
+     
+     Filas a eliminar:
+     - Fila 2: Lot 000, sin descripción, 0,00 €
+     - Fila 3: Lot 000, sin descripción, 0,00 €
+     
+     Acción requerida:
+     - Eliminar ambas filas placeholder
+     - Mantener solo lotes reales con datos completos"
+    
+    ERROR 3 - Lote 000 con descripción parcial:
+    "| Lot | Descripció        | Pressupost |
+     | 1   | Carretera A       | 200.000 €  |
+     | 000 | [Pendiente]       | 0,00 €     |
+     | 2   | Carretera B       | 150.000 €  |"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Lote placeholder con descripción temporal
+     
+     Tabla: Lotes del proyecto
+     Lote detectado: 000 - [Pendiente]
+     
+     Problema:
+     - Código '000' es placeholder de plantilla
+     - Descripción '[Pendiente]' indica dato incompleto
+     - Presupuesto 0,00 € sin asignar
+     
+     Acción requerida:
+     - Si el lote es real: asignar código correcto (3) y completar datos
+     - Si no es necesario: eliminar la fila completamente"
+    
+    PATRONES REGEX PARA DETECCIÓN:
+    
+    1. Código 000 en tabla:
+       - /(Lot|Lote)\s*[:|]\s*000/gi
+       - /\|\s*000\s*\|/g (en formato tabla)
+    
+    2. Fila completa con 000:
+       - /\|\s*000\s*\|[^|]*\|/g (captura fila completa)
+    
+    3. 000 con descripción vacía:
+       - /\|\s*000\s*\|\s*\|/g
+    
+    4. 000 con presupuesto cero:
+       - /000.*?0,00\s*€/g
+    
+    VALIDACIONES ESPECÍFICAS:
+    
+    1. Identificar todas las tablas de lotes
+    2. Buscar columna "Lot" o "Lote"
+    3. Para cada fila, extraer código de lote
+    4. Si código == "000":
+       - Verificar descripción (vacía o con texto)
+       - Verificar presupuesto (0,00 € o con valor)
+       - Contar cuántas filas tienen "000"
+    5. Reportar con detalles completos
+    
+    CONTEXTO ADICIONAL:
+    
+    El código "000" se usa en plantillas SAP como placeholder para:
+    - Indicar "sin lotes" en documentos base
+    - Marcar filas que deben eliminarse si no aplican
+    - Separar secciones condicionales
+    
+    En documentos finales, NUNCA debe aparecer "000" como código de lote real.
+    
+    EXCEPCIONES (NO REPORTAR):
+    
+    ❌ NO hay excepciones válidas para este error
+    ✅ SIEMPRE reportar código "000" como ERROR CRÍTICO
+    
+    Razón: "000" es SIEMPRE un placeholder de plantilla
+    
+    SEVERIDAD:
+    - 1 lote con código "000": 🔴 ERROR CRÍTICO
+    - 2+ lotes con código "000": 🔴 ERROR CRÍTICO (máxima prioridad)
+    - "000" en cualquier contexto de lotes: 🔴 ERROR CRÍTICO
     
     INSTRUCCION CRITICA PARA LA IA:
     DEBES BUSCAR ACTIVAMENTE CUALQUIER TEXTO QUE PAREZCA SER:
@@ -585,7 +887,10 @@ generador de pliegos y requieren validación automática prioritaria.
 - Número de lotes en tabla diferente al declarado
 - Fila TOTAL con 0,00 € (Error #13 - Jesús Arenas)
 - 3+ filas consecutivas con 0,00 € (Error #13 - Jesús Arenas)
-- Código "000" en lotes (Error #13 - Jesús Arenas)
+- Código "000" en lotes (Error #13 y #15 - Jesús Arenas)
+- Bullets vacíos o sin texto (Error #14 - Jesús Arenas)
+- Numeración vacía (Error #14 - Jesús Arenas)
+- Lotes con código placeholder "000" (Error #15 - Jesús Arenas)
 
 🟡 ADVERTENCIA (Permite continuar):
 - Formato de fecha incorrecto
