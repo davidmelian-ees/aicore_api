@@ -46,7 +46,7 @@ async function loadValidationPrompts() {
 }
 
 // Función para construir el prompt de validación específico
-async function buildValidationPrompt(textForAnalysis, ragContext = null, learnedPatterns = null) {
+async function buildValidationPrompt(textForAnalysis, ragContext = null, learnedPatterns = null, visualErrors = null) {
   const prompts = await loadValidationPrompts();
   
   if (!prompts) {
@@ -94,6 +94,16 @@ VALIDACIÓN DE ANOMALÍAS:
 - Si un punto de numeración aparece en 8+ documentos pero NO en este: 🟡 ADVERTENCIA  
 - Si una tabla común aparece en 8+ documentos pero NO en este: 🟡 ADVERTENCIA
 - Si el orden de secciones es diferente al patrón común: 🟡 ADVERTENCIA
+
+` : ''}${visualErrors ? `
+================================================================================
+ERRORES VISUALES DETECTADOS (ANÁLISIS AUTOMÁTICO DEL PDF):
+================================================================================
+
+⚠️ IMPORTANTE: Los siguientes errores fueron detectados automáticamente mediante análisis visual del PDF.
+DEBES incluirlos en tu informe final como ADVERTENCIAS.
+
+${visualErrors}
 
 ` : ''}================================================================================
 INSTRUCCIONES DE VALIDACIÓN:
@@ -480,7 +490,7 @@ Para análisis completo, verificar conexión con SAP AI Core.`;
     throw new Error(`Error generando análisis de contexto: ${error.message}`);
   }
 }
-export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null) {
+export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null, visualErrors = null) {
   const startTime = Date.now();
   try {
     console.log(`[PDF-CORRECTION] Generando PDF con lista de correcciones...`);
@@ -531,8 +541,8 @@ RELEVANCIA: ${result.similarity}
       }
     }
     
-    // 5. Generar prompt de validación específico para pliegos
-    const correctionPrompt = customPrompt || await buildValidationPrompt(textForAnalysis, prompts, ragContext);
+    // 5. Generar prompt de validación específico para pliegos (incluyendo errores visuales)
+    const correctionPrompt = customPrompt || await buildValidationPrompt(textForAnalysis, ragContext, null, visualErrors);
 
     console.log(`[PDF-CORRECTION] Generando correcciones con SAP AI Core (${correctionPrompt.length} caracteres)...`);
     

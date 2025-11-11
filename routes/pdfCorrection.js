@@ -59,23 +59,25 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
 
     console.log(`[PDF-CORRECTION] Procesando: ${req.file.originalname}`);
 
-    // Ejecutar análisis visual y de IA en paralelo
-    const [aiResult, visualAnalysis] = await Promise.all([
-      generatePDFWithCorrectionsList(
-        req.file.path,
-        req.body.customPrompt || null,
-        req.body.contextId || null
-      ),
-      pdfVisualAnalyzer.analyzeAll(req.file.path)
-    ]);
-
-    // Generar reporte de errores visuales
+    // 1. Primero ejecutar análisis visual
+    console.log(`[PDF-CORRECTION] Ejecutando análisis visual del PDF...`);
+    const visualAnalysis = await pdfVisualAnalyzer.analyzeAll(req.file.path);
+    
+    // 2. Generar reporte de errores visuales para pasarlo a la IA
     const visualReport = pdfVisualAnalyzer.generateVisualErrorsReport(visualAnalysis);
+    
+    // 3. Ejecutar análisis de IA incluyendo los errores visuales como contexto
+    console.log(`[PDF-CORRECTION] Ejecutando análisis de IA con errores visuales como contexto...`);
+    const aiResult = await generatePDFWithCorrectionsList(
+      req.file.path,
+      req.body.customPrompt || null,
+      req.body.contextId || null,
+      visualReport // Pasar errores visuales a la IA
+    );
 
-    // Combinar resultado de IA con análisis visual
+    // 4. El resultado ya incluye los errores visuales procesados por la IA
     const combinedResult = {
       ...aiResult,
-      corrections: aiResult.corrections + visualReport,
       visualAnalysis: visualAnalysis
     };
 
