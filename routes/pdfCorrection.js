@@ -10,6 +10,7 @@ import {
   testAiCoreConnection
 } from '../services/pdfCorrectionService.js';
 import pdfVisualAnalyzer from '../services/pdfVisualAnalyzer.js';
+import { highlightErrorsInPDF, parseErrorsFromAIResponse } from '../services/pdfHighlightService.js';
 
 const router = express.Router();
 
@@ -413,6 +414,106 @@ router.get('/test-ai-core', async (req, res) => {
       success: false,
       error: error.message,
       message: 'Error interno probando SAP AI Core'
+    });
+  }
+});
+
+/**
+ * POST /api/pdf-correction/highlight-errors
+ * Subraya errores detectados en amarillo sobre el PDF original
+ */
+router.post('/highlight-errors', upload.single('pdf'), async (req, res) => {
+  const startTime = Date.now();
+  
+  try {
+    console.log('[PDF-CORRECTION] Iniciando subrayado de errores...');
+    
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No se proporcionó ningún archivo PDF'
+      });
+    }
+    
+    const pdfPath = req.file.path;
+    const contextId = req.body.contextId || null;
+    
+    console.log(`[PDF-CORRECTION] Archivo recibido: ${req.file.originalname}`);
+    console.log(`[PDF-CORRECTION] Contexto: ${contextId || 'ninguno'}`);
+    
+    // 1. Primero, detectar errores con la IA (reutilizamos la función existente)
+    console.log('[PDF-CORRECTION] Paso 1: Detectando errores con IA...');
+    const detectionResult = await generatePDFWithCorrectionsList(
+      pdfPath,
+      null, // customPrompt
+      contextId,
+      null  // visualErrors (opcional)
+    );
+    
+    if (!detectionResult.success) {
+      throw new Error('Error detectando errores con la IA');
+    }
+    
+    console.log('[PDF-CORRECTION] Errores detectados por la IA');
+    
+    // 2. Parsear errores de la respuesta de la IA
+    console.log('[PDF-CORRECTION] Paso 2: Parseando errores...');
+    const errors = parseErrorsFromAIResponse(detectionResult.correctionsList);
+    console.log(`[PDF-CORRECTION] ${errors.length} errores parseados`);
+    
+    // 3. Subrayar errores en el PDF
+    console.log('[PDF-CORRECTION] Paso 3: Subrayando errores en PDF...');
+    const highlightedPdfBuffer = await highlightErrorsInPDF(pdfPath, errors);
+    
+    // 4. Guardar PDF subrayado
+    const outputFilename = `highlighted-${Date.now()}-${req.file.originalname}`;
+    const outputPath = path.join('uploads/pdf-corrections', outputFilename);
+    await fs.writeFile(outputPath, highlightedPdfBuffer);
+    
+    console.log(`[PDF-CORRECTION] PDF subrayado guardado: ${outputPath}`);
+    
+    // 5. Limpiar archivo original
+    try {
+      await fs.unlink(pdfPath);
+    } catch (cleanupError) {
+      console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError);
+    }
+    
+    const processingTime = Date.now() - startTime;
+    
+    // 6. Devolver PDF subrayado
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${outputFilename}"`);
+    res.send(highlightedPdfBuffer);
+    
+    console.log(`[PDF-CORRECTION] Subrayado completado en ${processingTime}ms`);
+    
+    // Limpiar archivo de salida después de enviarlo
+    setTimeout(async () => {
+      try {
+        await fs.unlink(outputPath);
+        console.log('[PDF-CORRECTION] Archivo temporal limpiado');
+      } catch (cleanupError) {
+        console.warn('[PDF-CORRECTION] Error limpiando archivo de salida:', cleanupError);
+      }
+    }, 5000);
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] Error en highlight-errors:', error);
+    
+    // Limpiar archivo temporal en caso de error
+    if (req.file?.path) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (cleanupError) {
+        console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError);
+      }
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Error subrayando errores en PDF'
     });
   }
 });

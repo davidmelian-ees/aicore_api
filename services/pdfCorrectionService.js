@@ -651,9 +651,14 @@ RELEVANCIA: ${result.similarity}
     
     let correctionsList;
     try {
-      const client = getAiCoreClient('gpt-4o');
+      const client = getAiCoreClient('gpt-4o', { 
+        temperature: 0.2,  // Temperatura muy baja para validación consistente y precisa
+        maxTokens: 4000 
+      });
       const response = await client.run({
-        messages: [{ role: 'user', content: correctionPrompt }]
+        messages: [{ role: 'user', content: correctionPrompt }],
+        temperature: 0.2,  // Temperatura baja = respuestas más deterministas y precisas
+        max_tokens: 4000
       });
       
       correctionsList = response.getContent();
