@@ -46,16 +46,21 @@ function cleanTextEncoding(text) {
     // Normalizar saltos de línea
     .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
-    // Limpiar espacios múltiples
-    .replace(/  +/g, ' ')
+    // Normalizar formato de ubicación (quitar emojis y añadir indentación)
+    .replace(/📍 Ubicación:/g, '\n    - Ubicación:')
+    .replace(/📄 Contexto:/g, '\n    - Contexto:')
     // Limpiar líneas vacías múltiples
     .replace(/\n{3,}/g, '\n\n')
-    // Normalizar formato de ubicación (quitar solo emojis de ubicación/contexto)
-    .replace(/📍 Ubicación:/g, '\n  - Ubicación:')
-    .replace(/📄 Contexto:/g, '\n  - Contexto:')
-    // Limpiar espacios al inicio y final de líneas
+    // Limpiar espacios al final de cada línea pero PRESERVAR indentación al inicio
     .split('\n')
-    .map(line => line.trim())
+    .map(line => {
+      // Si la línea tiene "- Ubicación:" o "- Contexto:", preservar los 4 espacios
+      if (line.includes('- Ubicación:') || line.includes('- Contexto:')) {
+        return line.trimEnd();
+      }
+      // Para otras líneas, limpiar espacios múltiples pero no al inicio si es indentación
+      return line.replace(/\s+/g, ' ').trimEnd();
+    })
     .join('\n');
 }
 
@@ -206,13 +211,13 @@ INSTRUCCIONES DE VALIDACIÓN:
 
 🔴 ERRORES CRÍTICOS:
 - [Descripción del error]
-  - Ubicación: [Sección/Apartado exacto donde se encuentra]
-  - Contexto: [Tabla, cuadro o párrafo específico]
+    - Ubicación: [Sección/Apartado exacto donde se encuentra]
+    - Contexto: [Tabla, cuadro o párrafo específico]
 
 🟡 ADVERTENCIAS:
 - [Descripción de la advertencia]
-  - Ubicación: [Sección/Apartado exacto donde se encuentra]
-  - Contexto: [Tabla, cuadro o párrafo específico]
+    - Ubicación: [Sección/Apartado exacto donde se encuentra]
+    - Contexto: [Tabla, cuadro o párrafo específico]
 
 ✅ SUGERENCIAS:
 - [Correcciones específicas recomendadas]
@@ -244,8 +249,8 @@ Si encuentras en el texto:
 DEBES REPORTAR:
 🔴 ERRORES CRÍTICOS:
 - Tag SAP sin reemplazar: {B}CRITERIS{/B}
-  - Ubicación: Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
-  - Contexto: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
+    - Ubicación: Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
+    - Contexto: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
 
 ⚠️ EJEMPLO 2 - VALIDACIÓN NUMÉRICA CON UBICACIÓN:
 
@@ -264,8 +269,8 @@ DEBES hacer:
 6. REPORTAR:
 🔴 ERRORES CRÍTICOS:
 - Incoherencia numérica: Presupuesto declarado (243.936,00 EUR) no coincide con suma de lotes (243.783,00 EUR). Diferencia: 153,00 EUR
-  - Ubicación: Apartado 2.- DADES ECONÒMIQUES
-  - Contexto: PRESSUPOST DE LICITACIÓ - Tabla de lotes
+    - Ubicación: Apartado 2.- DADES ECONÒMIQUES
+    - Contexto: PRESSUPOST DE LICITACIÓ - Tabla de lotes
 
 ⚠️ EJEMPLO 3 - VALIDACIÓN TABLAS APLICA/NO APLICA CON UBICACIÓN:
 
@@ -287,8 +292,8 @@ DEBES hacer:
 3. REPORTAR:
 🔴 ERRORES CRÍTICOS:
 - Tabla APLICA/NO APLICA incompleta. Filas 1.04 y 1.06 tienen solo 1 valor cuando deberían tener 2
-  - Ubicación: Apartado 15.- CRITERIS D'ADJUDICACIÓ
-  - Contexto: QUADRE RESUM DE CRITERIS - Filas 1.04 (emissions CO2eq) y 1.06 (fusta certificada)
+    - Ubicación: Apartado 15.- CRITERIS D'ADJUDICACIÓ
+    - Contexto: QUADRE RESUM DE CRITERIS - Filas 1.04 (emissions CO2eq) y 1.06 (fusta certificada)
 
 NO asumas que las tablas están completas. SIEMPRE cuenta los valores por fila.
 
@@ -307,8 +312,8 @@ DEBES hacer:
 5. REPORTAR:
 🔴 ERRORES CRÍTICOS:
 - Comentario de desarrollador detectado: "Oriol: En cas que apliqui el CO2..."
-  - Ubicación: Apartado 12.- CRITERIS DE SOSTENIBILITAT
-  - Contexto: Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
+    - Ubicación: Apartado 12.- CRITERIS DE SOSTENIBILITAT
+    - Contexto: Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
 
 ⚠️ EJEMPLO 4 - DETECCIÓN DE CONDICIONES TÉCNICAS SAP:
 
@@ -1174,8 +1179,24 @@ function processLineFormatting(line) {
     color = rgb(0, 0.5, 0); // Verde más claro
   }
 
-  // Detectar elementos de lista con más patrones
-  if (text.startsWith('- ') || text.startsWith('• ') || text.startsWith('· ') ||
+  // Detectar "Ubicación:" y "Contexto:" con formato especial
+  if (text.includes('- Ubicación:') || text.includes('- Ubicacion:')) {
+    indent = 40;
+    fontSize = 11;
+    color = rgb(0.3, 0.3, 0.7); // Azul oscuro
+    isBold = true;
+  } else if (text.includes('- Contexto:')) {
+    indent = 40;
+    fontSize = 11;
+    color = rgb(0.4, 0.4, 0.4); // Gris oscuro
+    isBold = false;
+  }
+  // Detectar elementos de lista (errores principales) - NEGRITA
+  else if (text.startsWith('- ') && !text.includes('Ubicación:') && !text.includes('Contexto:')) {
+    indent = 20;
+    isBold = true; // Errores en negrita
+    fontSize = 12;
+  } else if (text.startsWith('• ') || text.startsWith('· ') ||
       /^\d+\.\s/.test(text) || /^[a-zA-Z]\.\s/.test(text)) {
     indent = 20;
   } else if (text.startsWith('  - ') || text.startsWith('  • ') || text.startsWith('  · ') ||
