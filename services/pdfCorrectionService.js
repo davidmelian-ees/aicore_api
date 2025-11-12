@@ -1183,8 +1183,8 @@ function processLineFormatting(line) {
   if (text.includes('- Ubicación:') || text.includes('- Ubicacion:')) {
     indent = 40;
     fontSize = 11;
-    color = rgb(0.3, 0.3, 0.7); // Azul oscuro
-    isBold = true;
+    color = rgb(0, 0, 0); // Negro normal
+    isBold = false;
   } else if (text.includes('- Contexto:')) {
     indent = 40;
     fontSize = 11;
