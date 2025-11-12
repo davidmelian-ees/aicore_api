@@ -1,245 +1,249 @@
-EJEMPLOS DE PLIEGOS MAL FORMADOS - ENTRENAMIENTO IA
+EXAMPLES OF POORLY FORMED DOCUMENTS - MODEL TRAINING
 ================================================================
 
-OBJETIVO: Entrenar la IA para reconocer patrones específicos de errores
-en pliegos mediante ejemplos reales de documentos mal formados.
+OBJECTIVE: Train the model to recognize specific error patterns
+in documents using real examples of poorly formed documents.
 
-METODOLOGÍA DE ENTRENAMIENTO:
-1. Subir pliegos con errores conocidos al contexto RAG "PLIEGOS_ERRORES_EJEMPLOS"
-2. Documentar cada error específico encontrado
-3. Crear patrones de detección automática
-4. Validar mejoras en la detección
+TRAINING METHODOLOGY:
+1. Upload forms with known errors to the RAG context “FORMS_ERRORS_EXAMPLES.”
+2. Document each specific error found.
+3. Create automatic detection patterns.
+4. Validate improvements in detection.
 
-TIPOS DE ERRORES A DOCUMENTAR:
+TYPES OF ERRORS TO DOCUMENT:
 ===============================
 
-1. CAMPOS VARIABLES SIN RELLENAR:
-   - Tags SAP no reemplazados: {{PRESUPUESTO_BASE}}
-   - Campos con valores por defecto: [INSERTAR_FECHA]
-   - Variables vacías: {{}} o {{ }}
+1. UNFILLED VARIABLE FIELDS:
+   - Unreplaced SAP tags: {{BASE_BUDGET}}
+   - Fields with default values: [INSERT_DATE]
+   - Empty variables: {{}} or {{ }}
 
-1.1. TAGS SAP ESPECÍFICOS SIN REEMPLAZAR:
+1.1. SPECIFIC SAP TAGS NOT REPLACED:
    
-   DESCRIPCIÓN DE CONTRATOS:
-   ❌ MAL: CONTRACTE D'EXECUCIÓ DE LES OBRES DE (Descripció llarga del Procediment d'Adjudicació)
-   ✅ BIEN: CONTRACTE D'EXECUCIÓ DE LES OBRES DEL PROJECTE CONSTRUCTIU DE LA RENOVACIÓ PER OBSOLESCÈNCIA D'EQUIPAMENTS DEL SISTEMA DE VIDEOVIGILÀNCIA DEL TRAM IV DE L'L9 DE METRO DE BARCELONA
+   DESCRIPTION OF CONTRACTS:
+   ❌ WRONG: CONTRACT FOR THE EXECUTION OF THE WORKS OF (Long description of the Award Procedure)
+   ✅ CORRECT: CONTRACT FOR THE EXECUTION OF THE CONSTRUCTION PROJECT FOR THE RENOVATION DUE TO OBSOLESCENCE OF THE VIDEO SURVEILLANCE SYSTEM EQUIPMENT ON TRAM IV OF THE L9 METRO LINE IN BARCELONA
    
-   CLÁUSULAS DE EXPEDIENTE:
-   ❌ MAL: CLAU: (Clau - Expedient Descripció Abreujada)
-   ✅ BIEN: CLAU: R0-21223 o CLAU: ATL-23261
+   FILE CLAUSES:
+   ❌ WRONG: CLAUSE: (Clause - File Abbreviated Description)
+   ✅ RIGHT: CLAUSE: R0-21223 or CLAUSE: ATL-23261
    
-   INFORMACIÓN DE LOTES:
-   ❌ MAL: [ZERM_QUADRE_LOTS-Z_DESCRIP_LOT]
-   ✅ BIEN: Vilafranca del Penedès – La Granada
-   ❌ MAL: [ZERM_QUADRE_LOTS-ZZ_NUM_LOT]
-   ✅ BIEN: 1, 2, 3, 4...
+   LOT INFORMATION:
+   ❌ WRONG: [ZERM_QUADRE_LOTS-Z_DESCRIP_LOT]
+   ✅ CORRECT: Vilafranca del Penedès – La Granada
+   ❌ WRONG: [ZERM_QUADRE_LOTS-ZZ_NUM_LOT]
+   ✅ CORRECT: 1, 2, 3, 4...
    
-   LOGOS Y CABECERAS:
-   ❌ MAL: (Capçalera: Logos segons empresa i fons de finançament - ALTRES DOCS)
-   ✅ BIEN: [Logo corporativo insertado]
+   LOGOS AND HEADERS:
+   ❌ INCORRECT: (Header: Logos according to company and funding sources - OTHER DOCS)
+   ✅ CORRECT: [Corporate logo inserted]
    
-   TÉRMINOS DE EJECUCIÓN:
-   ❌ MAL: (Termini execució licitació) (Hora)(Dia)(Semana)(Mes)(Año)
-           Lot Termini (mesos) Condicions
+   TERMS OF EXECUTION:
+   ❌ WRONG: (Tender execution terms) (Time)(Day)(Week)(Month)(Year)
+           Lot Terms (months) Conditions
            [ZERM_QDC_CLO_LIC-ZZ_NUM_LOT]
            [ZERM_QDC_CLO_LIC-Z_TERM_LOT]
            [ZERM_QDC_CLO_LIC-Z_OBRES_SIM]
-           (Justificació no lots)
-   ✅ BIEN: 3.- TERMINI D'EXECUCIÓ DEL CONTRACTE:
-           Lot Termini (mesos)
-           1   5 mesos
-           2   5 mesos  
-           3   10 mesos
-           4   6 mesos
+           (Justification no lots)
+   ✅ CORRECT: 3.- CONTRACT EXECUTION TERMS:
+           Lot Terms (months)
+           1   5 months
+           2   5 months  
+           3   10 months
+           4   6 months
    
-   INFORMACIÓN PRESUPUESTARIA Y GARANTÍAS:
-   ❌ MAL: Partida pressupostària: (Partida pressupostària)
-           GARANTIA PROVISIONAL: (Si no garantia provisional) (Si garantia provisional) (Percentatge aval provisional)
-           GARANTIA DEFINITIVA: (Percentatge aval definitiu)%
-           PERIODE DE GARANTIA: (Termini de garantia) mesos
-   ✅ BIEN: Partida pressupostària: D/660.0002 – Programa 521
-           GARANTIA PROVISIONAL: NO
-           GARANTIA DEFINITIVA: 5% del preu d'adjudicació (IVA no inclòs)
-           PERIODE DE GARANTIA: DOS ANYS
+   BUDGET INFORMATION AND GUARANTEES:
+   ❌ WRONG: Budget item: (Budget item)
+           PROVISIONAL GUARANTEE: (If no provisional guarantee) (If provisional guarantee) (Provisional guarantee percentage)
+           DEFINITIVE GUARANTEE: (Definitive guarantee percentage)%
+           GUARANTEE PERIOD: (Guarantee terms) months
+   ✅ GOOD: Budget item: D/660.0002 – Program 521
+           PROVISIONAL GUARANTEE: NO
+           DEFINITIVE GUARANTEE: 5% of the award price (VAT not included)
+           GUARANTEE PERIOD: TWO YEARS
 
-2. CAMPOS OBLIGATORIOS INCOMPLETOS:
-   - Cláusulas vacías: "CLAU:" sin contenido después
-   - Apartados sin completar: "PRESUPUESTO:" seguido de línea vacía
-   - Referencias sin especificar: "VER ANEXO:" sin número/nombre
+2. INCOMPLETE REQUIRED FIELDS:
+   - Empty clauses: “CLAU:” with no content after it
+   - Unfilled sections: PRESSUPOST:” followed by a blank line
+   - Unspecified references: “VEURE ANNEX:” with no number/name
 
-3. ERRORES DE FORMATO:
-   - Fechas incorrectas: 32/13/2025, 2025-12-31
-   - Importes sin formato: 123456 en lugar de 123.456,78 €
-   - Códigos malformados: CT123 en lugar de CT1234567
+3. FORMAT ERRORS:
+   - Incorrect dates: 32/13/2025, 2025-12-31
+   - Unformatted amounts: 123456 instead of 123,456.78 €
+   - Malformed codes: CT123 instead of CT1234567
 
-3. ERRORES ESTRUCTURALES:
-   - Secciones duplicadas
-   - Apartados faltantes obligatorios
-   - Numeración incorrecta (1.1, 1.3, 1.5 - falta 1.2, 1.4)
+3. STRUCTURAL ERRORS:
+   - Duplicate sections
+   - Missing mandatory sections
+   - Incorrect numbering (1.1, 1.3, 1.5 - 1.2 and 1.4 are missing)
 
-4. ERRORES DE CONTENIDO:
-   - Información contradictoria
-   - Referencias cruzadas incorrectas
-   - Datos inconsistentes entre secciones
+4. CONTENT ERRORS:
+   - Contradictory information
+   - Incorrect cross-references
+   - Inconsistent data between sections
 
-5. ERRORES DE LOTES:
-   - Lotes mal definidos
-   - Presupuestos de lotes no cuadran con total
-   - Información de lotes en pliegos "sin lotes"
+5. LOT ERRORS:
+   - Poorly defined lots
+   - Lot budgets do not add up to the total
+   - Lot information in specifications “without lots”
 
-FORMATO DE DOCUMENTACIÓN POR CADA PLIEGO:
+6. COMMENTS:
+   - Comments from templates
+   - Comments made during the creation process
+
+DOCUMENTATION FORMAT FOR EACH SPECIFICATION:
 =========================================
 
-ARCHIVO: [nombre_del_pliego.pdf]
-TIPO_ERROR: [categoria_del_error]
-DESCRIPCIÓN: [descripción_detallada]
-UBICACIÓN: [sección/línea donde aparece]
-PATRÓN_DETECCIÓN: [regex o patrón para detectar automáticamente]
-CORRECCIÓN_SUGERIDA: [cómo debería ser]
+FILE: [filename.pdf]
+ERROR_TYPE: [error_category]
+DESCRIPTION: [detailed_description]
+LOCATION: [section/line where it appears]
+DETECTION_PATTERN: [regex or pattern for automatic detection]
+SUGGESTED_CORRECTION: [how it should be]
 
-EJEMPLOS DE DOCUMENTACIÓN:
+DOCUMENTATION EXAMPLES:
 -------------------------
 
-EJEMPLO 1 - CAMPO VARIABLE SIN RELLENAR:
-ARCHIVO: CT1234567_plec_obra_civil_obert_amb_lots_validacion.pdf
-TIPO_ERROR: CAMPO_VARIABLE_SIN_RELLENAR
-DESCRIPCIÓN: Tag SAP {{PRESUPUESTO_BASE}} no reemplazado en sección presupuesto
-UBICACIÓN: Sección 4.2, línea aproximada 156
-PATRÓN_DETECCIÓN: /\{\{[A-Z_]+\}\}/g
-CORRECCIÓN_SUGERIDA: Reemplazar con valor numérico formato 123.456,78 €
+EXEMPLE 1 - CAMP DE VARIABLE NO OMPLERT:
+ARXIU: CT1234567_plec_civil_works_obert_amb_lots_validation.pdf
+TIPUS_D'ERROR: CAMP_DE_VARIABLE_NO_OMPLERT
+DESCRIPCIÓ: L'etiqueta SAP {{BASIC_BUDGET}} no s'ha substituït a la secció de pressupost
+LLOC: Secció 4.2, aproximadament a la línia 156
+PATRÓ_DE_DETECCIÓ: /\{\{[A-Z_]+\}\}/g
+CORRECCIÓ_PROPOSADA: Substituïu per un valor numèric en el format £123,456.78
 
-EJEMPLO 2 - CLÁUSULA INCOMPLETA:
-ARCHIVO: CT1234567_plec_edificacio_sense_lots_validacion_ERROR_CLAU.pdf
-TIPO_ERROR: CAMPO_OBLIGATORIO_INCOMPLETO
-DESCRIPCIÓN: Cláusula vacía "CLAU:" sin especificar contenido
-UBICACIÓN: Múltiples secciones, aparece "CLAU:" seguido de línea vacía
-PATRÓN_DETECCIÓN: /CLAU:\s*$/gm
-CORRECCIÓN_SUGERIDA: Completar con cláusula específica, ej: "CLAU: Cláusula de penalización por retraso"
+EXEMPLE 2 - CLAUSULA INCOMPLETA:
+ARXIU: CT1234567_plec_edificacio_sense_lots_validacion_ERROR_CLAU.pdf
+TIPUS_D'ERROR: CAMP_OBLIGATORI_INCOMPLET
+DESCRIPCIÓ: Clàusula buida "CLAU:" sense cap contingut especificat
+UBICACIÓ: Diverses seccions, "CLAU:" apareix seguida d'una línia en blanc
+PATRÓ_DE_DETECCIÓ: /CLAU:\s*$/gm
+CORRECCIÓ_PROPOSADA: Completeu-ho amb una clàusula específica, p. ex.: "CLAU: Clàusula penal per retard"
 
-EJEMPLO 3 - PRESUPUESTO INCOMPLETO:
-ARCHIVO: CT1234567_plec_obra_civil_validacion_ERROR_PRESUPUESTO.pdf
-TIPO_ERROR: CAMPO_OBLIGATORIO_INCOMPLETO
-DESCRIPCIÓN: Apartado "PRESUPUESTO:" sin detallar importes
-UBICACIÓN: Sección presupuestaria
-PATRÓN_DETECCIÓN: /PRESUPUESTO:\s*$/gm
-CORRECCIÓN_SUGERIDA: Añadir desglose de importes y total
+EXEMPLE 3 - PRESUPOST_INCOMPLET:
+ARXIU: CT1234567_plec_obra_civil_validacion_ERROR_PRESUPUESTO.pdf
+TIPUS_D'ERROR: CAMP_OBLIGATORI_INCOMPLET
+DESCRIPCIÓ: Secció "PRESSUPOST:" sense imports detallats
+LLOC: Secció de pressupost
+PATRÓ_DETECCIÓ: /BUDGET:\s*$/gm
+CORRECCIÓ_SUGERIDA: Afegiu el desglossament dels imports i el total
 
-EJEMPLO 4 - TAG SAP DESCRIPCIÓN SIN REEMPLAZAR:
-ARCHIVO: CT1234567_plec_edificacio_validacion_ERROR_DESCRIPCIO.pdf
-TIPO_ERROR: TAG_SAP_SIN_REEMPLAZAR
-DESCRIPCIÓN: Tag "(Descripció llarga del Procediment d'Adjudicació)" sin reemplazar
-UBICACIÓN: Título del contrato, línea 1
-PATRÓN_DETECCIÓN: /\([^)]*Descripció[^)]*\)/g
-CORRECCIÓN_SUGERIDA: Reemplazar con descripción específica del proyecto
+EXEMPLE 4 - DESCRIPCIÓ DE L'ETIQUETA SAP SENSE SUBSTITUCIÓ:
+ARXIU: CT1234567_plec_edificacio_validacion_ERROR_DESCRIPCIO.pdf
+TIPUS_D'ERROR: SAP_TAG_NOT_REPLACED
+DESCRIPCIÓ: L'etiqueta "(Long description of the Award Procedure)" no s'ha substituït
+LLOC: Títol del contracte, línia 1
+PATRÓ_DE_DETECCIÓ: /\([^)]*Description[^)]*\)/g
+CORRECCIÓ_PROPOSADA: Substituïu per la descripció específica del projecte
 
-EJEMPLO 5 - CLÁUSULA EXPEDIENTE SIN COMPLETAR:
-ARCHIVO: CT1234567_plec_obra_civil_validacion_ERROR_CLAU_EXPEDIENT.pdf
-TIPO_ERROR: TAG_SAP_SIN_REEMPLAZAR
-DESCRIPCIÓN: Tag "(Clau - Expedient Descripció Abreujada)" sin reemplazar
-UBICACIÓN: Sección CLAU
-PATRÓN_DETECCIÓN: /\(Clau - Expedient[^)]*\)/g
-CORRECCIÓN_SUGERIDA: Reemplazar con código específico como "R0-21223" o "ATL-23261"
+EXEMPLE 5 - CLAÚSUL D'ARXIU INCOMPLET:
+ARXIU: CT1234567_plec_obra_civil_validacion_ERROR_CLAU_EXPEDIENT.pdf
+TIPUS_D'ERROR: TAG_SAP_NOT_REPLACED
+DESCRIPCIÓ: L'etiqueta "(Clau - Expedient Descripció Abreujada)" no s'ha substituït
+UBICACIÓ: Secció CLAU
+PATRÓ_DE_DETECCIÓ: /\(Clau - Expedient[^)]*\)/g
+CORRECCIÓ_PROPOSADA: Substituïu per un codi específic com ara "R0-21223" o "ATL-23261"
 
-EJEMPLO 6 - TAGS ZERM SIN REEMPLAZAR:
-ARCHIVO: CT1234567_plec_obra_civil_validacion_ERROR_ZERM.pdf
-TIPO_ERROR: TAG_SAP_SIN_REEMPLAZAR
-DESCRIPCIÓN: Tags "[ZERM_QUADRE_LOTS-Z_DESCRIP_LOT]" y "[ZERM_QUADRE_LOTS-ZZ_NUM_LOT]" sin reemplazar
-UBICACIÓN: Sección de lotes
-PATRÓN_DETECCIÓN: /\[ZERM_[A-Z_-]+\]/g
-CORRECCIÓN_SUGERIDA: Reemplazar con descripción y número de lote específicos
+EXEMPLE 6 - ETIQUETES ZERM NO SUBSTITUÏDES:
+ARXIU: CT1234567_plec_civil_works_validation_ERROR_ZERM.pdf
+TIPUS_D'ERROR: ETIQUETA_SAP_NO_SUBSTITUÏDA
+DESCRIPCIÓ: Les etiquetes "[ZERM_QUADRE_LOTS-Z_DESCRIP_LOT]" i "[ZERM_QUADRE_LOTS-ZZ_NUM_LOT]" no s'han substituït
+UBICACIÓ: Secció de lots
+PATRÓ_DETECCIÓ: /\[ZERM_[A-Z_-]+\]/g
+CORRECCIÓ_PROPOSADA: Substituïu per la descripció i el número de lot específics
 
-EJEMPLO 7 - GARANTÍAS SIN ESPECIFICAR:
-ARCHIVO: CT1234567_plec_edificacio_validacion_ERROR_GARANTIES.pdf
-TIPO_ERROR: TAG_SAP_SIN_REEMPLAZAR
-DESCRIPCIÓN: Tags "(Si no garantia provisional)" y "(Percentatge aval definitiu)" sin reemplazar
-UBICACIÓN: Sección de garantías
-PATRÓN_DETECCIÓN: /\(Si no garantia[^)]*\)/g, /\(Percentatge aval[^)]*\)/g
-CORRECCIÓN_SUGERIDA: Especificar "NO" o porcentaje concreto como "5%"
+EXEMPLE 7 - GARANTIES NO ESPECIFICADES:
+ARXIU: CT1234567_plec_edificacio_validacion_ERROR_GARANTIES.pdf
+TIPUS_D'ERROR: TAG_SAP_NOT_REPLACED
+DESCRIPCIÓ: Les etiquetes "(If no provisional guarantee)" i "(Percentatge aval definitiu)" no s'han substituït
+LLOC: Secció de garanties
+PATRÓ_DETECCIÓ: /\(If no guarantee[^)]*\)/g, /\(Percentage guarantee[^)]*\)/g
+CORRECCIÓ_SUGERIDA: Especifiqueu "NO" o un percentatge específic com ara "5%"
 
-INSTRUCCIONES DE USO:
+INSTRUCTIONS FOR USE:
 ====================
 
-1. SUBIR PLIEGOS PROBLEMÁTICOS:
-   - Usar contexto RAG: "DOCUMENTOS_VALIDACION" (contexto existente)
-   - Incluir en nombre del archivo: "_validacion_ERROR_[tipo]"
-   - Ejemplo: CT1234567_plec_obra_civil_amb_lots_validacion_ERROR_CAMPOS.pdf
+1. UPLOAD PROBLEMATIC DOCUMENTS:
+   - Use RAG context: “DOCUMENT_VALIDATION” (existing context)
+   - Include in file name: “_validation_ERROR_[type]”
+   - Example: CT1234567_plec_obra_civil_amb_lots_validacion_ERROR_CAMPOS.pdf
 
-2. DOCUMENTAR CADA ERROR:
-   - Crear archivo .txt por cada pliego con errores
-   - Seguir formato estándar de documentación
-   - Incluir capturas de pantalla si es necesario
+2. DOCUMENT EACH ERROR:
+   - Create a .txt file for each document with errors
+   - Follow the standard documentation format
+   - Include screenshots if necessary
 
-3. VALIDAR MEJORAS:
-   - Probar endpoint de validación con pliegos corregidos
-   - Verificar que detecta los errores documentados
-   - Ajustar prompts según resultados
+3. VALIDATE IMPROVEMENTS:
+   - Test the validation endpoint with corrected specifications
+   - Verify that it detects the documented errors
+   - Adjust prompts according to results
 
-PATRONES DE DETECCIÓN AUTOMÁTICA:
+AUTOMATIC DETECTION PATTERNS:
 =================================
 
-CAMPOS_VARIABLES_SIN_RELLENAR:
+UNFILLED_VARIABLE_FIELDS:
 - Regex: /\{\{[^}]*\}\}/g
-- Búsqueda: [INSERTAR_, [COMPLETAR_, [RELLENAR_
-- Patrones: {{ }}, {{  }}, {{VARIABLE}}
+- Search: [INSERT_, [COMPLETE_, [FILL_
+- Patterns: {{ }}, {{  }}, {{VARIABLE}}
 
-CAMPOS_OBLIGATORIOS_INCOMPLETOS:
-- Regex: /CLAU:\s*$/gm (CLAU: seguido solo de espacios y fin de línea)
-- Regex: /PRESUPUESTO:\s*$/gm (PRESUPUESTO: sin contenido)
-- Regex: /VER ANEXO:\s*$/gm (VER ANEXO: sin especificar)
-- Regex: /ARTICLE:\s*$/gm (ARTICLE: sin número)
-- Patrón general: /[A-Z]+:\s*$/gm (cualquier etiqueta seguida de dos puntos y vacía)
+INCOMPLETE_REQUIRED_FIELDS:
+- Regex: /CLAU:\s*$/gm (CLAU: followed only by spaces and end of line)
+- Regex: /BUDGET:\s*$/gm (BUDGET: no content)
+- Regex: /SEE ANNEX:\s*$/gm (SEE ANNEX: unspecified)
+- Regex: /ARTICLE:\s*$/gm (ARTICLE: no number)
+- General pattern: /[A-Z]+:\s*$/gm (any tag followed by a colon and empty)
 
 TAGS_SAP_SIN_REEMPLAZAR:
-- Regex: /\([^)]*Descripció[^)]*\)/g (descripciones entre paréntesis sin reemplazar)
-- Regex: /\(Clau - Expedient[^)]*\)/g (cláusulas de expediente sin completar)
-- Regex: /\[ZERM_[A-Z_-]+\]/g (tags ZERM sin reemplazar)
-- Regex: /\(Capçalera:[^)]*\)/g (cabeceras con logos sin insertar)
-- Regex: /\(Termini execució[^)]*\)/g (términos de ejecución sin especificar)
-- Regex: /\(Partida pressupostària\)/g (partidas presupuestarias sin completar)
-- Regex: /\(Si no garantia[^)]*\)/g (condiciones de garantía sin decidir)
-- Regex: /\(Percentatge aval[^)]*\)/g (porcentajes de aval sin especificar)
-- Regex: /\(Termini de garantia\)/g (términos de garantía sin completar)
-- Regex: /\([A-Z][^)]*\)/g (cualquier texto descriptivo entre paréntesis)
-- Regex: /\[[A-Z_-]+\]/g (cualquier tag entre corchetes sin reemplazar)
+- Regex: /\([^)]*Description[^)]*\)/g (descriptions in parentheses without replacement)
+- Regex: /\(Clau - Expedient[^)]*\)/g (uncompleted file clauses)
+- Regex: /\[ZERM_[A-Z_-]+\]/g (ZERM tags without replacement)
+- Regex: /\(Header:[^)]*\)/g (headers with logos not inserted)
+- Regex: /\(Execution terms[^)]*\)/g (execution terms not specified)
+- Regex: /\(Budget item\)/g (budget items not completed)
+- Regex: /\(If no guarantee[^)]*\)/g (guarantee conditions not decided)
+- Regex: /\(Guarantee percentage[^)]*\)/g (guarantee percentages not specified)
+- Regex: /\(Guarantee terms\)/g (unfilled guarantee terms)
+- Regex: /\([A-Z][^)]*\)/g (any descriptive text in parentheses)
+- Regex: /\[[A-Z_-]+\]/g (any tag in square brackets without replacement)
 
-FECHAS_INCORRECTAS:
-- Regex: /\d{2}\/\d{2}\/\d{4}/g (validar rangos)
-- Detectar: días > 31, meses > 12, años < 2020 o > 2030
-- Formatos incorrectos: DD-MM-YYYY, YYYY/MM/DD
+INCORRECT_DATES:
+- Regex: /\d{2}\/\d{2}\/\d{4}/g (validate ranges)
+- Detect: days > 31, months > 12, years < 2020 or > 2030
+- Incorrect formats: DD-MM-YYYY, YYYY/MM/DD
 
-IMPORTES_SIN_FORMATO:
-- Regex: /\d{4,}(?!\.\d{2})/g (números largos sin formato)
-- Detectar ausencia de: puntos de miles, símbolo €
-- Patrones incorrectos: 123456, 123,456.78
+UNFORMATTED_AMOUNTS:
+- Regex: /\d{4,}(?!\.\d{2})/g (long unformatted numbers)
+- Detect absence of: thousand separators, € symbol
+- Incorrect patterns: 123456, 123.456.78
 
-CÓDIGOS_EXPEDIENTE_MALFORMADOS:
-- Regex: /CT\d{1,6}(?!\d)/g (menos de 7 dígitos)
-- Detectar: CT123, CT12345 (incompletos)
-- Formato correcto: CT1234567
+MALFORMED_FILE_CODES:
+- Regex: /CT\d{1,6}(?!\d)/g (less than 7 digits)
+- Detect: CT123, CT12345 (incomplete)
+- Correct format: CT1234567
 
-SECCIONES_DUPLICADAS:
-- Detectar títulos repetidos
-- Numeración duplicada (1.1, 1.1)
-- Contenido idéntico en múltiples secciones
+DUPLICATED_SECTIONS:
+- Detect repeated titles
+- Duplicate numbering (1.1, 1.1)
+- Identical content in multiple sections
 
-REFERENCIAS_CRUZADAS_INCORRECTAS:
-- Referencias a secciones inexistentes
-- Números de página incorrectos
-- Enlaces rotos a anexos
+INCORRECT_CROSS_REFERENCES:
+- References to non-existent sections
+- Incorrect page numbers
+- Broken links to annexes
 
-INTEGRACIÓN CON SISTEMA DE VALIDACIÓN:
+INTEGRATION WITH VALIDATION SYSTEM:
 ======================================
 
-El sistema cargará automáticamente estos ejemplos para:
-1. Mejorar detección de patrones
-2. Generar alertas más específicas
-3. Sugerir correcciones precisas
-4. Crear informes más detallados
+The system will automatically load these examples to:
+1. Improve pattern detection
+2. Generate more specific alerts
+3. Suggest accurate corrections
+4. Create more detailed reports
 
-ACTUALIZACIÓN CONTINUA:
+CONTINUOUS UPDATES:
 ======================
 
-- Añadir nuevos ejemplos según se encuentren errores
-- Refinar patrones de detección
-- Actualizar prompts de validación
-- Documentar casos edge y excepciones
+- Add new examples as errors are found
+- Refine detection patterns
+- Update validation prompts
+- Document extreme cases and exceptions

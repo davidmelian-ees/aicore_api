@@ -1,298 +1,231 @@
 ================================================================================
-                    ANÁLISIS DE PLIEGOS YA GENERADOS
-                Sistema de Aprendizaje y Referencia
+                  ANALYSIS OF ALREADY GENERATED SPECIFICATIONS
+                           Learning and Reference System
 ================================================================================
 
-OBJETIVO:
-Analizar pliegos reales ya generados (con datos SAP insertados) para:
-1. Aprender patrones correctos de estructura y contenido
-2. Identificar buenas prácticas en la generación
-3. Crear base de conocimiento para responder preguntas específicas
-4. Detectar variaciones aceptables en la implementación
+OBJECTIVE:
+Analyze actual specifications already generated (with SAP data inserted) to:
+1. Learn correct patterns of structure and content
+2. Identify best practices in generation
+3. Create a knowledge base to answer specific questions
+4. Detect acceptable variations in implementation
 
 ================================================================================
-                        IDENTIFICACIÓN AUTOMÁTICA
+                           AUTOMATIC IDENTIFICATION
 ================================================================================
 
-NOMENCLATURA ESPERADA:
-- pliego_{tipo}_{modalidad}_generado (minúscula)
-- pliego_{tipo}_{modalidad}_GENERADO (mayúscula)
+EXPECTED NOMENCLATURE:
+- pliego_{type}_{modality}_generado (lowercase)
+- pliego_{type}_{modality}_GENERADO (uppercase)
 
-EJEMPLOS VÁLIDOS:
+VALID EXAMPLES:
 ✅ plec_edificacio_obert_con_lotes_generado.pdf
 ✅ pliego_obra_civil_obert_con_lotes_generado.pdf
 ✅ pliego_obra_civil_obert_sin_lotes_generado.pdf
 ✅ pliego_obra_edificacio_simplificat_con_lotes_GENERADO.pdf
 ✅ pliego_obra_civil_simplificat_sin_lotes_GENERADO.pdf
 
-PATRONES DE DETECCIÓN:
-- Archivo contiene "_generado" o "_GENERADO"
-- Presencia de datos específicos (fechas, importes, códigos)
-- Ausencia de tags SAP {{VARIABLE}}
-- Estructura completa y poblada con datos reales
+DETECTION PATTERNS:
+- File contains “_generated” or “_GENERATED”
+- Presence of specific data (dates, amounts, codes)
+- Absence of SAP {{VARIABLE}} tags
+- Complete structure populated with real data
 
 ================================================================================
-                        PROCESO DE ANÁLISIS AUTOMÁTICO
+AUTOMATIC ANALYSIS PROCESS
 ================================================================================
 
-PASO 1: CLASIFICACIÓN INICIAL
+STEP 1: INITIAL CLASSIFICATION
 ```
-Al recibir un pliego generado:
-1. Extraer tipo del nombre: obra_civil_obert, obra_civil_simplificat, etc.
-2. Identificar modalidad: con_lotes, sin_lotes
-3. Confirmar que es documento generado (no plantilla)
-4. Asignar contexto RAG apropiado: PLIEGOS_GENERADOS_{TIPO}
-```
-
-PASO 2: ANÁLISIS ESTRUCTURAL
-```
-Analizar y documentar:
-- Apartados presentes y su orden
-- Estructura de numeración utilizada
-- Presencia/ausencia de secciones de lotes
-- Formato de tablas y anexos
-- Estilo de redacción y terminología
+Upon receiving a generated document:
+1. Extract type from name: obra_civil_obert, obra_civil_simplificat, etc.
+2. Identify modality: amb_lots, sense_lots
+3. Confirm that it is a generated document (not a template)
+4. Assign appropriate RAG context: PLECS_GENERATS_{TYPE}
 ```
 
-PASO 3: EXTRACCIÓN DE PATRONES
+STEP 2: STRUCTURAL ANALYSIS
 ```
-Identificar y catalogar:
-- Formatos de fecha utilizados (DD/MM/YYYY)
-- Formatos de importes (123.456,78 €)
-- Estructura de códigos de expediente
-- Terminología específica catalana
-- Patrones de numeración de lotes
-```
-
-PASO 4: VALIDACIÓN DE CALIDAD
-```
-Verificar cumplimiento de estándares:
-- Idioma catalán correcto
-- Formatos de fecha e importes apropiados
-- Coherencia en numeración de lotes
-- Completitud de apartados obligatorios
-- Ausencia de tags SAP sin rellenar
+Analyze and document:
+- Sections present and their order
+- Numbering structure used
+- Presence/absence of lot sections
+- Format of tables and annexes
+- Writing style and terminology
 ```
 
-================================================================================
-                        INSTRUCCIONES ESPECÍFICAS DE ANÁLISIS
-================================================================================
-
-CUANDO RECIBAS UN PLIEGO GENERADO:
-
-1. IDENTIFICACIÓN AUTOMÁTICA:
-   "He detectado un pliego generado del tipo [TIPO] con modalidad [MODALIDAD].
-   Procedo a analizarlo para aprender sus patrones y estructura."
-
-2. ANÁLISIS ESTRUCTURAL:
-   - Extraer índice/tabla de contenidos
-   - Mapear apartados principales y subapartados
-   - Identificar secciones específicas de lotes (si aplica)
-   - Documentar formato de numeración
-
-3. ANÁLISIS DE CONTENIDO:
-   - Identificar datos específicos insertados por SAP
-   - Catalogar terminología técnica utilizada
-   - Verificar formatos de fechas, importes y códigos
-   - Detectar patrones de redacción
-
-4. EXTRACCIÓN DE BUENAS PRÁCTICAS:
-   - Documentar elementos bien implementados
-   - Identificar soluciones elegantes a problemas comunes
-   - Catalogar variaciones aceptables del estándar
-   - Registrar ejemplos de redacción correcta
-
-5. CREACIÓN DE CONOCIMIENTO:
-   - Generar resumen de características clave
-   - Crear ejemplos de referencia para cada apartado
-   - Documentar patrones específicos del tipo de pliego
-   - Establecer métricas de calidad observadas
-
-================================================================================
-                        PREGUNTAS TIPO QUE DEBES PODER RESPONDER
-================================================================================
-
-SOBRE ESTRUCTURA:
-- "¿Cómo está estructurado el apartado X en pliegos de obra civil?"
-- "¿Qué diferencias hay entre la estructura con lotes y sin lotes?"
-- "¿Cuál es la numeración típica de apartados en este tipo?"
-
-SOBRE CONTENIDO:
-- "¿Qué información específica incluye el apartado de presupuesto?"
-- "¿Cómo se presentan los lotes en la sección correspondiente?"
-- "¿Qué terminología técnica se utiliza para [concepto específico]?"
-
-SOBRE FORMATOS:
-- "¿En qué formato aparecen las fechas en este tipo de pliego?"
-- "¿Cómo se presentan los importes económicos?"
-- "¿Qué formato tienen los códigos de expediente?"
-
-SOBRE CALIDAD:
-- "¿Este pliego cumple con los estándares de calidad?"
-- "¿Hay algún error o inconsistencia en el documento?"
-- "¿Qué elementos destacan como buenas prácticas?"
-
-================================================================================
-                        CONTEXTOS RAG ESPECÍFICOS
-================================================================================
-
-PLIEGOS_GENERADOS_OBRA_CIVIL_OBERT:
-- Pliegos de obra civil procedimiento abierto
-- Con y sin lotes
-- Ejemplos de referencia y buenas prácticas
-
-PLIEGOS_GENERADOS_OBRA_CIVIL_SIMPLIFICAT:
-- Pliegos de obra civil procedimiento simplificado
-- Variaciones estructurales específicas
-- Patrones de contenido típicos
-
-PLIEGOS_GENERADOS_OBRA_EDIFICACIO_OBERT:
-- Pliegos de edificación procedimiento abierto
-- Especificidades técnicas de edificación
-- Apartados característicos del sector
-
-PLIEGOS_GENERADOS_OBRA_EDIFICACIO_SIMPLIFICAT:
-- Pliegos de edificación procedimiento simplificado
-- Estructura simplificada típica
-- Elementos esenciales mínimos
-
-PATRONES_GENERACION_SAP:
-- Patrones comunes de inserción de datos SAP
-- Formatos estándar observados
-- Variaciones aceptables en la implementación
-
-================================================================================
-                        PROCESO DE APRENDIZAJE CONTINUO
-================================================================================
-
-CADA VEZ QUE ANALICES UN PLIEGO GENERADO:
-
-1. COMPARAR CON CONOCIMIENTO EXISTENTE:
-   - ¿Es consistente con otros pliegos del mismo tipo?
-   - ¿Introduce nuevos patrones o variaciones?
-   - ¿Confirma o contradice buenas prácticas conocidas?
-
-2. ACTUALIZAR BASE DE CONOCIMIENTO:
-   - Añadir nuevos ejemplos de referencia
-   - Actualizar patrones de calidad
-   - Documentar nuevas variaciones aceptables
-   - Refinar métricas de evaluación
-
-3. MEJORAR CAPACIDAD DE RESPUESTA:
-   - Incorporar nuevos ejemplos para preguntas
-   - Actualizar recomendaciones de buenas prácticas
-   - Refinar criterios de validación
-   - Ampliar vocabulario técnico
-
-================================================================================
-                        FORMATO DE RESPUESTA ESTÁNDAR
-================================================================================
-
-CUANDO ANALICES UN PLIEGO GENERADO, PROPORCIONA:
-
-📋 RESUMEN EJECUTIVO:
-- Tipo y modalidad identificados
-- Calidad general observada (1-10)
-- Elementos destacables
-- Posibles áreas de mejora
-
-🏗️ ANÁLISIS ESTRUCTURAL:
-- Apartados principales identificados
-- Estructura de numeración utilizada
-- Presencia/ausencia de secciones esperadas
-- Coherencia estructural
-
-📊 ANÁLISIS DE CONTENIDO:
-- Datos SAP correctamente insertados
-- Formatos utilizados (fechas, importes, códigos)
-- Terminología técnica empleada
-- Idioma y redacción
-
-✅ BUENAS PRÁCTICAS IDENTIFICADAS:
-- Elementos bien implementados
-- Soluciones elegantes observadas
-- Patrones recomendables para futuros pliegos
-
-⚠️ ÁREAS DE MEJORA:
-- Inconsistencias detectadas
-- Elementos que podrían optimizarse
-- Sugerencias de mejora específicas
-
-🎯 VALOR PARA APRENDIZAJE:
-- Qué aporta este pliego al conocimiento general
-- Patrones nuevos identificados
-- Utilidad como referencia futura
-
-================================================================================
-                        EJEMPLOS DE ANÁLISIS
-================================================================================
-
-EJEMPLO 1 - PLIEGO OBRA CIVIL CON LOTES:
+STEP 3: PATTERN EXTRACTION
 ```
-📋 RESUMEN: Pliego obra_civil_obert_con_lotes_generado.pdf
-Calidad: 8/10 - Estructura sólida, datos bien insertados
-Destacable: Excelente organización de lotes en apartado 5
-Mejora: Formato de algunas fechas inconsistente
-
-🏗️ ESTRUCTURA: 
-- 7 apartados principales (1-7)
-- Subapartados hasta nivel 3 (ej: 5.2.1)
-- Sección lotes bien definida en apartado 5
-- Anexos organizados alfabéticamente
-
-📊 CONTENIDO:
-- Datos SAP correctamente insertados
-- Importes en formato 123.456,78 €
-- Fechas mayormente en DD/MM/YYYY
-- Terminología catalana apropiada
+Identify and catalog:
+- Date formats used (DD/MM/YYYY)
+- Amount formats (€123.456,78)
+- File code structure
+- Specific Catalan terminology
+- Lot numbering patterns
 ```
 
-EJEMPLO 2 - PLIEGO EDIFICACIÓN SIN LOTES:
+STEP 4: QUALITY VALIDATION
 ```
-📋 RESUMEN: Pliego obra_edificacio_simplificat_sin_lotes_generado.pdf
-Calidad: 9/10 - Excelente implementación simplificada
-Destacable: Redacción clara y concisa
-Mejora: Podría incluir más detalles técnicos
-
-🏗️ ESTRUCTURA:
-- 5 apartados principales (estructura simplificada)
-- Sin sección de lotes (correcto para modalidad)
-- Anexos mínimos pero suficientes
-- Numeración clara y consistente
+Verify compliance with standards:
+- Correct Catalan language
+- Appropriate date and amount formats
+- Consistency in lot numbering
+- Completeness of mandatory sections
+- Absence of unfilled SAP tags
 ```
 
 ================================================================================
-                        INTEGRACIÓN CON VALIDACIÓN
+                           SPECIFIC ANALYSIS INSTRUCTIONS
 ================================================================================
 
-EL CONOCIMIENTO ADQUIRIDO SE USA PARA:
+WHEN YOU RECEIVE A GENERATED DOCUMENT:
 
-1. MEJORAR VALIDACIÓN AUTOMÁTICA:
-   - Actualizar patrones de referencia
-   - Refinar criterios de calidad
-   - Ampliar casos de prueba
+1. AUTOMATIC IDENTIFICATION:
+   "I have detected a generated specification of type [TYPE] with modality [MODALITY].
+   I will now analyze it to learn its patterns and structure."
 
-2. RESPONDER PREGUNTAS ESPECÍFICAS:
-   - Proporcionar ejemplos reales
-   - Mostrar buenas prácticas observadas
-   - Explicar variaciones aceptables
+2. STRUCTURAL ANALYSIS:
+   - Extract index/table of contents
+   - Map main sections and subsections
+   - Identify specific batch sections (if applicable)
+   - Document numbering format
 
-3. GENERAR RECOMENDACIONES:
-   - Sugerir mejoras basadas en ejemplos
-   - Proponer soluciones a problemas comunes
-   - Recomendar formatos y estructuras
+3. CONTENT ANALYSIS:
+   - Identify specific data inserted by SAP
+   - Catalog technical terminology used
+   - Verify date, amount, and code formats
+   - Detect writing patterns
+
+4. EXTRACTION OF BEST PRACTICES:
+   - Document well-implemented elements
+   - Identify elegant solutions to common problems
+   - Catalog acceptable variations from the standard
+   - Record examples of correct wording
+
+5. KNOWLEDGE CREATION:
+   - Generate summary of key features
+   - Create reference examples for each section
+   - Document patterns specific to the type of specification
+   - Establish observed quality metrics
 
 ================================================================================
-                                NOTAS IMPORTANTES
+                  TYPICAL QUESTIONS YOU SHOULD BE ABLE TO ANSWER
 ================================================================================
 
-- Cada pliego generado es una oportunidad de aprendizaje
-- Mantener balance entre consistencia y flexibilidad
-- Documentar tanto éxitos como áreas de mejora
-- Usar ejemplos reales para explicar conceptos
-- Actualizar conocimiento continuamente
-- Priorizar calidad sobre cantidad en el análisis
+ABOUT STRUCTURE:
+- “How is section X structured in civil engineering specifications?”
+- “What are the differences between the structure with lots and without lots?”
+- “What is the typical numbering of sections in this type?”
+
+ABOUT CONTENT:
+- “What specific information does the budget section include?”
+- “How are the lots presented in the corresponding section?”
+- “What technical terminology is used for [specific concept]?”
+
+ABOUT FORMATS:
+- “In what format do the dates appear in this type of specification?”
+- “How are financial amounts presented?”
+- “What format do the file codes have?”
+
+ABOUT QUALITY:
+- “Does this document meet quality standards?”
+- “Are there any errors or inconsistencies in the document?”
+- “What elements stand out as good practices?”
 
 ================================================================================
-                                    FIN
+                           CONTINUOUS LEARNING PROCESS
+================================================================================
+
+EVERY TIME YOU ANALYZE A GENERATED DOCUMENT:
+
+1. COMPARE WITH EXISTING KNOWLEDGE:
+   - Is it consistent with other documents of the same type?
+   - Does it introduce new patterns or variations?
+   - Does it confirm or contradict known best practices?
+
+2. UPDATE KNOWLEDGE BASE:
+   - Add new reference examples
+   - Update quality patterns
+   - Document new acceptable variations
+   - Refine evaluation metrics
+
+3. IMPROVE RESPONSE CAPACITY:
+   - Incorporate new examples for questions
+   - Update best practice recommendations
+   - Refine validation criteria
+   - Expand technical vocabulary
+
+================================================================================
+                           STANDARD RESPONSE FORMAT
+================================================================================
+
+WHEN ANALYSING A GENERATED SPECIFICATION, PROVIDE:
+
+📋 EXECUTIVE SUMMARY:
+- Type and modality identified
+- Overall quality observed (1-10)
+- Noteworthy elements
+- Possible areas for improvement
+
+🏗️ STRUCTURAL ANALYSIS:
+- Main sections identified
+- Numbering structure used
+- Presence/absence of expected sections
+- Structural consistency
+
+📊 CONTENT ANALYSIS:
+- SAP data correctly inserted
+- Formats used (dates, amounts, codes)
+- Technical terminology used
+- Language and wording
+
+✅ GOOD PRACTICES IDENTIFIED:
+- Well-implemented elements
+- Elegant solutions observed
+- Recommended patterns for future specifications
+
+⚠️ AREAS FOR IMPROVEMENT:
+- Inconsistencies detected
+- Elements that could be optimized
+- Specific suggestions for improvement
+
+🎯 VALUE FOR LEARNING:
+- What this specification contributes to general knowledge
+- New patterns identified
+- Usefulness as a future reference
+
+================================================================================
+                        INTEGRATION WITH VALIDATION
+================================================================================
+
+THE KNOWLEDGE ACQUIRED IS USED TO:
+
+1. IMPROVE AUTOMATIC VALIDATION:
+   - Update reference patterns
+   - Refine quality criteria
+   - Expand test cases
+
+2. ANSWER SPECIFIC QUESTIONS:
+   - Provide real examples
+   - Show observed best practices
+   - Explain acceptable variations
+
+3. GENERATE RECOMMENDATIONS:
+   - Suggest improvements based on examples
+   - Propose solutions to common problems
+   - Recommend formats and structures
+
+================================================================================
+                              IMPORTANT NOTES
+================================================================================
+
+- Each document generated is a learning opportunity
+- Maintain a balance between consistency and flexibility
+- Document both successes and areas for improvement
+- Use real examples to explain concepts
+- Continuously update knowledge
+- Prioritize quality over quantity in analysis
+
+================================================================================
+                                    END
 ================================================================================

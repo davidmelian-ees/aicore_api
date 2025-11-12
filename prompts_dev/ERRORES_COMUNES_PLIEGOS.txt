@@ -1,206 +1,201 @@
 ================================================================================
-                        ERRORES COMUNES EN PLIEGOS SAP
-                    Sistema de Validación Pre-Informe
+                     COMMON ERRORS IN SAP SPECIFICATIONS
+                        Pre-Report Validation System
 ================================================================================
 
-OBJETIVO:
-Detectar automáticamente errores frecuentes ANTES de generar el informe completo
-de validación estructural. Estos errores son reportados directamente por el
-generador de pliegos y requieren validación automática prioritaria.
+OBJECTIVE:
+Automatically detect frequent errors BEFORE generating the complete
+structural validation report. These errors are reported directly by the
+specification generator and require priority automatic validation.
 
 ================================================================================
-                            ERRORES IDENTIFICADOS
+                              IDENTIFIED ERRORS
 ================================================================================
 
-1. CANTIDAD DE LOTES:
-   ❌ PROBLEMA: Inconsistencia entre el número de lotes declarados y los realmente incluidos
+1. NUMBER OF LOTS:
+❌ PROBLEM: Inconsistency between the number of lots declared and those actually included
    
-   VALIDACIONES:
-   - Contar menciones de "LOTE" en el documento
-   - Verificar numeración secuencial (Lote 1, Lote 2, etc.)
-   - Detectar lotes duplicados o saltos en numeración
-   - Validar que cada lote tenga presupuesto asignado
+   VALIDATIONS:
+   - Count mentions of lot in the document
+   - Verify sequential numbering (lot 1, lot 2, etc.)
+   - Detect duplicate lots or gaps in numbering
+   - Validate that each lot has an assigned budget
    
-   PATRONES A DETECTAR:
-   - "LOTE \d+" (Lote 1, Lote 2, etc.)
-   - "Lot \d+" (variante catalana)
-   - Tablas con columnas de lotes
-   - Presupuestos por lote
+   PATTERNS TO DETECT:
+   - “LOT \d+” (Lot 1, Lot 2, etc.)
+   - “Lot \d+” (Catalan variant)
+   - Tables with lot columns
+   - Budgets per lot
 
-2. TAGS SAP SIN RELLENAR:
-   ❌ PROBLEMA: Tags de variables SAP que no fueron reemplazados con datos reales
+2. UNFILLED SAP TAGS:
+   ❌ PROBLEM: SAP variable tags that were not replaced with actual data.
    
-   VALIDACIONES:
-   - Buscar patrones {{VARIABLE}}
-   - Detectar [CAMPO_PENDIENTE]
-   - Encontrar <<DATO_FALTANTE>>
-   - Identificar {VALOR_VACIO}
-   - Localizar @VARIABLE_SAP@
+   VALIDATIONS:
+   - Search for {{VARIABLE}} patterns.
+   - Detect [PENDING_FIELD].
+   - Find <<MISSING_DATA>>.
+   - Identify {EMPTY_VALUE}
+   - Locate @SAP_VARIABLE@
    
-   PATRONES CRÍTICOS:
-   - {{.*?}} (cualquier contenido entre llaves dobles)
-   - \[.*?\] (contenido entre corchetes)
-   - <<.*?>> (contenido entre dobles menor/mayor)
-   - @.*?@ (contenido entre arrobas)
-   - {.*?} (contenido entre llaves simples)
+   CRITICAL PATTERNS:
+   - {{.*?}} (any content between double curly brackets)
+   - \[.*?\] (content between square brackets)
+   - <<.*?>> (content between double less-than/greater-than signs)
+   - @.*?@ (content between at signs)
+   - {.*?} (content between single curly brackets)
 
-3. CAMPOS SÍ/NO DUPLICADOS:
-   ❌ PROBLEMA: Marcar tanto SÍ como NO en campos excluyentes
+3. DUPLICATED YES/NO FIELDS:
+   ❌ PROBLEM: Checking both YES and NO in mutually exclusive fields.
    
-   VALIDACIONES:
-   - Detectar "☑ SÍ" y "☑ NO" en la misma sección
-   - Buscar "X SÍ" y "X NO" simultáneos
-   - Identificar "[X] SÍ" y "[X] NO" marcados
-   - Validar checkboxes duplicados en formularios
+   VALIDATIONS:
+   - Detect “☑ YES” and “☑ NO” in the same section.
+   - Search for simultaneous “X YES” and “X NO.”
+   - Identify “[X] YES” and “[X] NO” checked
+   - Validate duplicate checkboxes in forms
    
-   PATRONES A DETECTAR:
-   - (\[X\]|\☑|X)\s*(SÍ|SI).*?(\[X\]|\☑|X)\s*(NO)
-   - Campos con ambas opciones marcadas
-   - Secciones con respuestas contradictorias
+   PATTERNS TO DETECT:
+   - (\[X\]|\☑|X)\s*(YES|IF).*?(\[X\]|\☑|X)\s* (NO)
+   - Fields with both options checked
+   - Sections with contradictory answers
 
-4. FORMATO DE FECHA INCORRECTO:
-   ❌ PROBLEMA: Fechas en formato incorrecto o inconsistente
+4. INCORRECT DATE FORMAT:
+   ❌ PROBLEM: Dates in incorrect or inconsistent format
    
-   FORMATO CORRECTO CATALÁN: DD/MM/AAAA
+   CORRECT CATALAN FORMAT: DD/MM/YYYY
    
-   VALIDACIONES:
-   - Detectar fechas en formato americano (MM/DD/AAAA)
-   - Identificar fechas con guiones (DD-MM-AAAA)
-   - Validar fechas con formato ISO (AAAA-MM-DD)
-   - Verificar fechas en inglés (Month DD, YYYY)
+   VALIDATIONS:
+   - Detect dates in American format (MM/DD/YYYY)
+   - Identify dates with hyphens (DD-MM-YYYY)
+   - Validate dates in ISO format (YYYY-MM-DD)
    
-   PATRONES INCORRECTOS:
-   - \d{4}-\d{2}-\d{2} (formato ISO)
-   - \d{1,2}-\d{1,2}-\d{4} (con guiones)
-   - [A-Za-z]+ \d{1,2}, \d{4} (formato inglés)
-   - Fechas con meses en inglés
+   INCORRECT PATTERNS:
+   - \d{4}-\d{2}-\d{2} (ISO format)
+   - \d{1,2}-\d{1,2}-\d{4} (with hyphens)
+   - [A-Za-z]+ \d{1,2}, \d{4} (English format)
+   - Dates with months in English
 
-5. FORMATO DE IMPORTES INCORRECTO:
-   ❌ PROBLEMA: Importes sin formato euro correcto o con separadores incorrectos
+5. INCORRECT AMOUNT FORMAT:
+   ❌ PROBLEM: Amounts without the correct euro format or with incorrect separators.
    
-   FORMATO CORRECTO: 123.456,78 € (punto miles, coma decimales)
+   CORRECT FORMAT: 123.456,78 € (thousand separator, decimal point)
    
-   VALIDACIONES:
-   - Detectar formato americano: 123,456.78 (coma miles, punto decimales)
-   - Identificar € al inicio en lugar del final
-   - Validar separadores incorrectos
-   - Verificar espacios entre número y símbolo
+   VALIDATIONS:
+   - Detect American format: 123.456,78 (period for thousands, comma for decimals)
+   - Identify € at the end instead of the beginning
+   - Validate incorrect separators
+   - Check spaces between number and symbol
    
-   PATRONES INCORRECTOS:
-   - €\s*\d+ (euro al inicio)
-   - \d+,\d{3}\.\d{2} (formato americano)
-   - \d+€ (sin espacio antes del euro)
-   - EUR en lugar de €
+   INCORRECT PATTERNS:
+   - €\s*\d+ (euro at the end)
+   - \d+€ (no space after the euro)
 
-6. IDIOMA INCORRECTO (NO CATALÁN):
-   ❌ PROBLEMA: Texto en castellano o otros idiomas en lugar de catalán
+6. INCORRECT LANGUAGE (NOT CATALAN):
+   ❌ PROBLEM: Text in Spanish or other languages instead of Catalan
    
-   VALIDACIONES:
-   - Detectar palabras en castellano comunes
-   - Identificar términos técnicos no traducidos
-   - Validar nombres de meses en catalán
-   - Verificar terminología legal catalana
+   VALIDATIONS:
+   - Detect common Spanish words
+   - Identify untranslated technical terms
+   - Validate names of months and weekdays in Catalan
    
-   PALABRAS CASTELLANAS COMUNES A DETECTAR:
-   - "presupuesto" → debe ser "pressupost"
-   - "contrato" → debe ser "contracte"
-   - "licitación" → debe ser "licitació"
-   - "adjudicación" → debe ser "adjudicació"
-   - "enero, febrero..." → debe ser "gener, febrer..."
-   - "obras" → debe ser "obres"
-   - "proyecto" → debe ser "projecte"
+   COMMON SPANISH WORDS TO DETECT:
+   - “presupuesto” → should be ‘pressupost’
+   - “contrato” → should be “contracte”
+   - “licitación” → should be ‘licitació’
+   - “adjudicación” → should be “adjudicació”
+   - “enero, febrero...” → should be “gener, febrer...”
+   - “obras” → should be ‘obres’
+   - “proyecto” → should be “projecte”
 
 ================================================================================
-                        NIVELES DE CRITICIDAD
+                              CRITICALITY LEVELS
 ================================================================================
 
-🔴 CRÍTICO (Bloquea generación):
-- Tags SAP sin rellenar
-- Campos SÍ/NO duplicados
-- Cantidad de lotes incorrecta
+🔴 CRITICAL (Blocks generation):
+- SAP tags not filled in
+- Duplicate YES/NO fields
+- Incorrect number of lots
 
-🟡 ADVERTENCIA (Permite continuar):
-- Formato de fecha incorrecto
-- Formato de importes incorrecto
-- Palabras en castellano detectadas
-
-================================================================================
-                        INTEGRACIÓN CON VALIDACIÓN
-================================================================================
-
-FLUJO PROPUESTO:
-1. Recibir documento para validación
-2. EJECUTAR validación de errores comunes (PRE-VALIDACIÓN)
-3. Si hay errores críticos → Devolver lista de errores inmediatamente
-4. Si solo hay advertencias → Continuar con validación estructural completa
-5. Incluir errores comunes en el informe final
-
-CONTEXTO RAG SUGERIDO:
-- Subir este archivo a contexto: "ERRORES_COMUNES_PLIEGOS"
-- Usar para entrenar detección automática
-- Actualizar patrones según nuevos errores reportados
+🟡 WARNING (Allows continuation):
+- Incorrect date format
+- Incorrect amount format
+- Spanish words detected
 
 ================================================================================
-                        PATRONES REGEX ESPECÍFICOS
+                        INTEGRATION WITH VALIDATION
 ================================================================================
 
-TAGS SAP SIN RELLENAR:
+PROPOSED FLOW:
+1. Receive document for validation
+2. RUN validation for common errors (PRE-VALIDATION)
+3. If there are critical errors → Return list of errors immediately
+4. If there are only warnings → Continue with full structural validation
+5. Include common errors in the final report
+
+SUGGESTED RAG CONTEXT:
+- Upload this file to context: “COMMON_ERRORS_DOCUMENTS”
+- Use to train automatic detection
+- Update patterns according to new errors reported
+
+================================================================================
+                           SPECIFIC REGEX PATTERNS
+================================================================================
+
+UNFILLED SAP TAGS:
 - /\{\{[^}]*\}\}/g
 - /\[[^\]]*\]/g
 - /<<[^>]*>>/g
 - /@[^@]*@/g
 
-CAMPOS SÍ/NO DUPLICADOS:
-- /(\[X\]|\☑|X)\s*(SÍ|SI)[\s\S]*?(\[X\]|\☑|X)\s*(NO)/gi
+DUPLICATED YES/NO FIELDS:
+- /(\[X\]|\☑|X)\s*(YES|SI)[\s\S]*?(\[X\]|\☑|X)\s*(NO)/gi
 
-FECHAS INCORRECTAS:
+INCORRECT DATES:
 - /\d{4}-\d{2}-\d{2}/g (ISO)
-- /\d{1,2}-\d{1,2}-\d{4}/g (guiones)
+- /\d{1,2}-\d{1,2}-\d{4}/g (hyphens)
 
-IMPORTES INCORRECTOS:
-- /€\s*\d+/g (euro al inicio)
-- /\d+,\d{3}\.\d{2}/g (formato americano)
+INCORRECT AMOUNTS:
+- /€\s*\d+/g (euro at the beginning)
+- /\d+,\d{3}\.\d{2}/g (American format)
 
-LOTES:
-- /LOTE?\s*(\d+)/gi
+LOTS:
+- /LOT?\s*(\d+)/gi
 - /LOT\s*(\d+)/gi
 
-PALABRAS CASTELLANAS:
-- /\b(presupuesto|contrato|licitación|adjudicación|obras|proyecto)\b/gi
+SPANISH WORDS:
+- /\b(budget|contract|tender|award|works|project)\b/gi
 
 ================================================================================
-                            EJEMPLOS DE ERRORES
+                           EXAMPLES OF ERRORS
 ================================================================================
 
-❌ TAG SIN RELLENAR:
-"El presupuesto total es de {{IMPORTE_TOTAL}} euros"
+❌ UNFILLED TAG:
+“The total budget is {{TOTAL_AMOUNT}} euros.”
 
-❌ SÍ/NO DUPLICADO:
-"☑ SÍ, se incluyen lotes
- ☑ NO, no se incluyen lotes"
+❌ YES/NO DUPLICATE:
+"☑ YES, lots are included.
+☑ NO, lots are not included."
 
-❌ FECHA INCORRECTA:
-"Fecha límite: 2025-10-22" (debe ser "22/10/2025")
+❌ INCORRECT DATE:
+“Deadline: 2025-10-22” (should be “10/22/2025”)
 
-❌ IMPORTE INCORRECTO:
-"Presupuesto: € 123,456.78" (debe ser "123.456,78 €")
+❌ INCORRECT AMOUNT:
+“Budget: €123,456.78” (should be “€123.456,78”)
 
-❌ LOTES INCONSISTENTES:
-"Se divide en 3 lotes" pero solo aparecen "Lote 1" y "Lote 2"
+❌ INCONSISTENT LOTS:
+“Divided into 3 lots” but only “Lot 1” and “Lot 2” appear
 
-❌ IDIOMA INCORRECTO:
-"presupuesto de licitación" (debe ser "pressupost de licitació")
-
-================================================================================
-                                NOTAS
-================================================================================
-
-- Este sistema debe ejecutarse ANTES de la validación estructural completa
-- Los errores críticos deben impedir continuar el proceso
-- Las advertencias se incluyen en el informe pero no bloquean
-- Actualizar patrones según feedback del generador de pliegos
-- Mantener estadísticas de errores más frecuentes
+❌ INCORRECT LANGUAGE:
+“presupuesto de licitación” (should be “pressupost de licitació”)
 
 ================================================================================
-                                    FIN
+                                    NOTES
+================================================================================
+
+- This system must be run BEFORE complete structural validation.
+- Warnings are included in the report but do not block.
+- Update patterns based on feedback from the specification generator.
+- Keep statistics on the most frequent errors.
+
+================================================================================
+                                    END
 ================================================================================
