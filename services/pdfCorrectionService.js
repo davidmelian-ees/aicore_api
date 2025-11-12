@@ -26,9 +26,15 @@ function cleanTextEncoding(text) {
     .replace(/\?{1,2}\s*\)/g, ' EUR') // ? o ?? seguido de ) a EUR
     // Otros caracteres mal codificados
     .replace(/â€™/g, "'")           // Apóstrofe
+    .replace(/â€˜/g, "'")           // Apóstrofe apertura
     .replace(/â€œ/g, '"')           // Comilla doble apertura
     .replace(/â€\u009d/g, '"')      // Comilla doble cierre
     .replace(/â€"/g, '-')           // Guión
+    .replace(/â€"/g, '—')           // Guión largo
+    // Apóstrofes catalanes (IMPORTANTE: antes de limpiar ?)
+    // Usar regex global para capturar TODOS los casos (mayúsculas, minúsculas, mixtas)
+    .replace(/([DdLlSsNnMmTt])\?/g, "$1'")  // Cualquier letra + ? -> letra + '
+    // Caracteres catalanes
     .replace(/Ã /g, 'à')            // à catalana
     .replace(/Ã¨/g, 'è')            // è catalana
     .replace(/Ã©/g, 'é')            // é catalana
@@ -41,7 +47,7 @@ function cleanTextEncoding(text) {
     .replace(/Â·/g, '·')            // punt volat
     .replace(/â€¢/g, '•')           // bullet
     .replace(/\uFFFD/g, '')         // Carácter de reemplazo Unicode
-    .replace(/\?{2,}/g, '\n')       // múltiples ?? a salto de línea
+    .replace(/\?{2,}/g, '\n')       // múltiples ?? a salto de línea (DESPUÉS de apóstrofes)
     .replace(/\[DOCUMENTO\]/g, '')  // eliminar marcador [DOCUMENTO]
     // Normalizar saltos de línea
     .replace(/\r\n/g, '\n')
