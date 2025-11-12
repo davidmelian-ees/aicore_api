@@ -601,18 +601,29 @@ export async function generatePDFWithCorrectionsList(originalPdfPath, customProm
     // 3. Cargar prompts de validación
     const prompts = await loadValidationPrompts();
     
-    // 4. Obtener contexto RAG si se especifica
+    // 4. Obtener contexto RAG y analizar patrones si se especifica
     let ragContext = '';
+    let learnedPatterns = null;
+    
     if (contextId) {
       try {
         console.log(`[PDF-CORRECTION] Cargando contexto RAG: ${contextId}`);
         
-        // Buscar documentos relevantes en el contexto RAG
+        // 4.1 Analizar patrones comunes en el contexto
+        console.log(`[PDF-CORRECTION] Analizando patrones del contexto...`);
+        const patternsAnalysis = await analyzeContextPatterns(contextId);
+        
+        if (patternsAnalysis) {
+          learnedPatterns = patternsAnalysis;
+          console.log(`[PDF-CORRECTION] Patrones aprendidos: ${patternsAnalysis.documentsAnalyzed} documentos analizados`);
+        }
+        
+        // 4.2 Buscar documentos relevantes en el contexto RAG
         const ragResults = await searchContext(
-          `errores pliegos validación tags SAP campos variables ${textForAnalysis.substring(0, 500)}`,
+          `estructura secciones apartados numeración tablas formato ${textForAnalysis.substring(0, 500)}`,
           {
             contextId: contextId,
-            topK: 10
+            topK: 15 // Más documentos para mejor comparación
           }
         );
         
@@ -633,8 +644,8 @@ RELEVANCIA: ${result.similarity}
       }
     }
     
-    // 5. Generar prompt de validación específico para pliegos (incluyendo errores visuales)
-    const correctionPrompt = customPrompt || await buildValidationPrompt(textForAnalysis, ragContext, null, visualErrors);
+    // 5. Generar prompt de validación específico para pliegos (incluyendo patrones aprendidos y errores visuales)
+    const correctionPrompt = customPrompt || await buildValidationPrompt(textForAnalysis, ragContext, learnedPatterns, visualErrors);
 
     console.log(`[PDF-CORRECTION] Generando correcciones con SAP AI Core (${correctionPrompt.length} caracteres)...`);
     
