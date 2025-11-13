@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Errores - Pliegos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .report-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .report-container.active {
+            display: block;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.active {
+            display: block;
+        }
+
+        .status.loading {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .report-header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .report-header h2 {
+            color: #333;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .report-meta {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .error-section {
+            margin-bottom: 30px;
+        }
+
+        .error-section h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .error-type {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .error-type.critical {
+            border-left-color: #ef4444;
+        }
+
+        .error-type.warning {
+            border-left-color: #f59e0b;
+        }
+
+        .error-type-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .error-type-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .error-count {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .error-count.critical {
+            background: #ef4444;
+        }
+
+        .error-count.warning {
+            background: #f59e0b;
+        }
+
+        .error-examples {
+            margin-top: 10px;
+        }
+
+        .error-example {
+            background: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .error-example:last-child {
+            margin-bottom: 0;
+        }
+
+        .pliego-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .location-text {
+            color: #666;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .pliego-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .pliego-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .pliego-card-header {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .pliego-card-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stat-value.critical {
+            color: #ef4444;
+        }
+
+        .stat-value.warning {
+            color: #f59e0b;
+        }
+
+        pre {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Reportes de Errores - Pliegos</h1>
+            <p class="subtitle">Sistema de análisis y tracking de errores detectados en pliegos</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="reportType">Tipo de Reporte</label>
+                <select id="reportType">
+                    <option value="aggregated">Reporte Agregado (últimos N pliegos)</option>
+                    <option value="single">Reporte de Pliego Individual</option>
+                </select>
+            </div>
+
+            <div class="control-group" id="lastNGroup">
+                <label for="lastN">Número de Pliegos</label>
+                <input type="number" id="lastN" value="5" min="1" max="50">
+            </div>
+
+            <div class="control-group" id="pliegoIdGroup" style="display: none;">
+                <label for="pliegoId">ID del Pliego</label>
+                <input type="text" id="pliegoId" placeholder="Ej: PLIEGO_001">
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="generateReport()">📊 Generar Reporte</button>
+                <button class="btn-secondary" onclick="downloadReport()">💾 Descargar Texto</button>
+                <button class="btn-danger" onclick="clearDatabase()">🗑️ Limpiar Base de Datos</button>
+            </div>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div id="reportContainer" class="report-container"></div>
+    </div>
+
+    <script>
+        const reportTypeSelect = document.getElementById('reportType');
+        const lastNGroup = document.getElementById('lastNGroup');
+        const pliegoIdGroup = document.getElementById('pliegoIdGroup');
+        const statusDiv = document.getElementById('status');
+        const reportContainer = document.getElementById('reportContainer');
+
+        let currentReport = null;
+
+        // Cambiar entre tipos de reporte
+        reportTypeSelect.addEventListener('change', () => {
+            if (reportTypeSelect.value === 'aggregated') {
+                lastNGroup.style.display = 'block';
+                pliegoIdGroup.style.display = 'none';
+            } else {
+                lastNGroup.style.display = 'none';
+                pliegoIdGroup.style.display = 'block';
+            }
+        });
+
+        function showStatus(type, message) {
+            statusDiv.className = `status active ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        function hideStatus() {
+            statusDiv.className = 'status';
+        }
+
+        async function generateReport() {
+            try {
+                const reportType = reportTypeSelect.value;
+
+                if (reportType === 'aggregated') {
+                    await generateAggregatedReport();
+                } else {
+                    await generateSingleReport();
+                }
+            } catch (error) {
+                showStatus('error', `❌ Error: ${error.message}`);
+            }
+        }
+
+        async function generateAggregatedReport() {
+            const lastN = parseInt(document.getElementById('lastN').value) || 5;
+
+            showStatus('loading', `🔄 Generando reporte de últimos ${lastN} pliegos...`);
+
+            const response = await fetch(`/api/pdf-correction/report/aggregated?lastN=${lastN}`);
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || 'Error generando reporte');
+            }
+
+            currentReport = data;
+            displayAggregatedReport(data);
+            showStatus('success', `✅ Reporte generado: ${data.totalPliegos} pliegos analizados`);
+        }
+
+        async function generateSingleReport() {
+            const pliegoId = document.getElementById('pliegoId').value.trim();
+
+            if (!pliegoId) {
+                showStatus('error', '❌ Por favor ingresa un ID de pliego');
+                return;
+            }
+
+            showStatus('loading', `🔄 Obteniendo errores del pliego ${pliegoId}...`);
+
+            const response = await fetch(`/api/pdf-correction/errors/${pliegoId}`);
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || 'Error obteniendo errores');
+            }
+
+            currentReport = data;
+            displaySingleReport(data);
+            showStatus('success', `✅ Errores obtenidos: ${data.summary.totalCriticalErrors} críticos, ${data.summary.totalWarnings} advertencias`);
+        }
+
+        function displayAggregatedReport(data) {
+            let html = `
+                <div class="report-header">
+                    <h2>📊 Reporte Agregado</h2>
+                    <div class="report-meta">
+                        ${data.period} | Total: ${data.totalPliegos} pliegos | Generado: ${new Date(data.generatedAt).toLocaleString('es-ES')}
+                    </div>
+                </div>
+            `;
+
+            // Errores críticos
+            html += `<div class="error-section">`;
+            html += `<h3>🔴 Errores Críticos</h3>`;
+
+            const errorTypes = Object.entries(data.errorsByType);
+            if (errorTypes.length === 0) {
+                html += `<p style="color: #666;">✅ No se detectaron errores críticos</p>`;
+            } else {
+                errorTypes.sort((a, b) => b[1].count - a[1].count).forEach(([type, typeData]) => {
+                    html += `
+                        <div class="error-type critical">
+                            <div class="error-type-header">
+                                <div class="error-type-name">${type.replace(/_/g, ' ')}</div>
+                                <div class="error-count critical">${typeData.count} ocurrencia(s)</div>
+                            </div>
+                            <div class="error-examples">
+                                ${typeData.examples.map(ex => `
+                                    <div class="error-example">
+                                        <span class="pliego-badge">${ex.pliegoId}</span>
+                                        ${ex.description}
+                                        ${ex.location ? `<div class="location-text">📍 ${ex.location}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += `</div>`;
+
+            // Advertencias
+            html += `<div class="error-section">`;
+            html += `<h3>🟡 Advertencias</h3>`;
+
+            const warningTypes = Object.entries(data.warningsByType);
+            if (warningTypes.length === 0) {
+                html += `<p style="color: #666;">✅ No se detectaron advertencias</p>`;
+            } else {
+                warningTypes.sort((a, b) => b[1].count - a[1].count).forEach(([type, typeData]) => {
+                    html += `
+                        <div class="error-type warning">
+                            <div class="error-type-header">
+                                <div class="error-type-name">${type.replace(/_/g, ' ')}</div>
+                                <div class="error-count warning">${typeData.count} ocurrencia(s)</div>
+                            </div>
+                            <div class="error-examples">
+                                ${typeData.examples.map(ex => `
+                                    <div class="error-example">
+                                        <span class="pliego-badge">${ex.pliegoId}</span>
+                                        ${ex.description}
+                                        ${ex.location ? `<div class="location-text">📍 ${ex.location}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += `</div>`;
+
+            // Resumen por pliego
+            html += `<div class="error-section">`;
+            html += `<h3>📋 Detalle por Pliego</h3>`;
+            html += `<div class="pliego-summary">`;
+            data.details.forEach(detail => {
+                html += `
+                    <div class="pliego-card">
+                        <div class="pliego-card-header">${detail.pliegoId}</div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 8px;">${detail.fileName}</div>
+                        <div class="pliego-card-stats">
+                            <div class="stat">
+                                <span class="stat-label">Críticos:</span>
+                                <span class="stat-value critical">${detail.criticalErrors}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Advertencias:</span>
+                                <span class="stat-value warning">${detail.warnings}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            html += `</div>`;
+
+            reportContainer.innerHTML = html;
+            reportContainer.classList.add('active');
+        }
+
+        function displaySingleReport(data) {
+            let html = `
+                <div class="report-header">
+                    <h2>📄 Reporte Individual</h2>
+                    <div class="report-meta">
+                        Pliego: ${data.pliegoId} | Archivo: ${data.metadata.fileName} | Analizado: ${new Date(data.metadata.analyzedAt).toLocaleString('es-ES')}
+                    </div>
+                </div>
+            `;
+
+            // Errores críticos
+            html += `<div class="error-section">`;
+            html += `<h3>🔴 Errores Críticos (${data.criticalErrors.length})</h3>`;
+
+            if (data.criticalErrors.length === 0) {
+                html += `<p style="color: #666;">✅ No se detectaron errores críticos</p>`;
+            } else {
+                data.criticalErrors.forEach(error => {
+                    html += `
+                        <div class="error-type critical">
+                            <div class="error-type-header">
+                                <div class="error-type-name">${error.type.replace(/_/g, ' ')}</div>
+                            </div>
+                            <div class="error-example">
+                                ${error.description}
+                                ${error.location ? `<div class="location-text">📍 Ubicación: ${error.location}</div>` : ''}
+                                ${error.context ? `<div class="location-text">📄 Contexto: ${error.context}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += `</div>`;
+
+            // Advertencias
+            html += `<div class="error-section">`;
+            html += `<h3>🟡 Advertencias (${data.warnings.length})</h3>`;
+
+            if (data.warnings.length === 0) {
+                html += `<p style="color: #666;">✅ No se detectaron advertencias</p>`;
+            } else {
+                data.warnings.forEach(warning => {
+                    html += `
+                        <div class="error-type warning">
+                            <div class="error-type-header">
+                                <div class="error-type-name">${warning.type.replace(/_/g, ' ')}</div>
+                            </div>
+                            <div class="error-example">
+                                ${warning.description}
+                                ${warning.location ? `<div class="location-text">📍 Ubicación: ${warning.location}</div>` : ''}
+                                ${warning.context ? `<div class="location-text">📄 Contexto: ${warning.context}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += `</div>`;
+
+            reportContainer.innerHTML = html;
+            reportContainer.classList.add('active');
+        }
+
+        async function downloadReport() {
+            if (reportTypeSelect.value !== 'aggregated') {
+                showStatus('error', '❌ La descarga solo está disponible para reportes agregados');
+                return;
+            }
+
+            try {
+                const lastN = parseInt(document.getElementById('lastN').value) || 5;
+                showStatus('loading', '🔄 Descargando reporte...');
+
+                const response = await fetch(`/api/pdf-correction/report/aggregated/text?lastN=${lastN}`);
+                const text = await response.text();
+
+                const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `reporte-errores-${new Date().toISOString().split('T')[0]}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showStatus('success', '✅ Reporte descargado correctamente');
+            } catch (error) {
+                showStatus('error', `❌ Error descargando: ${error.message}`);
+            }
+        }
+
+        async function clearDatabase() {
+            if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar TODOS los errores almacenados? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                showStatus('loading', '🔄 Limpiando base de datos...');
+
+                const response = await fetch('/api/pdf-correction/errors', {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Error limpiando base de datos');
+                }
+
+                reportContainer.classList.remove('active');
+                reportContainer.innerHTML = '';
+                showStatus('success', '✅ Base de datos limpiada correctamente');
+            } catch (error) {
+                showStatus('error', `❌ Error: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>
