@@ -13,6 +13,7 @@ import {
 import pdfVisualAnalyzer from '../services/pdfVisualAnalyzer.js';
 import { highlightErrorsInPDF, parseErrorsFromAIResponse } from '../services/pdfHighlightService.js';
 import { storeErrorsForPliego, getErrorsForPliego, generateAggregatedReport, formatAggregatedReport, deleteErrorsForPliego, clearAllErrors } from '../services/pliegoErrorsService.js';
+import loggerService from '../services/loggerService.js';
 
 const router = express.Router();
 
@@ -67,6 +68,7 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
       // Caso 1: Archivo subido via multipart/form-data
       pdfPath = req.file.path;
       fileName = req.file.originalname;
+      loggerService.info('PDF-CORRECTION-API', 'Archivo PDF recibido', { fileName, size: req.file.size });
       console.log(`[PDF-CORRECTION] Procesando archivo: ${fileName}`);
     } else if (req.body.pdfBase64) {
       // Caso 2: PDF en base64
@@ -85,8 +87,10 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
       
       pdfPath = tempFilePath;
       fileName = req.body.fileName || `documento-${uniqueSuffix}.pdf`;
+      loggerService.info('PDF-CORRECTION-API', 'PDF base64 recibido y guardado', { fileName, size: pdfBuffer.length });
       console.log(`[PDF-CORRECTION] PDF base64 guardado temporalmente: ${tempFilePath}`);
     } else {
+      loggerService.warn('PDF-CORRECTION-API', 'Request sin PDF');
       return res.status(400).json({
         success: false,
         error: 'Debes proporcionar un archivo PDF (campo "pdf") o un string base64 (campo "pdfBase64")'
@@ -96,6 +100,14 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
     const pliegoId = req.body.pliegoId || `PLIEGO_${Date.now()}`;
     const contextId = req.body.contextId || null;
     const customPrompt = req.body.customPrompt || req.body.prompt || null; // Soportar ambos nombres
+    const username = req.username || req.body.username || 'anonymous';
+
+    loggerService.info('PDF-VALIDATION', `Iniciando validación de pliego: ${pliegoId}`, {
+      username,
+      fileName,
+      contextId,
+      pliegoId
+    });
 
     // 1. Primero ejecutar análisis visual
     console.log(`[PDF-CORRECTION] Ejecutando análisis visual del PDF...`);
@@ -120,10 +132,19 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
       aiResult.correctionsList,
       {
         fileName: fileName,
-        contextId: contextId
+        contextId: contextId,
+        username: username
       }
     );
     console.log(`[PDF-CORRECTION] ✅ Almacenados: ${storeResult.criticalErrors} errores críticos, ${storeResult.warnings} advertencias`);
+
+    loggerService.success('PDF-VALIDATION', `Validación completada: ${pliegoId}`, {
+      username,
+      pliegoId,
+      criticalErrors: storeResult.criticalErrors,
+      warnings: storeResult.warnings,
+      fileName
+    });
 
     // 5. El resultado ya incluye los errores visuales procesados por la IA
     const combinedResult = {

@@ -5,6 +5,7 @@ import { processDocument } from './documentProcessor.js';
 import { getAiCoreClient } from '../auth/aiCoreClient.js';
 import { searchContext } from './ragService.js';
 import { recordValidationMetrics, classifyPliego } from './pliegoAnalyticsService.js';
+import loggerService from './loggerService.js';
 import path from 'path';
 
 /**
@@ -588,6 +589,10 @@ Para análisis completo, verificar conexión con SAP AI Core.`;
 export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null, visualErrors = null) {
   const startTime = Date.now();
   try {
+    loggerService.info('PDF-CORRECTION', 'Iniciando generación de PDF con lista de correcciones', { 
+      path: originalPdfPath, 
+      contextId 
+    });
     console.log(`[PDF-CORRECTION] Generando PDF con lista de correcciones...`);
     
     // 1. Extraer texto del PDF original
@@ -682,9 +687,16 @@ RELEVANCIA: ${result.similarity}
       // Limpiar caracteres mal codificados
       correctionsList = cleanTextEncoding(correctionsList);
       
+      loggerService.success('PDF-CORRECTION', 'Correcciones generadas por IA', { 
+        length: correctionsList.length 
+      });
       console.log(`[PDF-CORRECTION] Correcciones generadas: ${correctionsList.length} caracteres`);
       
     } catch (aiError) {
+      loggerService.error('PDF-CORRECTION', 'Error en SAP AI Core', { 
+        error: aiError.message,
+        status: aiError.status || aiError.code
+      });
       console.error(`[PDF-CORRECTION] Error detallado en SAP AI Core:`, {
         message: aiError.message,
         status: aiError.status || aiError.code,
@@ -733,7 +745,7 @@ RELEVANCIA: ${result.similarity}
       console.warn(`[PDF-CORRECTION] Error registrando métricas: ${error.message}`);
     }
     
-    return {
+    const result = {
       success: true,
       pdfBuffer,
       correctionsList,
@@ -752,7 +764,18 @@ RELEVANCIA: ${result.similarity}
       }
     };
     
+    loggerService.success('PDF-CORRECTION', 'PDF generado exitosamente', {
+      pages: newPdf.getPageCount(),
+      size: pdfBuffer.length,
+      processingTime: Date.now() - startTime
+    });
+    
+    return result;
+    
   } catch (error) {
+    loggerService.error('PDF-CORRECTION', 'Error generando PDF con correcciones', { 
+      error: error.message 
+    });
     console.error('[PDF-CORRECTION] Error generando PDF con correcciones:', error);
     throw new Error(`Error generando PDF con correcciones: ${error.message}`);
   }
