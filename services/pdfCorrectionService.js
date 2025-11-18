@@ -651,7 +651,13 @@ RELEVANCIA: ${result.similarity}
     }
     
     // 5. Generar prompt de validación específico para pliegos (incluyendo patrones aprendidos y errores visuales)
-    const correctionPrompt = customPrompt || await buildValidationPrompt(textForAnalysis, ragContext, learnedPatterns, visualErrors);
+    // NOTA: Siempre usamos el prompt estructurado de validación, el customPrompt se ignora
+    // porque el sistema necesita el formato específico de validación de pliegos
+    const correctionPrompt = await buildValidationPrompt(textForAnalysis, ragContext, learnedPatterns, visualErrors);
+
+    if (customPrompt) {
+      console.log(`[PDF-CORRECTION] ⚠️ customPrompt ignorado - usando prompt de validación estructurado`);
+    }
 
     console.log(`[PDF-CORRECTION] Generando correcciones con SAP AI Core (${correctionPrompt.length} caracteres)...`);
     
