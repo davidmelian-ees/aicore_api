@@ -18,3 +18,7 @@ venv_upload/
 # Archivos temporales
 *.tmp
 *.temp
+
+# Logs
+*.log
+logs/

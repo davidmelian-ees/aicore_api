@@ -6,6 +6,8 @@ import ragRoutes from "./routes/rag.js";
 import pdfCorrectionRoutes from "./routes/pdfCorrection.js";
 import analyticsRoutes from "./routes/analytics.js";
 import authRoutes from "./routes/auth.js";
+import pliegoErrorsRoutes from "./routes/pliegoErrors.js";
+import logsRoutes from "./routes/logs.js";
 import { initializeSampleData } from "./scripts/init-sample-data.js";
 import { persistenceManager } from "./services/persistenceManager.js";
 
@@ -156,8 +158,11 @@ if (isProduction) {
 // Configurar rutas de la API
 app.use('/api/chat', chatRoutes);
 app.use('/api/rag', ragRoutes);
+// IMPORTANTE: Registrar rutas específicas ANTES de las rutas con parámetros dinámicos
+app.use('/api/pdf-correction/errors', pliegoErrorsRoutes);
 app.use('/api/pdf-correction', pdfCorrectionRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/logs', logsRoutes);
 
 // Rutas de autenticación SIEMPRE disponibles (incluso en desarrollo)
 app.use('/oauth', authRoutes);
@@ -191,11 +196,26 @@ app.get('/', (req, res) => {
       ragPliego: '/api/rag/process-pliego',
       pdfCorrection: '/api/pdf-correction',
       pdfCorrectionHealth: '/api/pdf-correction/health',
+      pliegoErrors: {
+        byDate: '/api/pdf-correction/errors/by-date?dateIni=YYYY-MM-DD&dateFin=YYYY-MM-DD',
+        bySpecificDate: '/api/pdf-correction/errors/by-date/:date',
+        groupedByDate: '/api/pdf-correction/errors/grouped-by-date?dateIni=YYYY-MM-DD&dateFin=YYYY-MM-DD',
+        byType: '/api/pdf-correction/errors/by-type/:errorType',
+        statistics: '/api/pdf-correction/errors/statistics',
+        raw: '/api/pdf-correction/errors/raw',
+        download: '/api/pdf-correction/errors/download'
+      },
       analytics: '/api/analytics',
       analyticsValidation: '/api/analytics/validation',
       analyticsClassify: '/api/analytics/classify',
       analyticsCompare: '/api/analytics/compare-template',
       analyticsDashboard: '/api/analytics/dashboard-summary',
+      logs: {
+        view: '/api/logs',
+        download: '/api/logs/download',
+        stats: '/api/logs/stats',
+        clear: 'DELETE /api/logs'
+      },
       authToken: '/oauth/token',
       authLogout: '/oauth/logout',
       documentation: '/docs/RAG_SYSTEM_DOCUMENTATION.html'

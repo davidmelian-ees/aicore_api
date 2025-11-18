@@ -43,31 +43,63 @@ const upload = multer({
     }
   },
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB máximo
+    fileSize: 2048 * 1024 * 1024, // 50MB máximo para archivos
+    fieldSize: 2048 * 1024 * 1024  // 50MB máximo para campos de texto (base64)
   }
 });
 
 /**
  * POST /api/pdf-correction/generate-list
  * Genera un PDF con el contenido original + lista de correcciones
+ * Soporta dos formatos:
+ * 1. Multipart/form-data con campo 'pdf' (archivo)
+ * 2. JSON con campo 'pdfBase64' (string base64)
  */
 router.post('/generate-list', upload.single('pdf'), async (req, res) => {
+  let tempFilePath = null;
+  
   try {
-    if (!req.file) {
+    // Determinar origen del PDF: archivo o base64
+    let pdfPath;
+    let fileName;
+
+    if (req.file) {
+      // Caso 1: Archivo subido via multipart/form-data
+      pdfPath = req.file.path;
+      fileName = req.file.originalname;
+      console.log(`[PDF-CORRECTION] Procesando archivo: ${fileName}`);
+    } else if (req.body.pdfBase64) {
+      // Caso 2: PDF en base64
+      console.log(`[PDF-CORRECTION] Procesando PDF desde base64`);
+      
+      // Crear archivo temporal desde base64
+      const uploadDir = 'uploads/pdf-corrections';
+      await fs.mkdir(uploadDir, { recursive: true });
+      
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      tempFilePath = path.join(uploadDir, `pdf-base64-${uniqueSuffix}.pdf`);
+      
+      // Decodificar base64 y escribir archivo
+      const pdfBuffer = Buffer.from(req.body.pdfBase64, 'base64');
+      await fs.writeFile(tempFilePath, pdfBuffer);
+      
+      pdfPath = tempFilePath;
+      fileName = req.body.fileName || `documento-${uniqueSuffix}.pdf`;
+      console.log(`[PDF-CORRECTION] PDF base64 guardado temporalmente: ${tempFilePath}`);
+    } else {
       return res.status(400).json({
         success: false,
-        error: 'No se proporcionó archivo PDF'
+        error: 'Debes proporcionar un archivo PDF (campo "pdf") o un string base64 (campo "pdfBase64")'
       });
     }
 
-    console.log(`[PDF-CORRECTION] Procesando: ${req.file.originalname}`);
-    
     const pliegoId = req.body.pliegoId || `PLIEGO_${Date.now()}`;
     const contextId = req.body.contextId || null;
+    const customPrompt = req.body.customPrompt || req.body.prompt || null; // Soportar ambos nombres
 
     // 1. Primero ejecutar análisis visual
     console.log(`[PDF-CORRECTION] Ejecutando análisis visual del PDF...`);
-    const visualAnalysis = await pdfVisualAnalyzer.analyzeAll(req.file.path);
+    const visualAnalysis = await pdfVisualAnalyzer.analyzeAll(pdfPath);
     
     // 2. Generar reporte de errores visuales para pasarlo a la IA
     const visualReport = pdfVisualAnalyzer.generateVisualErrorsReport(visualAnalysis);
@@ -75,8 +107,8 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
     // 3. Ejecutar análisis de IA incluyendo los errores visuales como contexto
     console.log(`[PDF-CORRECTION] Ejecutando análisis de IA con errores visuales como contexto...`);
     const aiResult = await generatePDFWithCorrectionsList(
-      req.file.path,
-      req.body.customPrompt || null,
+      pdfPath,
+      customPrompt,
       contextId,
       visualReport // Pasar errores visuales a la IA
     );
@@ -87,7 +119,7 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
       pliegoId,
       aiResult.correctionsList,
       {
-        fileName: req.file.originalname,
+        fileName: fileName,
         contextId: contextId
       }
     );
@@ -108,15 +140,19 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
     // Configurar headers para descarga
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="correcciones-${req.file.originalname}"`,
+      'Content-Disposition': `attachment; filename="correcciones-${fileName}"`,
       'Content-Length': combinedResult.pdfBuffer.length
     });
 
     // Limpiar archivo temporal
-    try {
-      await fs.unlink(req.file.path);
-    } catch (cleanupError) {
-      console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError.message);
+    const fileToClean = req.file?.path || tempFilePath;
+    if (fileToClean) {
+      try {
+        await fs.unlink(fileToClean);
+        console.log(`[PDF-CORRECTION] Archivo temporal limpiado: ${fileToClean}`);
+      } catch (cleanupError) {
+        console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError.message);
+      }
     }
 
     res.send(combinedResult.pdfBuffer);
@@ -125,9 +161,10 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
     console.error('[PDF-CORRECTION] Error en generate-list:', error);
     
     // Limpiar archivo temporal en caso de error
-    if (req.file?.path) {
+    const fileToClean = req.file?.path || tempFilePath;
+    if (fileToClean) {
       try {
-        await fs.unlink(req.file.path);
+        await fs.unlink(fileToClean);
       } catch (cleanupError) {
         console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError.message);
       }
