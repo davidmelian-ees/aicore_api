@@ -41,11 +41,32 @@ class LoggerService {
 
   formatLogEntry(level, module, message, data = null) {
     const timestamp = new Date().toISOString();
-    let entry = `[${timestamp}] [${level}] [${module}] ${message}`;
+    
+    // Emojis para cada nivel de log
+    const levelEmojis = {
+      'INFO': 'ℹ️',
+      'SUCCESS': '✅',
+      'ERROR': '❌',
+      'WARN': '⚠️',
+      'DEBUG': '🔍'
+    };
+    
+    const emoji = levelEmojis[level] || '📝';
+    
+    // Formato visual mejorado
+    let entry = `\n${'='.repeat(80)}\n`;
+    entry += `${emoji} **${level}** | ${timestamp}\n`;
+    entry += `📦 **Module:** ${module}\n`;
+    entry += `💬 **Message:** ${message}\n`;
     
     if (data) {
-      entry += `\n${JSON.stringify(data, null, 2)}`;
+      entry += `\n📊 **Details:**\n`;
+      entry += '```json\n';
+      entry += JSON.stringify(data, null, 2);
+      entry += '\n```\n';
     }
+    
+    entry += `${'='.repeat(80)}`;
     
     return entry;
   }

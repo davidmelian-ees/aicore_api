@@ -8,6 +8,7 @@ import analyticsRoutes from "./routes/analytics.js";
 import authRoutes from "./routes/auth.js";
 import pliegoErrorsRoutes from "./routes/pliegoErrors.js";
 import logsRoutes from "./routes/logs.js";
+import { requestLogger, extractUsername } from "./middleware/requestLogger.js";
 import { initializeSampleData } from "./scripts/init-sample-data.js";
 import { persistenceManager } from "./services/persistenceManager.js";
 
@@ -146,6 +147,11 @@ console.log(`🌐 CORS configurado para ${isProduction ? 'producción' : 'desarr
 // Aumentar límites para permitir bases de datos grandes
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
+
+// Middleware de logging automático para todas las requests
+app.use(extractUsername);
+app.use(requestLogger);
+console.log('📝 Request logger activado para todos los endpoints');
 
 // Aplicar validación de tokens SAP a rutas protegidas
 if (isProduction) {
