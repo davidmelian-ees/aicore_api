@@ -1,0 +1,11 @@
+_schema-version: '3.1'
+ID: ai-core-api-prod
+extends: ai-core-api
+
+modules:
+  - name: ai_core_api
+    parameters:
+      memory: 2048M
+    properties:
+      NODE_ENV: production
+      VECTOR_STORE_TYPE: sqlite
