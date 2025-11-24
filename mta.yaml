@@ -1,0 +1,37 @@
+_schema-version: '3.1'
+ID: ai-core-api
+version: 1.0.0
+description: "AI Core API with RAG capabilities"
+
+parameters:
+  enable-parallel-deployments: true
+
+modules:
+  - name: ai_core_api
+    type: nodejs
+    path: .
+    parameters:
+      memory: 2048M
+      disk-quota: 1024M
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: npm
+      ignore:
+        - node_modules/
+        - .git/
+        - .env
+    properties:
+      VECTOR_STORE_TYPE: sqlite
+      NODE_ENV: production
+    requires:
+      - name: aicore-app-auth
+    provides:
+      - name: ai_core_api_api
+        properties:
+          url: ${default-url}
+
+resources:
+  - name: aicore-app-auth
+    type: org.cloudfoundry.existing-service
+    parameters:
+      service-name: aicore-app-auth

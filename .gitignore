@@ -1,7 +1,14 @@
+# MTA Build artifacts
 /mta_archives/
+/.mta_mbt_build_tmp/
+*.mtar
+
+# Node.js
 /node_modules/
 /resources/
 default-env.json
+
+# Contextos y datos
 /FOR_CONTEXT/
 /FOR_CONTEXT_PROCECED/
 
