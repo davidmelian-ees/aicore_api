@@ -1,0 +1,208 @@
+╔════════════════════════════════════════════════════════════╗
+║     RESUMEN - TESTS UNITARIOS PARA CI/CD                  ║
+╚════════════════════════════════════════════════════════════╝
+
+✅ IMPLEMENTACIÓN COMPLETADA
+
+═══════════════════════════════════════════════════════════
+
+📦 ARCHIVOS CREADOS:
+
+Configuración:
+  ✅ jest.config.js              ← Configuración de Jest
+  ✅ package.json                ← Scripts de testing añadidos
+  ✅ tests/setup.js              ← Setup global
+
+Tests Unitarios:
+  ✅ tests/services/ragService.test.js
+  ✅ tests/services/chatHistoryService.test.js
+  ✅ tests/utils/validation.test.js
+  ✅ tests/routes/health.test.js
+
+Documentación:
+  ✅ GUIA_TESTING.md             ← Guía completa
+  ✅ TESTING_QUICKSTART.md       ← Inicio rápido
+  ✅ run-tests.bat               ← Script para ejecutar
+
+Integración CI/CD:
+  ✅ mta.yaml                    ← Actualizado con tests
+  ✅ .gitignore                  ← Excluye coverage/
+
+═══════════════════════════════════════════════════════════
+
+🧪 TESTS IMPLEMENTADOS:
+
+📊 Total: 33 tests
+
+1. RAG Service (8 tests)
+   • Chunking de texto
+   • Validación de extensiones
+   • Validación de tamaño
+   • Generación de metadatos
+
+2. Chat History Service (9 tests)
+   • Estructura de sesiones
+   • Estructura de mensajes
+   • Generación de títulos
+   • Filtros por usuario/contexto
+
+3. Validation Utils (12 tests)
+   • Validación de archivos
+   • Validación de strings
+   • Validación de UUIDs
+   • Validación de contextos
+   • Validación de fechas
+
+4. Health Check (4 tests)
+   • Health check básico
+   • Información del sistema
+   • Estado de servicios
+   • Versión de API
+
+═══════════════════════════════════════════════════════════
+
+🚀 CÓMO EJECUTAR:
+
+Opción 1 - Script Batch (Más fácil):
+  ► .\run-tests.bat
+
+Opción 2 - NPM:
+  ► npm test
+
+Opción 3 - Modo Watch (Desarrollo):
+  ► npm run test:watch
+
+═══════════════════════════════════════════════════════════
+
+🔄 INTEGRACIÓN CON CI/CD:
+
+Pipeline Automático:
+  1. git push
+  2. CI/CD detecta cambios
+  3. npm install
+  4. npm run test:ci ← Tests ejecutados aquí ✅
+  5. mbt build
+  6. cf deploy
+
+Si tests fallan:
+  ❌ Build se detiene
+  ❌ No se despliega
+  📧 Notificación de error
+  📊 Reporte de tests
+
+Si tests pasan:
+  ✅ Build continúa
+  ✅ Deploy a producción
+  📊 Reporte de cobertura
+
+═══════════════════════════════════════════════════════════
+
+📊 COBERTURA DE CÓDIGO:
+
+Umbrales configurados:
+  • Lines:      50% mínimo
+  • Functions:  50% mínimo
+  • Branches:   50% mínimo
+  • Statements: 50% mínimo
+
+Ver reporte:
+  ► npm test
+  ► start coverage\index.html
+
+═══════════════════════════════════════════════════════════
+
+📝 SCRIPTS NPM AÑADIDOS:
+
+{
+  "scripts": {
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --ci --coverage --maxWorkers=2"
+  }
+}
+
+═══════════════════════════════════════════════════════════
+
+🎯 CONFIGURACIÓN EN mta.yaml:
+
+build-parameters:
+  builder: npm
+  commands:
+    - npm install
+    - npm run test:ci  ← Tests integrados
+  ignore:
+    - tests/           ← No se despliegan tests
+    - coverage/        ← No se despliega cobertura
+    - '*.test.js'
+
+═══════════════════════════════════════════════════════════
+
+✅ VENTAJAS:
+
+1. Calidad de Código
+   • Detecta bugs antes de producción
+   • Valida funcionalidad
+   • Previene regresiones
+
+2. CI/CD Robusto
+   • Deploy solo si tests pasan
+   • Feedback inmediato
+   • Historial de tests
+
+3. Documentación Viva
+   • Tests documentan comportamiento
+   • Ejemplos de uso
+   • Especificaciones claras
+
+4. Confianza
+   • Deploy seguro
+   • Cambios validados
+   • Menos errores en producción
+
+═══════════════════════════════════════════════════════════
+
+📚 DOCUMENTACIÓN:
+
+• TESTING_QUICKSTART.md  → Inicio rápido
+• GUIA_TESTING.md        → Guía completa
+• GUIA_CICD_BTP.md       → Integración CI/CD
+
+═══════════════════════════════════════════════════════════
+
+🎓 PRÓXIMOS PASOS:
+
+1. Instalar dependencias:
+   npm install
+
+2. Ejecutar tests localmente:
+   .\run-tests.bat
+
+3. Verificar que pasan:
+   ✅ Todos los tests OK
+   ✅ Cobertura > 50%
+
+4. Commit y push:
+   git add .
+   git commit -m "Add unit tests"
+   git push
+
+5. Verificar en CI/CD:
+   • Ve a BTP CI/CD
+   • Revisa logs del job
+   • Verifica que tests pasan
+
+═══════════════════════════════════════════════════════════
+
+💡 CONSEJOS:
+
+• Ejecuta tests antes de cada commit
+• Mantén cobertura > 50%
+• Añade tests para nuevas features
+• Usa test:watch durante desarrollo
+• Revisa reportes de cobertura
+
+═══════════════════════════════════════════════════════════
+
+✅ ¡TESTS LISTOS PARA CI/CD!
+
+═══════════════════════════════════════════════════════════
