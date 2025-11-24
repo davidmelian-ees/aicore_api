@@ -32,4 +32,59 @@ touch default-env.json #con las credenciales proporcionadas
 ```
 2. Cambiar en el package.json y en el manifest.yml el nombre de la app de autenticación 
 
+---
+
+## 📊 Sistema de Logging
+
+El servicio incluye un sistema de logging que escribe tanto en consola (para Cloud Foundry) como en archivo local.
+
+### **Endpoints de Logs:**
+
+```bash
+# Ver logs en formato JSON
+GET /api/logs
+
+# Descargar logs en formato Markdown
+GET /api/logs/download
+
+# Ver estadísticas de logs
+GET /api/logs/stats
+
+# Limpiar logs
+DELETE /api/logs
+```
+
+### **Características:**
+- ✅ Logs en archivo `logs/app.log`
+- ✅ Rotación automática cuando supera 5MB
+- ✅ Formato Markdown para descarga
+- ✅ Timestamps en cada entrada
+- ✅ Niveles: INFO, ERROR, WARN, DEBUG, SUCCESS
+
+### **Uso en código:**
+
+```javascript
+import logger from './services/loggerService.js';
+
+logger.info('MODULE-NAME', 'Mensaje informativo');
+logger.error('MODULE-NAME', 'Error detectado', { error: error.message });
+logger.warn('MODULE-NAME', 'Advertencia');
+logger.debug('MODULE-NAME', 'Debug info', { data: someData });
+logger.success('MODULE-NAME', 'Operación exitosa');
+```
+
+### **Descargar logs:**
+
+```bash
+# Descargar logs en formato Markdown
+curl https://ai_core_api.cfapps.eu10-005.hana.ondemand.com/api/logs/download -o logs.md
+
+# Ver estadísticas
+curl https://ai_core_api.cfapps.eu10-005.hana.ondemand.com/api/logs/stats
+
+# Limpiar logs
+curl -X DELETE https://ai_core_api.cfapps.eu10-005.hana.ondemand.com/api/logs
+```
+
+---
 

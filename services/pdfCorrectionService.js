@@ -5,6 +5,7 @@ import { processDocument } from './documentProcessor.js';
 import { getAiCoreClient } from '../auth/aiCoreClient.js';
 import { searchContext } from './ragService.js';
 import { recordValidationMetrics, classifyPliego } from './pliegoAnalyticsService.js';
+import loggerService from './loggerService.js';
 import path from 'path';
 
 /**
@@ -12,6 +13,63 @@ import path from 'path';
  * 1. Generar PDF con lista de correcciones
  * 2. Aplicar correcciones directamente por replace
  */
+
+// Función para limpiar y normalizar texto con caracteres especiales
+function cleanTextEncoding(text) {
+  if (!text) return text;
+  
+  return text
+    // Reemplazar caracteres mal codificados comunes del euro
+    .replace(/â‚¬/g, 'EUR')         // Euro mal codificado
+    .replace(/Â€/g, 'EUR')          // Euro mal codificado variante
+    .replace(/€/g, 'EUR')           // Euro normal a EUR
+    .replace(/\?\)/g, ' EUR')       // ?) a EUR (común en PDFs mal codificados)
+    .replace(/\?{1,2}\s*\)/g, ' EUR') // ? o ?? seguido de ) a EUR
+    // Otros caracteres mal codificados
+    .replace(/â€™/g, "'")           // Apóstrofe
+    .replace(/â€˜/g, "'")           // Apóstrofe apertura
+    .replace(/â€œ/g, '"')           // Comilla doble apertura
+    .replace(/â€\u009d/g, '"')      // Comilla doble cierre
+    .replace(/â€"/g, '-')           // Guión
+    .replace(/â€"/g, '—')           // Guión largo
+    // Apóstrofes catalanes (IMPORTANTE: antes de limpiar ?)
+    // Usar regex global para capturar TODOS los casos (mayúsculas, minúsculas, mixtas)
+    .replace(/([DdLlSsNnMmTt])\?/g, "$1'")  // Cualquier letra + ? -> letra + '
+    // Caracteres catalanes
+    .replace(/Ã /g, 'à')            // à catalana
+    .replace(/Ã¨/g, 'è')            // è catalana
+    .replace(/Ã©/g, 'é')            // é catalana
+    .replace(/Ã­/g, 'í')            // í catalana
+    .replace(/Ã²/g, 'ò')            // ò catalana
+    .replace(/Ã³/g, 'ó')            // ó catalana
+    .replace(/Ãº/g, 'ú')            // ú catalana
+    .replace(/Ã§/g, 'ç')            // ç catalana
+    .replace(/Ã±/g, 'ñ')            // ñ
+    .replace(/Â·/g, '·')            // punt volat
+    .replace(/â€¢/g, '•')           // bullet
+    .replace(/\uFFFD/g, '')         // Carácter de reemplazo Unicode
+    .replace(/\?{2,}/g, '\n')       // múltiples ?? a salto de línea (DESPUÉS de apóstrofes)
+    .replace(/\[DOCUMENTO\]/g, '')  // eliminar marcador [DOCUMENTO]
+    // Normalizar saltos de línea
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    // Normalizar formato de ubicación (quitar emojis y añadir indentación)
+    .replace(/📍 Ubicación:/g, '\n    - Ubicación:')
+    .replace(/📄 Contexto:/g, '\n    - Contexto:')
+    // Limpiar líneas vacías múltiples
+    .replace(/\n{3,}/g, '\n\n')
+    // Limpiar espacios al final de cada línea pero PRESERVAR indentación al inicio
+    .split('\n')
+    .map(line => {
+      // Si la línea tiene "- Ubicación:" o "- Contexto:", preservar los 4 espacios
+      if (line.includes('- Ubicación:') || line.includes('- Contexto:')) {
+        return line.trimEnd();
+      }
+      // Para otras líneas, limpiar espacios múltiples pero no al inicio si es indentación
+      return line.replace(/\s+/g, ' ').trimEnd();
+    })
+    .join('\n');
+}
 
 // Función para cargar prompts de validación
 async function loadValidationPrompts() {
@@ -46,7 +104,9 @@ async function loadValidationPrompts() {
 }
 
 // Función para construir el prompt de validación específico
-async function buildValidationPrompt(textForAnalysis, prompts, ragContext = '') {
+async function buildValidationPrompt(textForAnalysis, ragContext = null, learnedPatterns = null, visualErrors = null) {
+  const prompts = await loadValidationPrompts();
+  
   if (!prompts) {
     // Fallback si no se pueden cargar los prompts
     return `Analiza el siguiente texto de pliego y genera un informe de validación con errores encontrados:
@@ -76,28 +136,95 @@ ${prompts.nomenclatura}
 ${ragContext ? `CONTEXTO RAG ADICIONAL (EJEMPLOS Y PLANTILLAS):
 ${ragContext}
 
+` : ''}${learnedPatterns ? `
+================================================================================
+PATRONES APRENDIDOS DEL CONTEXTO (VALIDACIÓN BASADA EN EJEMPLOS REALES):
+================================================================================
+
+⚠️ INSTRUCCIÓN CRÍTICA: Los siguientes patrones fueron extraídos de ${learnedPatterns.documentsAnalyzed} pliegos reales del contexto.
+DEBES validar que el pliego actual siga estos patrones comunes.
+Si el pliego NO tiene algún elemento que aparece en el 70%+ de los documentos, REPORTA como ADVERTENCIA.
+
+${learnedPatterns.patternsText || 'Analizando patrones...'}
+
+VALIDACIÓN DE ANOMALÍAS:
+- Si una sección aparece en 8+ documentos pero NO en este: 🟡 ADVERTENCIA
+- Si un punto de numeración aparece en 8+ documentos pero NO en este: 🟡 ADVERTENCIA  
+- Si una tabla común aparece en 8+ documentos pero NO en este: 🟡 ADVERTENCIA
+- Si el orden de secciones es diferente al patrón común: 🟡 ADVERTENCIA
+
+` : ''}${visualErrors ? `
+================================================================================
+ERRORES VISUALES DETECTADOS (ANÁLISIS AUTOMÁTICO DEL PDF):
+================================================================================
+
+⚠️ IMPORTANTE: Los siguientes errores fueron detectados automáticamente mediante análisis visual del PDF.
+DEBES incluirlos en tu informe final como ADVERTENCIAS.
+
+${visualErrors}
+
 ` : ''}================================================================================
 INSTRUCCIONES DE VALIDACIÓN:
 ================================================================================
 
-1. ANALIZA el siguiente texto de pliego
+⚠️ INSTRUCCIONES CRÍTICAS OBLIGATORIAS:
+
+1. ANALIZA el siguiente texto de pliego MINUCIOSAMENTE
+
 2. IDENTIFICA errores según los patrones definidos arriba
-3. GENERA un informe detallado con:
+
+⚠️ OBLIGATORIO - UBICACIÓN DE ERRORES:
+   Para CADA error detectado, DEBES incluir:
+   - 📍 Ubicación: El apartado/sección exacto donde se encuentra (ej: "18.- DOCUMENTACIÓ A PRESENTAR")
+   - 📄 Contexto: La tabla, cuadro o párrafo específico donde aparece el error
+   
+   NUNCA reportes un error sin indicar su ubicación exacta en el documento.
+
+3. REALIZA CÁLCULOS MATEMÁTICOS EXPLÍCITOS:
+   - Si encuentras "PRESSUPOST DE LICITACIÓ" o "PRESUPUESTO DE LICITACIÓN"
+   - EXTRAE el importe total declarado
+   - BUSCA la tabla de lotes inmediatamente después
+   - EXTRAE todos los importes de cada lote
+   - SUMA manualmente: Lot1 + Lot2 + Lot3 + ... = TOTAL
+   - COMPARA: ¿TOTAL calculado == TOTAL declarado?
+   - Si NO coinciden: REPORTA como ERROR CRÍTICO con cálculos explícitos
+
+4. VALIDA TABLAS APLICA/NO APLICA COLUMNA POR COLUMNA:
+   - Si encuentras tabla con columnas "APLICA" y "NO APLICA"
+   - CUENTA el número de columnas en el encabezado (debe ser 2)
+   - Para CADA fila: CUENTA cuántos valores tiene
+   - Si una fila tiene solo 1 valor cuando la tabla tiene 2 columnas: ERROR CRÍTICO
+   - IDENTIFICA exactamente qué filas tienen campos vacíos
+   - REPORTA con número de fila y nombre del criterio
+
+5. DETECTA COMENTARIOS DE DESARROLLADORES Y TAGS SAP:
+   - BUSCA texto con nombre + dos puntos: "Oriol:", "David:", "Maria:"
+   - BUSCA instrucciones técnicas: "S'haurà de treure", "no treure", "Escollir"
+   - BUSCA variables SAP sin reemplazar que empiecen con Z: ZRM_, ZVRM_, ZVRM_QDC_
+   - BUSCA referencias a tablas SAP: "si hi ha valors a la taula ZRM_"
+   - BUSCA condiciones técnicas: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000"
+   - Si encuentras CUALQUIERA de estos: ERROR CRÍTICO
+
+6. GENERA un informe detallado con:
    - Errores críticos (bloquean generación)
    - Advertencias (permiten continuar)
    - Sugerencias de corrección específicas
    - Campos variables detectados
+   - CÁLCULOS EXPLÍCITOS para errores numéricos
+   - UBICACIÓN EXACTA de cada error (sección, apartado, tabla)
 
-4. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
+7. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
 ================================================================================
 
 🔴 ERRORES CRÍTICOS:
-- [Lista específica de errores que impiden continuar]
-- [Cada error en una línea separada]
+- [Descripción del error]
+    - Ubicación: [Sección/Apartado exacto donde se encuentra]
+    - Contexto: [Tabla, cuadro o párrafo específico]
 
 🟡 ADVERTENCIAS:
-- [Lista de problemas menores que permiten continuar]
-- [Cada advertencia en una línea separada]
+- [Descripción de la advertencia]
+    - Ubicación: [Sección/Apartado exacto donde se encuentra]
+    - Contexto: [Tabla, cuadro o párrafo específico]
 
 ✅ SUGERENCIAS:
 - [Correcciones específicas recomendadas]
@@ -111,11 +238,106 @@ INSTRUCCIONES DE VALIDACIÓN:
 
 IMPORTANTE:
 - Usa EXACTAMENTE los emojis y títulos mostrados arriba
+- NO uses símbolos de euro (€), usa "EUR" en su lugar
 - Cada sección debe empezar con el emoji correspondiente
 - Usa guiones (-) para listas
 - No uses números ni letras para listas
 - Si no hay elementos en una sección, omítela completamente
 - Mantén el formato limpio sin símbolos extra (#, *, etc.)
+- Todos los importes deben expresarse como "29.040.000,00 EUR" (sin símbolo €)
+
+⚠️ EJEMPLO 1 - FORMATO CON UBICACIÓN (TAG SIN REEMPLAZAR):
+
+Si encuentras en el texto:
+"18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
+ QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
+ {B}CRITERIS{/B}    APLICA    NO APLICA"
+
+DEBES REPORTAR:
+🔴 ERRORES CRÍTICOS:
+- Tag SAP sin reemplazar: {B}CRITERIS{/B}
+    - Ubicación: Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
+    - Contexto: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
+
+⚠️ EJEMPLO 2 - VALIDACIÓN NUMÉRICA CON UBICACIÓN:
+
+Si encuentras en el texto:
+"2.- DADES ECONÒMIQUES
+ PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
+ Lot 1: 241.840,28 euros
+ Lot 2: 1.942,72 euros"
+
+DEBES hacer:
+1. Extraer: 243.936,00 (presupuesto declarado)
+2. Extraer lotes: 241.840,28 y 1.942,72
+3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
+4. COMPARAR: 243.936,00 ≠ 243.783,00
+5. DIFERENCIA: 153,00 euros
+6. REPORTAR:
+🔴 ERRORES CRÍTICOS:
+- Incoherencia numérica: Presupuesto declarado (243.936,00 EUR) no coincide con suma de lotes (243.783,00 EUR). Diferencia: 153,00 EUR
+    - Ubicación: Apartado 2.- DADES ECONÒMIQUES
+    - Contexto: PRESSUPOST DE LICITACIÓ - Tabla de lotes
+
+⚠️ EJEMPLO 3 - VALIDACIÓN TABLAS APLICA/NO APLICA CON UBICACIÓN:
+
+Si encuentras en el texto:
+"15.- CRITERIS D'ADJUDICACIÓ
+ QUADRE RESUM DE CRITERIS
+ 1.03 Compromís sobre subcontractació    APLICA    APLICA
+ 1.04 Compromís sobre emissions CO2eq    APLICA
+ 1.05 Declaracions Ambientals            APLICA    APLICA
+ 1.06 Utilització de fusta certificada   APLICA"
+
+DEBES hacer:
+1. Identificar tabla con 2 columnas: APLICA | NO APLICA
+2. Contar valores por fila:
+   - Fila 1.03: 2 valores ✅
+   - Fila 1.04: 1 valor ❌ (falta columna NO APLICA)
+   - Fila 1.05: 2 valores ✅
+   - Fila 1.06: 1 valor ❌ (falta columna NO APLICA)
+3. REPORTAR:
+🔴 ERRORES CRÍTICOS:
+- Tabla APLICA/NO APLICA incompleta. Filas 1.04 y 1.06 tienen solo 1 valor cuando deberían tener 2
+    - Ubicación: Apartado 15.- CRITERIS D'ADJUDICACIÓ
+    - Contexto: QUADRE RESUM DE CRITERIS - Filas 1.04 (emissions CO2eq) y 1.06 (fusta certificada)
+
+NO asumas que las tablas están completas. SIEMPRE cuenta los valores por fila.
+
+⚠️ EJEMPLO 4 - DETECCIÓN DE COMENTARIOS DE DESARROLLADORES CON UBICACIÓN:
+
+Si encuentras en el texto:
+"12.- CRITERIS DE SOSTENIBILITAT
+ Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o 
+ ZVRM_QDC_MAT_LIC -> Escollir quina de les 2) S'haurà de treure el text en groc."
+
+DEBES hacer:
+1. Detectar nombre + dos puntos: "Oriol:"
+2. Detectar instrucciones técnicas: "S'haurà de treure", "Escollir quina de les 2"
+3. Detectar tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
+4. Detectar referencias a tablas SAP: "si hi ha valors a la taula"
+5. REPORTAR:
+🔴 ERRORES CRÍTICOS:
+- Comentario de desarrollador detectado: "Oriol: En cas que apliqui el CO2..."
+    - Ubicación: Apartado 12.- CRITERIS DE SOSTENIBILITAT
+    - Contexto: Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
+
+⚠️ EJEMPLO 4 - DETECCIÓN DE CONDICIONES TÉCNICAS SAP:
+
+Si encuentras:
+"Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula següent"
+
+DEBES hacer:
+1. Detectar nombre + dos puntos: "Oriol:"
+2. Detectar condición técnica: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000"
+3. Detectar tag SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
+4. Detectar instrucción: "no treure la taula"
+5. REPORTAR: "🔴 ERROR CRÍTICO: Comentario de desarrollador con condición técnica SAP
+   - Línea: 'Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000...'
+   - Tag SAP sin reemplazar: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
+   - Este texto debe eliminarse completamente del pliego final"
+
+BUSCA ACTIVAMENTE estos patrones en TODO el documento.
 
 ================================================================================
 TEXTO DEL PLIEGO A VALIDAR:
@@ -125,7 +347,92 @@ ${textForAnalysis}
 
 ================================================================================
 GENERA EL INFORME SIGUIENDO EL FORMATO EXACTO:
+RECUERDA: 
+- VERIFICA TODAS LAS SUMAS Y CÁLCULOS NUMÉRICOS
+- CUENTA LOS VALORES EN CADA FILA DE TABLAS APLICA/NO APLICA
+- BUSCA COMENTARIOS DE DESARROLLADORES (Oriol:, David:, etc.)
+- BUSCA TAGS SAP SIN REEMPLAZAR (ZRM_, ZVRM_, etc.)
 ================================================================================`;
+}
+
+/**
+ * Analiza patrones comunes en documentos del contexto RAG
+ * @param {string} contextId - ID del contexto a analizar
+ * @returns {Promise<Object>} - Patrones detectados
+ */
+async function analyzeContextPatterns(contextId) {
+  try {
+    console.log(`[PDF-CORRECTION] 🔍 Analizando patrones en contexto: ${contextId}`);
+    
+    // Buscar todos los documentos del contexto para análisis de patrones
+    const ragResults = await searchContext(
+      `estructura secciones puntos numeración índice tabla contenidos`,
+      {
+        contextId: contextId,
+        topK: 30 // Más documentos para mejor análisis de patrones
+      }
+    );
+
+    if (!ragResults || ragResults.length === 0) {
+      console.log('[PDF-CORRECTION] ⚠️ No hay documentos en el contexto para análisis');
+      return null;
+    }
+
+    // Construir contexto para análisis de patrones
+    const documentsContext = ragResults
+      .map((result, index) => {
+        const metadata = result.metadata || {};
+        return `
+DOCUMENTO ${index + 1}: ${metadata.filename || 'Sin nombre'}
+${result.content}
+---`;
+      })
+      .join('\n');
+
+    console.log(`[PDF-CORRECTION] 📊 Analizando ${ragResults.length} documentos para detectar patrones...`);
+
+    // Prompt para que la IA extraiga patrones comunes
+    const patternAnalysisPrompt = `Analiza los siguientes ${ragResults.length} documentos de pliegos y extrae PATRONES COMUNES:
+
+${documentsContext}
+
+INSTRUCCIONES:
+1. Identifica secciones que aparecen en TODOS o MAYORÍA de documentos
+2. Detecta puntos de numeración que se repiten (ej: punto 18, punto 25, etc.)
+3. Encuentra tablas o estructuras comunes
+4. Identifica campos variables que siempre están presentes
+5. Detecta orden típico de secciones
+
+FORMATO DE RESPUESTA:
+
+SECCIONES COMUNES (aparecen en X de ${ragResults.length} documentos):
+- [Nombre de sección]: [Frecuencia]
+
+PUNTOS DE NUMERACIÓN COMUNES:
+- Punto [número]: [Descripción] - Aparece en [X] documentos
+
+TABLAS COMUNES:
+- [Tipo de tabla]: [Frecuencia]
+
+CAMPOS VARIABLES COMUNES:
+- [Nombre del campo]: [Frecuencia]
+
+ORDEN TÍPICO DE SECCIONES:
+1. [Sección 1]
+2. [Sección 2]
+...
+
+Genera SOLO los patrones que aparecen en al menos el 70% de los documentos.`;
+
+    return {
+      documentsAnalyzed: ragResults.length,
+      analysisPrompt: patternAnalysisPrompt
+    };
+
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error analizando patrones:', error);
+    return null;
+  }
 }
 
 /**
@@ -142,7 +449,32 @@ export async function generatePDFWithCorrectionsFromContext(prompt, contextId) {
     // 1. Cargar prompts de validación
     const prompts = await loadValidationPrompts();
 
-    // 2. Buscar documentos relevantes en el contexto RAG
+    // 2. NUEVO: Analizar patrones del contexto
+    const patternsAnalysis = await analyzeContextPatterns(contextId);
+    
+    // 2.1 Si hay patrones, extraerlos con la IA
+    let learnedPatterns = null;
+    if (patternsAnalysis) {
+      console.log(`[PDF-CORRECTION] 🤖 Extrayendo patrones con IA...`);
+      try {
+        const client = getAiCoreClient('gpt-4o');
+        const patternResponse = await client.run({
+          messages: [{ role: 'user', content: patternsAnalysis.analysisPrompt }]
+        });
+        
+        const patternsText = patternResponse.getContent();
+        learnedPatterns = {
+          documentsAnalyzed: patternsAnalysis.documentsAnalyzed,
+          patternsText: patternsText
+        };
+        
+        console.log(`[PDF-CORRECTION] ✅ Patrones extraídos de ${patternsAnalysis.documentsAnalyzed} documentos`);
+      } catch (error) {
+        console.error('[PDF-CORRECTION] ⚠️ Error extrayendo patrones:', error.message);
+      }
+    }
+
+    // 3. Buscar documentos relevantes en el contexto RAG
     console.log(`[PDF-CORRECTION] Buscando documentos en contexto: ${contextId}`);
 
     const ragResults = await searchContext(
@@ -175,29 +507,12 @@ TIPO: ${result.metadata?.type || 'Desconocido'}
       textForAnalysis = contextText.substring(0, 30000) + '\n\n[TEXTO DE CONTEXTO TRUNCADO...]';
     }
 
-    // 4. Construir prompt específico para análisis de contexto
-    const contextAnalysisPrompt = `ANÁLISIS DE CONTEXTO PARA VALIDACIÓN DE PLIEGOS
-================================================================================
-
-CONTEXTO DISPONIBLE (Documentos de referencia):
-${textForAnalysis}
-
-================================================================================
-INSTRUCCIONES DEL USUARIO:
-${prompt}
-
-================================================================================
-TAREA: Analiza los documentos del contexto y genera un informe de validación
-que ayude a identificar patrones de error y buenas prácticas en pliegos SAP.
-
-El análisis debe incluir:
-1. Errores comunes encontrados en los documentos
-2. Patrones de variables SAP detectados
-3. Estructuras correctas identificadas
-4. Recomendaciones para validación automática
-5. Casos de uso específicos encontrados
-
-================================================================================`;
+    // 4. Construir prompt con patrones aprendidos
+    const contextAnalysisPrompt = await buildValidationPrompt(
+      `${prompt}\n\n${textForAnalysis}`,
+      textForAnalysis,
+      learnedPatterns
+    );
 
     console.log(`[PDF-CORRECTION] Generando análisis con SAP AI Core (${contextAnalysisPrompt.length} caracteres)...`);
 
@@ -271,14 +586,21 @@ Para análisis completo, verificar conexión con SAP AI Core.`;
     throw new Error(`Error generando análisis de contexto: ${error.message}`);
   }
 }
-export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null) {
+export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null, visualErrors = null) {
   const startTime = Date.now();
   try {
+    loggerService.info('PDF-CORRECTION', 'Iniciando generación de PDF con lista de correcciones', { 
+      path: originalPdfPath, 
+      contextId 
+    });
     console.log(`[PDF-CORRECTION] Generando PDF con lista de correcciones...`);
     
     // 1. Extraer texto del PDF original
     const documentData = await processDocument(originalPdfPath, 'application/pdf');
-    const originalText = documentData.chunks.map(chunk => chunk.content).join('\n\n');
+    let originalText = documentData.chunks.map(chunk => chunk.content).join('\n\n');
+    
+    // 1.5. Limpiar caracteres mal codificados del PDF antes de analizar
+    originalText = cleanTextEncoding(originalText);
     
     // 2. Limitar texto para SAP AI Core (máximo 50,000 caracteres)
     let textForAnalysis = originalText;
@@ -290,18 +612,29 @@ export async function generatePDFWithCorrectionsList(originalPdfPath, customProm
     // 3. Cargar prompts de validación
     const prompts = await loadValidationPrompts();
     
-    // 4. Obtener contexto RAG si se especifica
+    // 4. Obtener contexto RAG y analizar patrones si se especifica
     let ragContext = '';
+    let learnedPatterns = null;
+    
     if (contextId) {
       try {
         console.log(`[PDF-CORRECTION] Cargando contexto RAG: ${contextId}`);
         
-        // Buscar documentos relevantes en el contexto RAG
+        // 4.1 Analizar patrones comunes en el contexto
+        console.log(`[PDF-CORRECTION] Analizando patrones del contexto...`);
+        const patternsAnalysis = await analyzeContextPatterns(contextId);
+        
+        if (patternsAnalysis) {
+          learnedPatterns = patternsAnalysis;
+          console.log(`[PDF-CORRECTION] Patrones aprendidos: ${patternsAnalysis.documentsAnalyzed} documentos analizados`);
+        }
+        
+        // 4.2 Buscar documentos relevantes en el contexto RAG
         const ragResults = await searchContext(
-          `errores pliegos validación tags SAP campos variables ${textForAnalysis.substring(0, 500)}`,
+          `estructura secciones apartados numeración tablas formato ${textForAnalysis.substring(0, 500)}`,
           {
             contextId: contextId,
-            topK: 10
+            topK: 15 // Más documentos para mejor comparación
           }
         );
         
@@ -322,16 +655,27 @@ RELEVANCIA: ${result.similarity}
       }
     }
     
-    // 5. Generar prompt de validación específico para pliegos
-    const correctionPrompt = customPrompt || await buildValidationPrompt(textForAnalysis, prompts, ragContext);
+    // 5. Generar prompt de validación específico para pliegos (incluyendo patrones aprendidos y errores visuales)
+    // NOTA: Siempre usamos el prompt estructurado de validación, el customPrompt se ignora
+    // porque el sistema necesita el formato específico de validación de pliegos
+    const correctionPrompt = await buildValidationPrompt(textForAnalysis, ragContext, learnedPatterns, visualErrors);
+
+    if (customPrompt) {
+      console.log(`[PDF-CORRECTION] ⚠️ customPrompt ignorado - usando prompt de validación estructurado`);
+    }
 
     console.log(`[PDF-CORRECTION] Generando correcciones con SAP AI Core (${correctionPrompt.length} caracteres)...`);
     
     let correctionsList;
     try {
-      const client = getAiCoreClient('gpt-4o');
+      const client = getAiCoreClient('gpt-4o', { 
+        temperature: 0.2,  // Temperatura muy baja para validación consistente y precisa
+        maxTokens: 4000 
+      });
       const response = await client.run({
-        messages: [{ role: 'user', content: correctionPrompt }]
+        messages: [{ role: 'user', content: correctionPrompt }],
+        temperature: 0.2,  // Temperatura baja = respuestas más deterministas y precisas
+        max_tokens: 4000
       });
       
       correctionsList = response.getContent();
@@ -340,9 +684,19 @@ RELEVANCIA: ${result.similarity}
         throw new Error('SAP AI Core devolvió una respuesta vacía');
       }
       
+      // Limpiar caracteres mal codificados
+      correctionsList = cleanTextEncoding(correctionsList);
+      
+      loggerService.success('PDF-CORRECTION', 'Correcciones generadas por IA', { 
+        length: correctionsList.length 
+      });
       console.log(`[PDF-CORRECTION] Correcciones generadas: ${correctionsList.length} caracteres`);
       
     } catch (aiError) {
+      loggerService.error('PDF-CORRECTION', 'Error en SAP AI Core', { 
+        error: aiError.message,
+        status: aiError.status || aiError.code
+      });
       console.error(`[PDF-CORRECTION] Error detallado en SAP AI Core:`, {
         message: aiError.message,
         status: aiError.status || aiError.code,
@@ -391,7 +745,7 @@ RELEVANCIA: ${result.similarity}
       console.warn(`[PDF-CORRECTION] Error registrando métricas: ${error.message}`);
     }
     
-    return {
+    const result = {
       success: true,
       pdfBuffer,
       correctionsList,
@@ -410,7 +764,18 @@ RELEVANCIA: ${result.similarity}
       }
     };
     
+    loggerService.success('PDF-CORRECTION', 'PDF generado exitosamente', {
+      pages: newPdf.getPageCount(),
+      size: pdfBuffer.length,
+      processingTime: Date.now() - startTime
+    });
+    
+    return result;
+    
   } catch (error) {
+    loggerService.error('PDF-CORRECTION', 'Error generando PDF con correcciones', { 
+      error: error.message 
+    });
     console.error('[PDF-CORRECTION] Error generando PDF con correcciones:', error);
     throw new Error(`Error generando PDF con correcciones: ${error.message}`);
   }
@@ -865,8 +1230,24 @@ function processLineFormatting(line) {
     color = rgb(0, 0.5, 0); // Verde más claro
   }
 
-  // Detectar elementos de lista con más patrones
-  if (text.startsWith('- ') || text.startsWith('• ') || text.startsWith('· ') ||
+  // Detectar "Ubicación:" y "Contexto:" con formato especial
+  if (text.includes('- Ubicación:') || text.includes('- Ubicacion:')) {
+    indent = 40;
+    fontSize = 11;
+    color = rgb(0, 0, 0); // Negro normal
+    isBold = false;
+  } else if (text.includes('- Contexto:')) {
+    indent = 40;
+    fontSize = 11;
+    color = rgb(0.4, 0.4, 0.4); // Gris oscuro
+    isBold = false;
+  }
+  // Detectar elementos de lista (errores principales) - NEGRITA
+  else if (text.startsWith('- ') && !text.includes('Ubicación:') && !text.includes('Contexto:')) {
+    indent = 20;
+    isBold = true; // Errores en negrita
+    fontSize = 12;
+  } else if (text.startsWith('• ') || text.startsWith('· ') ||
       /^\d+\.\s/.test(text) || /^[a-zA-Z]\.\s/.test(text)) {
     indent = 20;
   } else if (text.startsWith('  - ') || text.startsWith('  • ') || text.startsWith('  · ') ||

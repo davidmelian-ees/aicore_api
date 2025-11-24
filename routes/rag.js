@@ -76,7 +76,7 @@ const upload = multer({
 const uploadDB = multer({ 
   storage,
   limits: {
-    fileSize: 100 * 1024 * 1024 // 100MB límite para bases de datos
+    fileSize: 500 * 1024 * 1024 // 500MB límite para bases de datos (aumentado para backups grandes)
   },
   fileFilter: (req, file, cb) => {
     // Permitir archivos .db y SQLite
@@ -896,6 +896,8 @@ router.post('/upload-db', uploadDB.single('database'), async (req, res) => {
 
     // CERRAR conexiones SQLite antes de reemplazar
     console.log('[RAG API] 🔒 Cerrando conexiones SQLite...');
+    const { sqliteVectorStore } = await import('../services/sqliteVectorStore.js');
+    sqliteVectorStore.close();
     
     // Copiar nueva base de datos
     console.log(`[RAG API] 🔄 Copiando ${req.file.path} → ${dbPath}`);
@@ -909,14 +911,57 @@ router.post('/upload-db', uploadDB.single('database'), async (req, res) => {
     // Obtener estadísticas de la nueva BD
     const stats = await fs.stat(dbPath);
     console.log(`[RAG API] 📊 BD después de restaurar: ${stats.size} bytes`);
+    
+    // REINICIALIZAR SQLite con la nueva base de datos
+    console.log('[RAG API] 🔄 Reinicializando SQLite...');
+    await sqliteVectorStore.reinitialize();
+    console.log('[RAG API] ✅ SQLite reinicializado con nueva base de datos');
+    
+    // VALIDAR que la base de datos se puede leer correctamente
+    console.log('[RAG API] 🔍 Validando integridad de la base de datos...');
+    try {
+      const dbStats = sqliteVectorStore.getStats();
+      console.log(`[RAG API] ✅ Base de datos válida - Documentos: ${dbStats.totalDocuments}, Chunks: ${dbStats.totalChunks}`);
+    } catch (validationError) {
+      console.error('[RAG API] ❌ Error validando base de datos:', validationError);
+      throw new Error(`Base de datos corrupta o inválida: ${validationError.message}`);
+    }
+    
+    // SINCRONIZAR CONTEXTOS desde SQLite
+    console.log('[RAG API] 🔄 Sincronizando contextos desde SQLite...');
+    let syncedContexts = 0;
+    let contextsList = [];
+    try {
+      const { contextPersistence } = await import('../services/contextPersistence.js');
+      const contextsFromDB = sqliteVectorStore.getAllContexts();
+      contextsList = contextsFromDB;
+      
+      // Convertir array a Map
+      const contextsMap = new Map();
+      for (const ctx of contextsFromDB) {
+        contextsMap.set(ctx.id, ctx);
+      }
+      
+      // Guardar contextos sincronizados
+      await contextPersistence.saveContexts(contextsMap);
+      syncedContexts = contextsFromDB.length;
+      console.log(`[RAG API] ✅ Sincronizados ${syncedContexts} contextos desde SQLite`);
+    } catch (syncError) {
+      console.warn('[RAG API] ⚠️ Error sincronizando contextos:', syncError.message);
+      // No lanzar error, continuar con la restauración
+    }
 
     res.json({
       success: true,
-      message: 'Base de datos restaurada exitosamente',
+      message: 'Base de datos restaurada y validada exitosamente',
       database: {
         size: stats.size,
         restored_at: new Date().toISOString(),
-        backup_created: backupPath
+        backup_created: backupPath,
+        documents: sqliteVectorStore.getStats().totalDocuments,
+        chunks: sqliteVectorStore.getStats().totalChunks,
+        contexts_synced: syncedContexts,
+        contexts: contextsList
       },
       timestamp: new Date().toISOString()
     });
@@ -935,6 +980,50 @@ router.post('/upload-db', uploadDB.single('database'), async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Error restaurando base de datos',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/rag/sync-contexts
+ * Sincroniza contextos desde SQLite a contexts.json
+ */
+router.post('/sync-contexts', async (req, res) => {
+  try {
+    console.log('[RAG API] 🔄 Sincronizando contextos desde SQLite...');
+    
+    const { sqliteVectorStore } = await import('../services/sqliteVectorStore.js');
+    const { contextPersistence } = await import('../services/contextPersistence.js');
+    
+    // Obtener contextos desde SQLite
+    const contextsFromDB = sqliteVectorStore.getAllContexts();
+    
+    // Convertir array a Map
+    const contextsMap = new Map();
+    for (const ctx of contextsFromDB) {
+      contextsMap.set(ctx.id, ctx);
+    }
+    
+    // Guardar contextos sincronizados
+    await contextPersistence.saveContexts(contextsMap);
+    
+    console.log(`[RAG API] ✅ Sincronizados ${contextsFromDB.length} contextos`);
+    
+    res.json({
+      success: true,
+      message: 'Contextos sincronizados exitosamente',
+      contexts_synced: contextsFromDB.length,
+      contexts: contextsFromDB,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('[RAG API] ❌ Error sincronizando contextos:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error sincronizando contextos',
       details: error.message,
       timestamp: new Date().toISOString()
     });

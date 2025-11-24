@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Subrayar Errores en PDF</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        input[type="file"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="file"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status.loading {
+            display: block;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+        }
+        
+        .status.success {
+            display: block;
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+        }
+        
+        .status.error {
+            display: block;
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+            color: #721c24;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .info-box h3 {
+            color: #0066cc;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            color: #333;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+        
+        .highlight-yellow {
+            background: yellow;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Subrayar Errores en PDF</h1>
+        <p class="subtitle">Detecta y subraya errores automáticamente en tus pliegos</p>
+        
+        <div class="section">
+            <h2>📄 Subir PDF para Análisis</h2>
+            
+            <form id="highlightForm">
+                <div class="form-group">
+                    <label for="pdfFile">Seleccionar PDF:</label>
+                    <input type="file" id="pdfFile" name="pdf" accept=".pdf" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contextId">ID de Contexto RAG (opcional):</label>
+                    <input type="text" id="contextId" name="contextId" placeholder="Ej: PLIEGOS_TERMINADOS_ENTRENAMIENTO">
+                    <small style="color: #666; display: block; margin-top: 5px;">
+                        Si proporcionas un contexto, la IA comparará con otros pliegos similares
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn" id="submitBtn">
+                    🔍 Detectar y Subrayar Errores
+                </button>
+            </form>
+            
+            <div id="status" class="status"></div>
+        </div>
+        
+        <div class="info-box">
+            <h3>ℹ️ Cómo funciona:</h3>
+            <ul>
+                <li>📤 Sube tu PDF del pliego</li>
+                <li>🤖 La IA analiza y detecta errores automáticamente</li>
+                <li>🎨 Los errores se <span class="highlight-yellow">subrayan en amarillo</span> sobre el PDF original</li>
+                <li>📥 Descargas el PDF con los errores marcados</li>
+                <li>✅ Formato original preservado (colores, fuentes, tablas, imágenes)</li>
+            </ul>
+        </div>
+        
+        <div class="info-box" style="margin-top: 15px;">
+            <h3>🎯 Tipos de errores detectados:</h3>
+            <ul>
+                <li>❌ Tags SAP sin reemplazar ({B}TEXTO{/B})</li>
+                <li>💰 Incoherencias numéricas en presupuestos</li>
+                <li>📋 Tablas APLICA/NO APLICA incompletas</li>
+                <li>💬 Comentarios de desarrolladores</li>
+                <li>🔢 Valores 0,00 EUR sin rellenar</li>
+                <li>📝 Formato de importes inconsistente</li>
+                <li>⚠️ Y muchos más...</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('highlightForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusDiv = document.getElementById('status');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('pdfFile');
+            const contextInput = document.getElementById('contextId');
+            
+            if (!fileInput.files[0]) {
+                showStatus('error', '❌ Por favor selecciona un archivo PDF');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('pdf', fileInput.files[0]);
+            
+            if (contextInput.value.trim()) {
+                formData.append('contextId', contextInput.value.trim());
+            }
+            
+            try {
+                submitBtn.disabled = true;
+                showStatus('loading', '🔄 Analizando PDF y subrayando errores... Esto puede tardar unos minutos.');
+                
+                const response = await fetch('/api/pdf-correction/highlight-errors', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Error en el servidor');
+                }
+                
+                // Descargar PDF subrayado
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `highlighted-${fileInput.files[0].name}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                showStatus('success', '✅ ¡PDF con errores subrayados descargado correctamente!');
+                
+                // Resetear formulario
+                setTimeout(() => {
+                    form.reset();
+                    statusDiv.style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('error', `❌ Error: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+        
+        function showStatus(type, message) {
+            statusDiv.className = `status ${type}`;
+            
+            if (type === 'loading') {
+                statusDiv.innerHTML = `<span class="spinner"></span>${message}`;
+            } else {
+                statusDiv.innerHTML = message;
+            }
+            
+            statusDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -110,19 +110,800 @@ generador de pliegos y requieren validación automática prioritaria.
    - "obras" → debe ser "obres"
    - "proyecto" → debe ser "projecte"
 
+7. NUMERACIÓN SECUENCIAL INCORRECTA:
+   ❌ PROBLEMA: Saltos en la numeración de puntos del pliego
+   
+   VALIDACIONES:
+   - Detectar saltos en numeración principal (ej: 1. 2. 4. ← falta el 3.)
+   - Verificar subnumeración correcta (ej: 3.1, 3.2, 3.3)
+   - Validar jerarquía de niveles (ej: 3.1.1, 3.1.2)
+   - Alertar sobre posibles puntos faltantes
+   
+   EJEMPLOS CORRECTOS:
+   ✅ 1.
+   ✅ 2.
+   ✅ 3.
+   ✅ 3.1
+   ✅ 3.1.1
+   ✅ 3.1.2
+   ✅ 3.2
+   ✅ 4.
+   
+   EJEMPLOS INCORRECTOS:
+   ❌ 1.
+   ❌ 4. ← FALTA 2. y 3.
+   
+   ❌ 3.
+   ❌ 3.1
+   ❌ 3.3 ← FALTA 3.2
+   
+   SEVERIDAD:
+   - Salto de 1 punto: ⚠️ ADVERTENCIA (puede ser intencional)
+   - Salto de 2+ puntos: 🔴 ERROR CRÍTICO (probablemente faltan secciones)
+
+8. TABLAS APLICA/NO APLICA INCOMPLETAS:
+   ❌ PROBLEMA: Campos vacíos en tablas que requieren "APLICA" o "NO APLICA"
+   
+   ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+   DEBES CONTAR LAS COLUMNAS "APLICA" Y "NO APLICA" EN CADA FILA.
+   CADA FILA DEBE TENER EXACTAMENTE 2 VALORES (UNO EN CADA COLUMNA).
+   SI UNA FILA TIENE SOLO 1 VALOR O MÁS DE 2, ES UN ERROR CRÍTICO.
+   
+   PROCESO DE VALIDACIÓN PASO A PASO:
+   
+   PASO 1: Identificar tablas con encabezados "APLICA" y "NO APLICA"
+   PASO 2: Para CADA fila de la tabla:
+           - Contar cuántos valores "APLICA" hay
+           - Contar cuántos valores "NO APLICA" hay
+           - Contar cuántos campos vacíos hay
+   PASO 3: Validar que cada fila tenga EXACTAMENTE:
+           - 1 valor en columna APLICA (puede ser "APLICA" o vacío)
+           - 1 valor en columna NO APLICA (puede ser "NO APLICA" o vacío)
+           - TOTAL: 2 columnas, al menos 1 debe tener valor
+   PASO 4: Reportar filas con:
+           - Ambas columnas vacías (ERROR CRÍTICO)
+           - Solo 1 columna cuando debería haber 2 (ERROR CRÍTICO)
+           - Ambas columnas con valor (ERROR CRÍTICO - excluyentes)
+   
+   EJEMPLO REAL DE ERROR (DEBES DETECTAR ESTO):
+   
+   Texto del pliego:
+   "1.03 Compromís sobre subcontractació    APLICA    APLICA
+    1.04 Compromís sobre emissions CO2eq    APLICA
+    1.05 Declaracions Ambientals            APLICA    APLICA
+    1.06 Utilització de fusta certificada   APLICA"
+   
+   ANÁLISIS QUE DEBES HACER:
+   
+   Fila 1.03: "APLICA" + "APLICA" = 2 valores ✅ CORRECTO
+   Fila 1.04: "APLICA" + [VACÍO] = 1 valor ❌ ERROR (falta columna NO APLICA)
+   Fila 1.05: "APLICA" + "APLICA" = 2 valores ✅ CORRECTO
+   Fila 1.06: "APLICA" + [VACÍO] = 1 valor ❌ ERROR (falta columna NO APLICA)
+   
+   REPORTE QUE DEBES GENERAR:
+   "🔴 ERROR CRÍTICO: Tabla APLICA/NO APLICA incompleta
+    
+    Las siguientes filas tienen campos vacíos:
+    
+    • Fila 1.04 (Compromís sobre emissions CO2eq):
+      - Columna APLICA: APLICA ✓
+      - Columna NO APLICA: [VACÍO] ❌
+      Debe tener valor en ambas columnas o marcar solo una
+    
+    • Fila 1.06 (Utilització de fusta certificada):
+      - Columna APLICA: APLICA ✓
+      - Columna NO APLICA: [VACÍO] ❌
+      Debe tener valor en ambas columnas o marcar solo una"
+   
+   PATRONES A DETECTAR:
+   - Tablas con encabezados "APLICA" o "NO APLICA"
+   - Filas con solo 1 valor cuando la tabla tiene 2 columnas
+   - Celdas vacías en columnas de aplicabilidad
+   - Valores incorrectos (ej: "SÍ", "NO", "N/A" en lugar de "APLICA"/"NO APLICA")
+   
+   EJEMPLOS CORRECTOS:
+   ✅ | Criterio | APLICA | NO APLICA |
+      | 1.01     | APLICA | APLICA    | ← Ambas columnas con valor
+      | 1.02     | APLICA | APLICA    | ← Ambas columnas con valor
+   
+   ✅ | Criterio | APLICA | NO APLICA |
+      | 1.01     |   X    |           | ← Solo APLICA marcado
+      | 1.02     |        |     X     | ← Solo NO APLICA marcado
+   
+   EJEMPLOS INCORRECTOS:
+   ❌ | Criterio | APLICA | NO APLICA |
+      | 1.01     | APLICA | APLICA    | ← OK
+      | 1.02     | APLICA |           | ← ERROR: Falta valor en NO APLICA
+      | 1.03     | APLICA | APLICA    | ← OK
+      | 1.04     | APLICA |           | ← ERROR: Falta valor en NO APLICA
+   
+   ❌ | Criterio | APLICA | NO APLICA |
+      | 1.01     |        |           | ← ERROR: Ambas vacías
+      | 1.02     |   X    |     X     | ← ERROR: Ambas marcadas (excluyentes)
+   
+   VALIDACIONES ESPECÍFICAS:
+   - Contar columnas en el encabezado de la tabla
+   - Contar valores en cada fila
+   - Comparar: ¿número de valores en fila == número de columnas?
+   - Si NO coincide: ERROR CRÍTICO
+   - Identificar exactamente qué filas tienen el problema
+   - Reportar número de fila y nombre del criterio afectado
+   
+   SEVERIDAD:
+   - Campo vacío en tabla de 2 columnas: 🔴 ERROR CRÍTICO
+   - Fila con solo 1 valor cuando tabla tiene 2 columnas: 🔴 ERROR CRÍTICO
+   - Ambas columnas vacías: 🔴 ERROR CRÍTICO
+   - Ambas columnas marcadas (excluyentes): 🔴 ERROR CRÍTICO
+   - Valor incorrecto (SÍ/NO en lugar de APLICA): 🟡 ADVERTENCIA
+
+9. SECCIONES OBLIGATORIAS FALTANTES:
+   ❌ PROBLEMA: Faltan apartados obligatorios según el tipo de pliego
+   
+   SECCIONES OBLIGATORIAS EN TODOS LOS PLIEGOS:
+   - OBJETO DEL CONTRATO
+   - PRESUPUESTO
+   - PLAZO DE EJECUCIÓN
+   - CONDICIONES TÉCNICAS
+   - CRITERIOS DE ADJUDICACIÓN
+   - GARANTÍAS
+   - PENALIDADES
+   - MODIFICACIÓN DEL CONTRATO
+   - SUBCONTRATACIÓN
+   - REVISIÓN DE PRECIOS
+   
+   VALIDACIONES:
+   - Verificar presencia de todas las secciones obligatorias
+   - Detectar secciones con contenido vacío
+   - Validar que las secciones estén en orden lógico
+   - Identificar secciones duplicadas
+   
+   SEVERIDAD:
+   - Sección obligatoria faltante: 🔴 ERROR CRÍTICO
+   - Sección vacía: 🟡 ADVERTENCIA
+   - Sección duplicada: 🟡 ADVERTENCIA
+   - Orden incorrecto: 🟡 ADVERTENCIA
+
+10. INCOHERENCIA NUMÉRICA EN PRESUPUESTOS Y LOTES:
+    ❌ PROBLEMA: Las sumas de lotes no coinciden con el presupuesto total declarado
+    
+    ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+    DEBES REALIZAR CÁLCULOS MATEMÁTICOS EXPLÍCITOS. NO ASUMAS QUE LOS NÚMEROS SON CORRECTOS.
+    EXTRAE CADA NÚMERO, SÚMALOS MANUALMENTE Y COMPARA CON EL TOTAL DECLARADO.
+    
+    PROCESO PASO A PASO OBLIGATORIO:
+    
+    PASO 1: Buscar la línea "PRESSUPOST DE LICITACIÓ" o "PRESUPUESTO DE LICITACIÓN"
+    PASO 2: Extraer el importe total con IVA incluido (primer número)
+    PASO 3: Extraer el importe total sin IVA (segundo número después de la coma)
+    PASO 4: Buscar la tabla de lotes inmediatamente después
+    PASO 5: Extraer TODOS los importes de la columna "Pressupost euros (IVA inclòs)"
+    PASO 6: SUMAR manualmente todos los importes de lotes (con IVA)
+    PASO 7: COMPARAR: suma_lotes vs presupuesto_total_declarado
+    PASO 8: CALCULAR diferencia absoluta: |presupuesto_declarado - suma_lotes|
+    PASO 9: REPORTAR si diferencia > 0.50€
+    
+    EJEMPLO REAL DE ERROR (DEBES DETECTAR ESTO):
+    
+    Texto del pliego:
+    "PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs), 201.600,00 euros (IVA no inclòs)
+     
+     Lot | Descripció                      | Pressupost (IVA inclòs) | TOTAL (IVA no inclòs)
+     1   | Carretera de Rubí al Papiol     | 241.840,28             | 200.694,44
+     2   | Carretera del Papiol a Mira-Sol | 1.942,72               | 1.605,56"
+    
+    ANÁLISIS QUE DEBES HACER:
+    
+    1. Presupuesto declarado (IVA inclòs): 243.936,00 euros
+    2. Importes de lotes extraídos:
+       - Lot 1: 241.840,28 euros
+       - Lot 2: 1.942,72 euros
+    3. SUMA MANUAL: 241.840,28 + 1.942,72 = 243.783,00 euros
+    4. COMPARACIÓN: 243.936,00 (declarado) vs 243.783,00 (suma real)
+    5. DIFERENCIA: 243.936,00 - 243.783,00 = 153,00 euros
+    6. CONCLUSIÓN: ERROR CRÍTICO (diferencia > 100€)
+    
+    REPORTE QUE DEBES GENERAR:
+    "🔴 ERROR CRÍTICO: Incoherencia numérica en presupuesto de licitación
+     
+     Presupuesto declarado: 243.936,00€ (IVA inclòs)
+     Suma de lotes: 243.783,00€
+     Diferencia: 153,00€
+     
+     Detalle de lotes:
+     - Lot 1: 241.840,28€
+     - Lot 2: 1.942,72€
+     - SUMA: 243.783,00€
+     
+     El presupuesto declarado NO coincide con la suma de lotes.
+     Posible error en el importe del Lot 2 (debería ser 2.095,72€ en lugar de 1.942,72€)"
+    
+    EJEMPLO CORRECTO (para comparación):
+    ✅ PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
+       Lot 1: 241.840,28 euros
+       Lot 2: 2.095,72 euros
+       SUMA: 241.840,28 + 2.095,72 = 243.936,00 euros ← COINCIDE EXACTAMENTE
+    
+    PATRONES A DETECTAR:
+    - "PRESSUPOST DE LICITACIÓ:" o "PRESUPUESTO DE LICITACIÓN:"
+    - Tablas con columnas "Lot", "Lote", "Pressupost", "Presupuesto"
+    - Importes en formato: 123.456,78 euros
+    - Menciones "(IVA inclòs)" o "(IVA no inclòs)"
+    
+    VALIDACIONES ESPECÍFICAS:
+    - Extraer presupuesto total con IVA incluido
+    - Extraer presupuesto total sin IVA
+    - Sumar lotes con IVA incluido
+    - Sumar lotes sin IVA
+    - Comparar ambas sumas (con IVA y sin IVA)
+    - Validar que diferencia sea < 0.50€ (tolerancia por redondeos)
+    
+    CÁLCULOS A REALIZAR:
+    1. Identificar sección "DADES ECONÒMIQUES" o "DATOS ECONÓMICOS"
+    2. Extraer línea con "PRESSUPOST DE LICITACIÓ" o similar
+    3. Extraer dos importes: (IVA inclòs) y (IVA no inclòs)
+    4. Buscar tabla de lotes posterior
+    5. Extraer todos los importes de la columna de presupuesto
+    6. Sumar importes de lotes
+    7. Comparar: |suma_lotes - presupuesto_total| < 0.50€
+    
+    SEVERIDAD:
+    - Diferencia > 100€: 🔴 ERROR CRÍTICO (error de cálculo grave)
+    - Diferencia 1€ - 100€: 🟡 ADVERTENCIA (posible error de redondeo)
+    - Diferencia < 1€: ✅ CORRECTO (tolerancia aceptable)
+    - Falta tabla de lotes cuando se declaran lotes: 🔴 ERROR CRÍTICO
+    - Número de lotes en tabla ≠ número declarado: 🔴 ERROR CRÍTICO
+
+11. COMENTARIOS DE DESARROLLADORES Y TAGS SAP SIN REEMPLAZAR:
+    PROBLEMA: El pliego contiene comentarios de desarrollo o tags SAP sin reemplazar
+
+12. FORMATO DE IMPORTES INCONSISTENTE:
+    ❌ PROBLEMA: Los importes monetarios aparecen con formatos diferentes a lo largo del documento
+    
+    ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+    TODOS LOS IMPORTES DEBEN SEGUIR EL MISMO FORMATO ESTÁNDAR.
+    DEBES VERIFICAR CADA IMPORTE Y REPORTAR INCONSISTENCIAS.
+    
+    FORMATO ESTÁNDAR CORRECTO:
+    - Separador de miles: Punto (.)
+    - Separador decimal: Coma (,)
+    - Decimales: Siempre 2 dígitos (,00)
+    - Símbolo: € con espacio antes
+    - Ejemplo: 2.450.000,00 €
+    
+    PROCESO DE VALIDACIÓN PASO A PASO:
+    
+    PASO 1: Buscar TODOS los importes monetarios en el documento
+    PASO 2: Para CADA importe encontrado, verificar:
+            - ¿Tiene separador de miles (punto)?
+            - ¿Tiene separador decimal (coma)?
+            - ¿Tiene exactamente 2 decimales?
+            - ¿Tiene símbolo € con espacio antes?
+    PASO 3: Identificar importes con formato diferente
+    PASO 4: Listar TODOS los importes incorrectos con su ubicación
+    
+    EJEMPLOS DE FORMATOS INCORRECTOS:
+    
+    ❌ 2450000 (sin separadores ni símbolo)
+    ❌ 2.450.000 (sin decimales ni símbolo)
+    ❌ 2.450.000 EUR (EUR en lugar de €)
+    ❌ 2.450.000,00€ (sin espacio antes de €)
+    ❌ €2.450.000,00 (€ al inicio)
+    ❌ 2,450,000.00 € (formato americano)
+    ❌ 2.450.000.00 € (punto como decimal)
+    
+    EJEMPLOS CORRECTOS:
+    ✅ 2.450.000,00 €
+    ✅ 150,50 €
+    ✅ 1.234.567,89 €
+    ✅ 0,00 €
+    
+    REPORTE QUE DEBES GENERAR:
+    "🟡 ADVERTENCIA: Formato de importes inconsistente
+     
+     Los siguientes importes no siguen el formato estándar (X.XXX.XXX,XX €):
+     
+     • Sección 'PRESUPUESTO': 2.450.000 EUR
+       Formato correcto: 2.450.000,00 €
+     
+     • Tabla de lotes, Lote 2: 150.50€
+       Formato correcto: 150,50 €
+     
+     • Página 5, párrafo 3: €1.234.567,89
+       Formato correcto: 1.234.567,89 €"
+    
+    PATRONES A DETECTAR:
+    - Importes sin decimales: \d{1,3}(?:\.\d{3})* (sin ,\d{2})
+    - € al inicio: €\s*\d+
+    - Sin espacio antes de €: \d+€
+    - EUR en lugar de €: \d+.*?EUR
+    - Formato americano: \d{1,3}(?:,\d{3})*\.\d{2}
+    - Punto como decimal: \d+\.\d{2}\s*€
+    
+    SEVERIDAD:
+    - Formato inconsistente: 🟡 ADVERTENCIA
+    - Más de 5 importes incorrectos: 🔴 ERROR CRÍTICO
+
+13. VALORES 0,00 € EN TABLAS SIN RELLENAR:
+    ❌ PROBLEMA: Tablas con valores "0,00 €" indican datos sin completar o plantillas sin rellenar
+    
+    ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+    LOS VALORES "0,00 €" EN TABLAS DE PRESUPUESTOS INDICAN DATOS INCOMPLETOS.
+    DEBES DETECTAR PATRONES DE TABLAS VACÍAS O SIN COMPLETAR.
+    
+    PROCESO DE VALIDACIÓN PASO A PASO:
+    
+    PASO 1: Buscar TODAS las tablas con columnas de importes monetarios
+    PASO 2: Para CADA tabla, identificar filas con valores "0,00 €"
+    PASO 3: Contar cuántas filas consecutivas tienen "0,00 €"
+    PASO 4: Verificar si la fila TOTAL tiene "0,00 €"
+    PASO 5: Reportar tablas con datos incompletos
+    
+    PATRONES CRÍTICOS A DETECTAR:
+    
+    1. FILA TOTAL CON 0,00 €:
+       Si la fila "TOTAL" tiene "0,00 €" en todas las columnas → ERROR CRÍTICO
+       Indica que la tabla completa está vacía
+    
+    2. MÚLTIPLES FILAS CONSECUTIVAS CON 0,00 €:
+       Si 3+ filas consecutivas tienen "0,00 €" → ERROR CRÍTICO
+       Indica sección de tabla sin completar
+    
+    3. TABLA DE LOTES CON CÓDIGO "000":
+       Si aparece "Lot: 000" o "Lote: 000" → ERROR CRÍTICO
+       Indica lote placeholder sin eliminar
+    
+    4. DESCRIPCIÓN VACÍA CON 0,00 €:
+       Si descripción está vacía Y importe es "0,00 €" → ERROR CRÍTICO
+       Indica fila sin datos
+    
+    EJEMPLOS REALES DE ERRORES:
+    
+    ERROR 1 - Tabla de lotes vacía:
+    "| Lot | Descripció de lot |
+     | 000 |                   |"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Tabla de lotes con código placeholder
+     - Lote con código '000' detectado
+     - Descripción vacía
+     - Debe eliminarse o completarse con datos reales"
+    
+    ERROR 2 - Tabla de presupuesto con ceros:
+    "| Lot | Descripció | Import base € | IVA € | Import total € (IVA inclòs) |
+     |     | TOTAL      | 0,00 €        | 0,00 €| 0,00 €                      |"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Tabla de presupuesto sin completar
+     - Fila TOTAL tiene todos los valores en 0,00 €
+     - Indica tabla vacía o sin datos
+     - Debe completarse con importes reales"
+    
+    ERROR 3 - Múltiples lotes vacíos:
+    "| Lot | Descripció | Pressupost (IVA inclòs) |
+     | 1   | Obra 1     | 150.000,00 €            |
+     | 2   | Obra 2     | 0,00 €                  |
+     | 3   | Obra 3     | 0,00 €                  |
+     | 4   | Obra 4     | 0,00 €                  |"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Múltiples lotes sin presupuesto
+     - Lotes 2, 3, 4 tienen presupuesto 0,00 €
+     - 3 lotes consecutivos sin completar
+     - Deben eliminarse o completarse con importes reales"
+    
+    EXCEPCIONES (NO REPORTAR):
+    
+    ✅ Si el documento explícitamente indica:
+       - "Sin presupuesto asignado"
+       - "Presupuesto pendiente de aprobación"
+       - "Importe a determinar"
+       - Entonces NO reportar como error
+    
+    ✅ Si solo 1-2 filas aisladas tienen 0,00 €:
+       - Puede ser intencional (lotes opcionales)
+       - Reportar como 🟡 ADVERTENCIA en lugar de ERROR
+    
+    PATRONES REGEX:
+    - Valores cero: 0,00\s*€|0\.00\s*€
+    - Código placeholder: (Lot|Lote)\s*[:|]\s*000
+    - Fila TOTAL: TOTAL.*?0,00\s*€
+    - Múltiples ceros: (0,00\s*€.*?){3,}
+    
+    SEVERIDAD:
+    - Fila TOTAL con 0,00 €: 🔴 ERROR CRÍTICO
+    - 3+ filas consecutivas con 0,00 €: 🔴 ERROR CRÍTICO
+    - Código "000" en lotes: 🔴 ERROR CRÍTICO
+    - 1-2 filas aisladas con 0,00 €: 🟡 ADVERTENCIA
+
+14. BULLETS VACÍOS O PERDIDOS:
+    ❌ PROBLEMA: Listas con bullets vacíos (sin contenido después del punto) o con estructura inconsistente
+    
+    ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+    LOS BULLETS VACÍOS INDICAN CONTENIDO FALTANTE O ERRORES DE FORMATO.
+    DEBES DETECTAR VIÑETAS SIN TEXTO ASOCIADO.
+    
+    PROCESO DE VALIDACIÓN PASO A PASO:
+    
+    PASO 1: Buscar TODAS las listas con viñetas (•, ○, -, números, letras)
+    PASO 2: Para CADA lista, verificar:
+            - ¿Hay bullets sin texto después?
+            - ¿Hay saltos de línea con bullet pero sin contenido?
+            - ¿Hay bullets seguidos sin texto entre ellos?
+    PASO 3: Identificar el tipo de bullet (letra, número, símbolo)
+    PASO 4: Reportar bullets vacíos con su ubicación exacta
+    
+    PATRONES CRÍTICOS A DETECTAR:
+    
+    1. BULLET SEGUIDO DE OTRO BULLET SIN TEXTO:
+       Patrón: "o\n\no Texto" → Primer "o" está vacío
+       Patrón: "•\n•" → Primer bullet vacío
+       Patrón: "-\n-" → Primer guion vacío
+    
+    2. NUMERACIÓN VACÍA:
+       Patrón: "1.\n2. Texto" → Punto 1 vacío
+       Patrón: "a)\nb) Texto" → Letra a) vacía
+    
+    3. BULLET CON SOLO ESPACIOS:
+       Patrón: "• \n• Texto" → Primer bullet solo tiene espacios
+       Patrón: "- \n- Texto" → Primer guion solo tiene espacios
+    
+    4. INDENTACIÓN INCORRECTA:
+       Bullet padre sin texto pero con bullets hijos
+       Indica estructura de lista mal formada
+    
+    EJEMPLO REAL DE ERROR (de las imágenes del cliente):
+    
+    ERROR 1 - Bullet vacío en lista:
+    "c) Les obligacions d'informació del Contractista...
+         Plec de Clàusules Administratives Particulars...
+         o
+         o Aplicable al contracte si l'import de subcontractació és igual o superior al 30%
+           del preu del contracte"
+    
+    ANÁLISIS:
+    - Primer "o" está vacío (sin texto después)
+    - Segundo "o" tiene texto completo
+    - El primer bullet debe eliminarse o completarse
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Bullet vacío detectado
+     
+     Sección: 'c) Les obligacions d'informació del Contractista'
+     
+     Estructura actual:
+     o [VACÍO]
+     o Aplicable al contracte si l'import...
+     
+     Acción requerida:
+     - Eliminar el primer bullet vacío
+     - O completar con el texto correspondiente"
+    
+    ERROR 2 - Numeración con punto vacío:
+    "18. GARANTIES
+     18.1
+     18.2 Garantia provisional
+     18.3 Garantia definitiva"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Punto de numeración vacío
+     
+     Sección: '18. GARANTIES'
+     Punto vacío: 18.1 (sin texto después)
+     
+     Puntos siguientes:
+     18.2 Garantia provisional
+     18.3 Garantia definitiva
+     
+     Acción requerida:
+     - Eliminar punto 18.1 vacío
+     - O renumerar: 18.1 Garantia provisional, 18.2 Garantia definitiva"
+    
+    ERROR 3 - Lista con múltiples bullets vacíos:
+    "Criteris de valoració:
+     •
+     •
+     • Experiència en projectes similars
+     • Capacitat tècnica"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Múltiples bullets vacíos
+     
+     Sección: 'Criteris de valoració'
+     Bullets vacíos detectados: 2
+     
+     Estructura actual:
+     • [VACÍO]
+     • [VACÍO]
+     • Experiència en projectes similars
+     • Capacitat tècnica
+     
+     Acción requerida:
+     - Eliminar los 2 bullets vacíos
+     - Verificar si falta contenido"
+    
+    PATRONES REGEX PARA DETECCIÓN:
+    
+    1. Bullets circulares:
+       - /^[○o]\s*$/gm (bullet vacío)
+       - /^[○o]\s*\n\s*[○o]/gm (dos bullets seguidos)
+    
+    2. Bullets con guion:
+       - /^-\s*$/gm (guion vacío)
+       - /^-\s*\n\s*-/gm (dos guiones seguidos)
+    
+    3. Bullets con punto:
+       - /^•\s*$/gm (punto vacío)
+       - /^•\s*\n\s*•/gm (dos puntos seguidos)
+    
+    4. Numeración:
+       - /^\d+\.\s*$/gm (número vacío)
+       - /^\d+\.\s*\n\s*\d+\./gm (números seguidos sin texto)
+    
+    5. Letras:
+       - /^[a-z]\)\s*$/gm (letra vacía)
+       - /^[a-z]\)\s*\n\s*[a-z]\)/gm (letras seguidas sin texto)
+    
+    VALIDACIONES ESPECÍFICAS:
+    
+    1. Contar bullets en la lista
+    2. Para cada bullet, verificar si tiene texto después
+    3. Medir longitud del texto (debe ser > 3 caracteres)
+    4. Verificar que no sea solo espacios o saltos de línea
+    5. Identificar posición exacta del bullet vacío
+    6. Reportar con contexto (sección, subsección)
+    
+    EXCEPCIONES (NO REPORTAR):
+    
+    ✅ Bullets intencionalmente vacíos con nota:
+       "• (Pendiente de completar)"
+       "• [A determinar]"
+       "• N/A"
+    
+    ✅ Listas con formato especial:
+       Tablas con bullets como separadores visuales
+    
+    SEVERIDAD:
+    - 1 bullet vacío: 🔴 ERROR CRÍTICO
+    - 2+ bullets vacíos: 🔴 ERROR CRÍTICO (alta prioridad)
+    - Bullet con solo espacios: 🔴 ERROR CRÍTICO
+    - Numeración vacía: 🔴 ERROR CRÍTICO
+
+15. LOTES CON CÓDIGO "000" SIN ELIMINAR:
+    ❌ PROBLEMA: Filas de lotes con código placeholder "000" que no fueron eliminadas de la plantilla
+    
+    ⚠️ INSTRUCCIÓN CRÍTICA PARA LA IA:
+    EL CÓDIGO "000" ES UN PLACEHOLDER DE PLANTILLA QUE DEBE SER ELIMINADO.
+    CUALQUIER LOTE CON CÓDIGO "000" INDICA UNA PLANTILLA SIN LIMPIAR.
+    
+    PROCESO DE VALIDACIÓN PASO A PASO:
+    
+    PASO 1: Buscar TODAS las tablas de lotes en el documento
+    PASO 2: Para CADA tabla, buscar columna "Lot" o "Lote"
+    PASO 3: Identificar filas con código "000"
+    PASO 4: Verificar si la fila tiene descripción vacía
+    PASO 5: Reportar todas las filas con código "000"
+    
+    PATRONES CRÍTICOS A DETECTAR:
+    
+    1. CÓDIGO "000" EN COLUMNA DE LOTE:
+       | Lot | Descripció |
+       | 000 | ...        |
+       
+       Indica: Fila placeholder sin eliminar
+    
+    2. CÓDIGO "000" CON DESCRIPCIÓN VACÍA:
+       | Lot | Descripció de lot |
+       | 000 |                   |
+       
+       Indica: Fila completamente vacía de plantilla
+    
+    3. CÓDIGO "000" CON PRESUPUESTO 0,00 €:
+       | Lot | Descripció | Pressupost |
+       | 000 | ...        | 0,00 €     |
+       
+       Indica: Lote sin datos reales
+    
+    4. MÚLTIPLES FILAS CON "000":
+       Indica: Plantilla con múltiples lotes placeholder sin limpiar
+    
+    EJEMPLO REAL DE ERROR (de las imágenes del cliente):
+    
+    ERROR 1 - Lote con código 000:
+    "| Lot | Descripció de lot |
+     | 000 |                   |"
+    
+    ANÁLISIS:
+    - Código de lote: "000" (placeholder)
+    - Descripción: vacía
+    - Esta fila debe eliminarse completamente
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Lote con código placeholder detectado
+     
+     Tabla: Descripción de lotes
+     Fila detectada:
+     - Código lote: 000
+     - Descripción: [VACÍA]
+     
+     Acción requerida:
+     - Eliminar completamente esta fila de la tabla
+     - Es un placeholder de plantilla que no debe aparecer en el documento final"
+    
+    ERROR 2 - Múltiples lotes 000:
+    "| Lot | Descripció | Pressupost (IVA inclòs) |
+     | 1   | Obra real  | 150.000,00 €            |
+     | 000 |            | 0,00 €                  |
+     | 000 |            | 0,00 €                  |"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Múltiples lotes placeholder detectados
+     
+     Tabla: Presupuesto de lotes
+     Lotes con código '000': 2 filas
+     
+     Filas a eliminar:
+     - Fila 2: Lot 000, sin descripción, 0,00 €
+     - Fila 3: Lot 000, sin descripción, 0,00 €
+     
+     Acción requerida:
+     - Eliminar ambas filas placeholder
+     - Mantener solo lotes reales con datos completos"
+    
+    ERROR 3 - Lote 000 con descripción parcial:
+    "| Lot | Descripció        | Pressupost |
+     | 1   | Carretera A       | 200.000 €  |
+     | 000 | [Pendiente]       | 0,00 €     |
+     | 2   | Carretera B       | 150.000 €  |"
+    
+    REPORTE ESPERADO:
+    "🔴 ERROR CRÍTICO: Lote placeholder con descripción temporal
+     
+     Tabla: Lotes del proyecto
+     Lote detectado: 000 - [Pendiente]
+     
+     Problema:
+     - Código '000' es placeholder de plantilla
+     - Descripción '[Pendiente]' indica dato incompleto
+     - Presupuesto 0,00 € sin asignar
+     
+     Acción requerida:
+     - Si el lote es real: asignar código correcto (3) y completar datos
+     - Si no es necesario: eliminar la fila completamente"
+    
+    PATRONES REGEX PARA DETECCIÓN:
+    
+    1. Código 000 en tabla:
+       - /(Lot|Lote)\s*[:|]\s*000/gi
+       - /\|\s*000\s*\|/g (en formato tabla)
+    
+    2. Fila completa con 000:
+       - /\|\s*000\s*\|[^|]*\|/g (captura fila completa)
+    
+    3. 000 con descripción vacía:
+       - /\|\s*000\s*\|\s*\|/g
+    
+    4. 000 con presupuesto cero:
+       - /000.*?0,00\s*€/g
+    
+    VALIDACIONES ESPECÍFICAS:
+    
+    1. Identificar todas las tablas de lotes
+    2. Buscar columna "Lot" o "Lote"
+    3. Para cada fila, extraer código de lote
+    4. Si código == "000":
+       - Verificar descripción (vacía o con texto)
+       - Verificar presupuesto (0,00 € o con valor)
+       - Contar cuántas filas tienen "000"
+    5. Reportar con detalles completos
+    
+    CONTEXTO ADICIONAL:
+    
+    El código "000" se usa en plantillas SAP como placeholder para:
+    - Indicar "sin lotes" en documentos base
+    - Marcar filas que deben eliminarse si no aplican
+    - Separar secciones condicionales
+    
+    En documentos finales, NUNCA debe aparecer "000" como código de lote real.
+    
+    EXCEPCIONES (NO REPORTAR):
+    
+    ❌ NO hay excepciones válidas para este error
+    ✅ SIEMPRE reportar código "000" como ERROR CRÍTICO
+    
+    Razón: "000" es SIEMPRE un placeholder de plantilla
+    
+    SEVERIDAD:
+    - 1 lote con código "000": 🔴 ERROR CRÍTICO
+    - 2+ lotes con código "000": 🔴 ERROR CRÍTICO (máxima prioridad)
+    - "000" en cualquier contexto de lotes: 🔴 ERROR CRÍTICO
+    
+    INSTRUCCION CRITICA PARA LA IA:
+    DEBES BUSCAR ACTIVAMENTE CUALQUIER TEXTO QUE PAREZCA SER:
+    - Un comentario de un desarrollador
+    - Una instruccion tecnica sobre que hacer
+    - Una variable SAP sin reemplazar (empieza con Z)
+    - Texto resaltado o con formato de borrador
+    
+    PATRONES A DETECTAR:
+    
+    1. COMENTARIOS DE DESARROLLADORES:
+       - Texto con nombre + dos puntos: "Oriol:", "David:", "Maria:", "Joan:"
+       - Instrucciones en catalan: "S'haura de treure", "no treure la taula", "Escollir quina de les 2"
+       - Referencias a tablas SAP: "si hi ha valors a la taula ZRM_", "a la taula ZVRM_"
+       - Condiciones tecnicas: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000", "En cas que apliqui"
+       - Instrucciones sobre columnas: "quan no hi hagi lots, a la columna material"
+    
+    2. TAGS SAP SIN REEMPLAZAR (Variables que empiezan con Z):
+       - ZRM_DM_MAT_CO2
+       - ZVRM_QDC_MAT_LIC
+       - ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
+       - Cualquier variable: Z[A-Z_]+
+    
+    3. TEXTO RESALTADO CON INSTRUCCIONES:
+       - Texto en amarillo con instrucciones
+       - Texto en rojo con comentarios
+       - Placeholders o borradores visibles
+       - Instrucciones entre parentesis
+    
+    EJEMPLOS REALES DE ERRORES:
+    
+    ERROR 1:
+    "Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o 
+    ZVRM_QDC_MAT_LIC -> Escollir quina de les 2) S'haura de treure el text en groc."
+    
+    REPORTE ESPERADO:
+    "ERROR CRITICO: Comentario de desarrollador detectado
+     - Linea: 'Oriol: En cas que apliqui el CO2...'
+     - Contiene: Nombre desarrollador + instrucciones tecnicas
+     - Tags SAP sin reemplazar: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC"
+    
+    ERROR 2:
+    "Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula seguent"
+    
+    REPORTE ESPERADO:
+    "ERROR CRITICO: Comentario de desarrollador detectado
+     - Linea: 'Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000...'
+     - Contiene: Condicion tecnica SAP
+     - Tag SAP sin reemplazar: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT"
+    
+    SEVERIDAD: ERROR CRITICO (bloquea generacion)
+
 ================================================================================
                         NIVELES DE CRITICIDAD
 ================================================================================
 
 🔴 CRÍTICO (Bloquea generación):
 - Tags SAP sin rellenar
+- Comentarios de desarrolladores en el texto (Oriol:, David:, etc.)
+- Tags SAP sin reemplazar (ZRM_, ZVRM_, etc.)
 - Campos SÍ/NO duplicados
 - Cantidad de lotes incorrecta
+- Saltos de 2+ puntos en numeración (probablemente faltan secciones)
+- Tablas APLICA/NO APLICA con campos vacíos
+- Tablas APLICA/NO APLICA con ambas opciones marcadas
+- Secciones obligatorias faltantes
+- Incoherencia numérica > 100€ entre presupuesto total y suma de lotes
+- Falta tabla de lotes cuando se declaran lotes
+- Número de lotes en tabla diferente al declarado
+- Fila TOTAL con 0,00 € (Error #13 - Jesús Arenas)
+- 3+ filas consecutivas con 0,00 € (Error #13 - Jesús Arenas)
+- Código "000" en lotes (Error #13 y #15 - Jesús Arenas)
+- Bullets vacíos o sin texto (Error #14 - Jesús Arenas)
+- Numeración vacía (Error #14 - Jesús Arenas)
+- Lotes con código placeholder "000" (Error #15 - Jesús Arenas)
 
 🟡 ADVERTENCIA (Permite continuar):
 - Formato de fecha incorrecto
 - Formato de importes incorrecto
+- Formato de importes inconsistente (Error #12 - Jesús Arenas)
+- 1-2 filas aisladas con 0,00 € (Error #13 - Jesús Arenas)
 - Palabras en castellano detectadas
+- Salto de 1 punto en numeración (puede ser intencional)
+- Secciones vacías
+- Secciones duplicadas
+- Orden incorrecto de secciones
+- Valores no estándar en tablas APLICA/NO APLICA
+- Incoherencia numérica 1€-100€ entre presupuesto y lotes (posible redondeo)
 
 ================================================================================
                         INTEGRACIÓN CON VALIDACIÓN
@@ -168,6 +949,50 @@ LOTES:
 PALABRAS CASTELLANAS:
 - /\b(presupuesto|contrato|licitación|adjudicación|obras|proyecto)\b/gi
 
+COMENTARIOS DE DESARROLLADORES:
+- /^[A-Z][a-z]+:\s+/gm (Oriol:, David:, Maria:)
+- /S'haurà de treure/gi
+- /no treure/gi
+- /Escollir quina de les/gi
+- /si hi ha valors a la taula/gi
+
+TAGS SAP SIN REEMPLAZAR (Variables Z):
+- /\bZ[A-Z_]+[A-Z0-9_]*\b/g
+- /ZVRM_[A-Z_]+/g
+- /ZRM_[A-Z_]+/g
+
+NUMERACIÓN:
+- /^(\d+(?:\.\d+)*)\.\s+/gm (detectar numeración: 1., 2.1, 3.1.1, etc.)
+- Validar secuencia: extraer números y verificar continuidad
+
+TABLAS APLICA/NO APLICA:
+- /APLICA|NO APLICA/gi (detectar tablas con estos encabezados)
+- /\|\s*\|\s*\|/g (detectar celdas vacías en tablas)
+- /APLICA:\s*$/gim (detectar campos APLICA vacíos)
+- /NO APLICA:\s*$/gim (detectar campos NO APLICA vacíos)
+
+SECCIONES OBLIGATORIAS:
+- Buscar texto exacto (case-insensitive):
+  - "OBJETO DEL CONTRATO" o "OBJECTE DEL CONTRACTE"
+  - "PRESUPUESTO" o "PRESSUPOST"
+  - "PLAZO DE EJECUCIÓN" o "TERMINI D'EXECUCIÓ"
+  - "CONDICIONES TÉCNICAS" o "CONDICIONS TÈCNIQUES"
+  - "CRITERIOS DE ADJUDICACIÓN" o "CRITERIS D'ADJUDICACIÓ"
+  - "GARANTÍAS" o "GARANTIES"
+  - "PENALIDADES" o "PENALITATS"
+  - "MODIFICACIÓN DEL CONTRATO" o "MODIFICACIÓ DEL CONTRACTE"
+  - "SUBCONTRATACIÓN" o "SUBCONTRACTACIÓ"
+  - "REVISIÓN DE PRECIOS" o "REVISIÓ DE PREUS"
+
+COHERENCIA NUMÉRICA PRESUPUESTOS:
+- /PRESSUPOST DE LICITACIÓ:\s*([\d.,]+)\s*euros\s*\(IVA inclòs\)/gi
+- /PRESUPUESTO DE LICITACIÓN:\s*([\d.,]+)\s*euros\s*\(IVA incluido\)/gi
+- /Lot\s*\d+.*?([\d.,]+)\s*euros/gi (extraer importes de lotes)
+- Convertir formato catalán (123.456,78) a número para cálculos
+- Sumar todos los importes de lotes
+- Calcular diferencia absoluta: |presupuesto_total - suma_lotes|
+- Clasificar según diferencia: <1€ OK, 1-100€ WARNING, >100€ ERROR
+
 ================================================================================
                             EJEMPLOS DE ERRORES
 ================================================================================
@@ -190,6 +1015,46 @@ PALABRAS CASTELLANAS:
 
 ❌ IDIOMA INCORRECTO:
 "presupuesto de licitación" (debe ser "pressupost de licitació")
+
+❌ NUMERACIÓN CON SALTO:
+"1. Introducción
+ 2. Objeto del contrato
+ 5. Presupuesto" ← FALTA 3. y 4. (ERROR CRÍTICO)
+
+❌ TABLA APLICA/NO APLICA VACÍA:
+"| Requisito ISO 9001 | APLICA | NO APLICA |
+ | Certificación      |        |           |" ← CAMPO VACÍO (ERROR CRÍTICO)
+
+❌ TABLA APLICA/NO APLICA AMBIGUA:
+"| Requisito | APLICA | NO APLICA |
+ | Req 1    |   X    |     X     |" ← AMBOS MARCADOS (ERROR CRÍTICO)
+
+❌ SECCIÓN OBLIGATORIA FALTANTE:
+Pliego sin apartado "GARANTÍAS" (ERROR CRÍTICO)
+
+❌ INCOHERENCIA NUMÉRICA EN PRESUPUESTO:
+"2.- DADES ECONÒMIQUES:
+ 
+PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs), 201.600,00 euros (IVA no inclòs)
+ 
+Lot | Descripció                    | Pressupost (IVA inclòs)
+1   | Carretera de Rubí al Papiol   | 241.840,28
+2   | Carretera del Papiol a Mira-Sol | 1.942,72
+
+SUMA LOTES: 241.840,28 + 1.942,72 = 243.783,00 euros
+PRESUPUESTO DECLARADO: 243.936,00 euros
+DIFERENCIA: 153,00 euros ← ERROR CRÍTICO (>100€)"
+
+✅ COHERENCIA NUMÉRICA CORRECTA:
+"PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
+ 
+Lot | Descripció                    | Pressupost (IVA inclòs)
+1   | Carretera de Rubí al Papiol   | 241.840,28
+2   | Carretera del Papiol a Mira-Sol | 2.095,72
+
+SUMA LOTES: 241.840,28 + 2.095,72 = 243.936,00 euros
+PRESUPUESTO DECLARADO: 243.936,00 euros
+DIFERENCIA: 0,00 euros ← CORRECTO"
 
 ================================================================================
                                 NOTAS

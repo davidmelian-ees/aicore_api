@@ -266,6 +266,7 @@
                 <li><a href="#api">API Reference</a></li>
                 <li><a href="#funcionalidades">Funcionalidades</a></li>
                 <li><a href="#backup-restore">Backup y Restore</a></li>
+                <li><a href="#logs">Sistema de Logs</a></li>
                 <li><a href="#guias">Guías de Uso</a></li>
                 <li><a href="#troubleshooting">Troubleshooting</a></li>
             </ul>
@@ -710,6 +711,115 @@ Campos: document (file), tags (string), description (string)
                 <span class="method delete">DELETE</span> /api/rag/contexts/{contextId}
             </div>
             <p>Elimina un contexto y todos sus documentos</p>
+            
+            <h3>Gestión de Errores de Pliegos</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/pdf-correction/errors/raw
+            </div>
+            <p>Obtiene el JSON completo de errores de todos los pliegos</p>
+            <div class="code-block">
+{
+  "success": true,
+  "database": {
+    "pliegos": [
+      {
+        "metadata": {
+          "pliegoId": "PLIEGO_123",
+          "fileName": "pliego.pdf",
+          "analyzedAt": "2025-11-17T09:35:36.804Z"
+        },
+        "criticalErrors": [...],
+        "warnings": [...],
+        "summary": {
+          "totalCriticalErrors": 4,
+          "totalWarnings": 5
+        }
+      }
+    ]
+  },
+  "totalPliegos": 2
+}
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/pdf-correction/errors/download
+            </div>
+            <p>Descarga el JSON de errores como archivo</p>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/pdf-correction/errors/statistics
+            </div>
+            <p>Obtiene estadísticas agregadas de todos los errores</p>
+            <div class="code-block">
+{
+  "success": true,
+  "statistics": {
+    "totalPliegos": 2,
+    "totalCriticalErrors": 4,
+    "totalWarnings": 5,
+    "errorsByType": {
+      "ERROR_NUMERICO": 2,
+      "COMENTARIO_DESARROLLADOR": 4,
+      "TAG_SIN_REEMPLAZAR": 1
+    }
+  }
+}
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/pdf-correction/errors/by-date
+            </div>
+            <p>Filtra errores por rango de fechas</p>
+            <div class="code-block">
+Query params:
+  - dateIni: YYYY-MM-DD (fecha inicial)
+  - dateFin: YYYY-MM-DD (fecha final)
+
+Ejemplo: /api/pdf-correction/errors/by-date?dateIni=2025-11-01&dateFin=2025-11-17
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/pdf-correction/errors/by-date/{date}
+            </div>
+            <p>Obtiene errores de una fecha específica</p>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/pdf-correction/errors/grouped-by-date
+            </div>
+            <p>Agrupa errores por fecha de análisis</p>
+            <div class="code-block">
+Query params:
+  - dateIni: YYYY-MM-DD (opcional)
+  - dateFin: YYYY-MM-DD (opcional)
+
+Respuesta:
+{
+  "success": true,
+  "data": {
+    "2025-11-17": {
+      "pliegos": [...],
+      "totalCriticalErrors": 4,
+      "totalWarnings": 5
+    }
+  }
+}
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> /api/pdf-correction/errors/by-type/{errorType}
+            </div>
+            <p>Filtra errores por tipo específico</p>
+            <div class="code-block">
+Ejemplo: /api/pdf-correction/errors/by-type/ERROR_NUMERICO
+
+Tipos disponibles:
+  - ERROR_NUMERICO
+  - TAG_SIN_REEMPLAZAR
+  - COMENTARIO_DESARROLLADOR
+  - FORMATO_FECHA_ERRONEO
+  - CAMPO_SI_NO_DUPLICADO
+  - etc.
+            </div>
         </section>
 
         <section id="funcionalidades">
@@ -1260,6 +1370,199 @@ console.log('✅ Backup subido a S3');
 [BACKUP] 📦 Creando backup de seguridad antes de restaurar...
 [BACKUP] ✅ Base de datos restaurada desde: backup_2024-10-08T12-30-00-000Z.db.gz
             </div>
+        </section>
+
+        <section id="logs">
+            <h2>📊 Sistema de Logs</h2>
+            
+            <h3>¿Por qué un Sistema de Logs Propio?</h3>
+            <div class="alert alert-info">
+                <strong>⚠️ Problema con Cloud Foundry Logs:</strong>
+                <p>Los logs de Cloud Foundry (<code>cf logs</code>) son extremadamente difíciles de leer y analizar:</p>
+                <ul>
+                    <li>❌ Formato poco legible con timestamps complejos</li>
+                    <li>❌ Mezcla de logs de sistema y aplicación</li>
+                    <li>❌ Difícil búsqueda y filtrado</li>
+                    <li>❌ No se pueden descargar fácilmente</li>
+                    <li>❌ Se pierden cuando se reinicia la app</li>
+                </ul>
+                <p><strong>✅ Solución:</strong> Sistema de logging propio que escribe en archivo y permite descarga en formato Markdown limpio y organizado.</p>
+            </div>
+            
+            <h3>Características del Sistema</h3>
+            <div class="list-item">✅ <strong>Doble escritura</strong>: Logs en consola (Cloud Foundry) y archivo local</div>
+            <div class="list-item">✅ <strong>Rotación automática</strong>: Cuando el archivo supera 5MB</div>
+            <div class="list-item">✅ <strong>Formato Markdown</strong>: Descarga organizada y legible</div>
+            <div class="list-item">✅ <strong>Timestamps precisos</strong>: ISO 8601 en cada entrada</div>
+            <div class="list-item">✅ <strong>Niveles de log</strong>: INFO, ERROR, WARN, DEBUG, SUCCESS</div>
+            <div class="list-item">✅ <strong>Datos estructurados</strong>: JSON embebido para debugging</div>
+            <div class="list-item">✅ <strong>Estadísticas</strong>: Tamaño, líneas, última modificación</div>
+            
+            <h3>Endpoints Disponibles</h3>
+            
+            <h4>1. Ver Logs (JSON)</h4>
+            <div class="code-block">
+GET /api/logs
+
+# Respuesta
+{
+  "success": true,
+  "logs": "[2025-11-18T07:00:00.000Z] [INFO] [RAG-SERVICE] Documento procesado..."
+}
+            </div>
+            
+            <h4>2. Descargar Logs (Markdown)</h4>
+            <div class="code-block">
+GET /api/logs/download
+
+# Descarga archivo: aicore_api_logs_1731916800000.md
+# Formato Markdown limpio y organizado
+            </div>
+            
+            <h4>3. Estadísticas de Logs</h4>
+            <div class="code-block">
+GET /api/logs/stats
+
+# Respuesta
+{
+  "success": true,
+  "stats": {
+    "size": 524288,
+    "sizeFormatted": "512.00 KB",
+    "lines": 1250,
+    "lastModified": "2025-11-18T07:30:00.000Z",
+    "path": "/home/vcap/app/logs/app.log"
+  }
+}
+            </div>
+            
+            <h4>4. Limpiar Logs</h4>
+            <div class="code-block">
+DELETE /api/logs
+
+# Respuesta
+{
+  "success": true,
+  "message": "Logs limpiados correctamente"
+}
+            </div>
+            
+            <h3>Uso en Código</h3>
+            <div class="code-block">
+import logger from './services/loggerService.js';
+
+// Diferentes niveles de log
+logger.info('MODULE-NAME', 'Operación iniciada');
+logger.success('MODULE-NAME', 'Operación completada');
+logger.warn('MODULE-NAME', 'Advertencia detectada');
+logger.error('MODULE-NAME', 'Error crítico', { error: error.message });
+logger.debug('MODULE-NAME', 'Info de debug', { data: someData });
+
+// Ejemplo real
+logger.info('RAG-SERVICE', 'Procesando documento', {
+  filename: 'pliego.pdf',
+  size: 1024000,
+  contextId: 'abc-123'
+});
+            </div>
+            
+            <h3>Formato de Salida (Markdown)</h3>
+            <div class="code-block">
+# 📋 Logs de AI Core API
+
+**Generado:** 2025-11-18T07:30:00.000Z
+
+---
+
+```log
+[2025-11-18T07:00:00.000Z] [INFO] [RAG-SERVICE] Documento procesado
+{
+  "filename": "pliego.pdf",
+  "chunks": 45,
+  "contextId": "abc-123"
+}
+
+[2025-11-18T07:01:00.000Z] [SUCCESS] [BACKUP] Backup creado correctamente
+
+[2025-11-18T07:02:00.000Z] [ERROR] [PDF-SERVICE] Error procesando PDF
+{
+  "error": "Invalid PDF structure",
+  "file": "documento.pdf"
+}
+```
+            </div>
+            
+            <h3>Comandos Útiles</h3>
+            <div class="code-block">
+# Descargar logs de producción
+curl https://ai-core-api.cfapps.eu10-005.hana.ondemand.com/api/logs/download \
+  -o aicore_logs_$(date +%Y%m%d).md
+
+# Ver estadísticas
+curl https://ai-core-api.cfapps.eu10-005.hana.ondemand.com/api/logs/stats
+
+# Limpiar logs (requiere autenticación en producción)
+curl -X DELETE https://ai-core-api.cfapps.eu10-005.hana.ondemand.com/api/logs
+
+# Ver logs en tiempo real (Cloud Foundry - menos legible)
+cf logs ai-core-api --recent
+            </div>
+            
+            <h3>Rotación de Logs</h3>
+            <p>El sistema rota automáticamente los logs cuando el archivo supera 5MB:</p>
+            <div class="code-block">
+# Archivo actual
+logs/app.log (4.8 MB)
+
+# Cuando supera 5MB, se renombra:
+logs/app_2025-11-18T07-30-00-000Z.log (5.2 MB)
+
+# Y se crea uno nuevo:
+logs/app.log (0 KB)
+            </div>
+            
+            <h3>Ventajas vs Cloud Foundry Logs</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Característica</th>
+                        <th>Cloud Foundry Logs</th>
+                        <th>Sistema Propio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Formato</td>
+                        <td>❌ Complejo y difícil de leer</td>
+                        <td>✅ Markdown limpio</td>
+                    </tr>
+                    <tr>
+                        <td>Descarga</td>
+                        <td>❌ No disponible</td>
+                        <td>✅ Endpoint directo</td>
+                    </tr>
+                    <tr>
+                        <td>Búsqueda</td>
+                        <td>❌ Limitada</td>
+                        <td>✅ Archivo de texto plano</td>
+                    </tr>
+                    <tr>
+                        <td>Persistencia</td>
+                        <td>❌ Se pierden al reiniciar</td>
+                        <td>✅ Guardados en archivo</td>
+                    </tr>
+                    <tr>
+                        <td>Estructura</td>
+                        <td>❌ Mezclado con logs de sistema</td>
+                        <td>✅ Solo logs de aplicación</td>
+                    </tr>
+                    <tr>
+                        <td>Timestamps</td>
+                        <td>❌ Formato complejo</td>
+                        <td>✅ ISO 8601 estándar</td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
 
         <section id="guias">

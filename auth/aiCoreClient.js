@@ -6,11 +6,30 @@ xsenv.loadEnv();
 
 let client;
 
-// Inicializa y devuelve un cliente AI Core
-export function getAiCoreClient(model = "gpt-4o") {
+/**
+ * Inicializa y devuelve un cliente AI Core
+ * @param {string} model - Modelo a usar (default: gpt-4o)
+ * @param {object} options - Opciones adicionales
+ * @param {number} options.temperature - Temperatura (0.0 = determinista, 1.0 = creativo). Default: 0.3 para validación
+ * @param {number} options.maxTokens - Máximo de tokens en la respuesta
+ * @returns {AzureOpenAiChatClient} Cliente configurado
+ */
+export function getAiCoreClient(model = "gpt-4o", options = {}) {
+  const {
+    temperature = 0.2, // Temperatura baja para validación consistente
+    maxTokens = 4000
+  } = options;
+  
   if (!client) {
     client = new AzureOpenAiChatClient(model);
-    console.log(`[AI CORE] Cliente inicializado con modelo: ${model}`);
+    console.log(`[AI CORE] Cliente inicializado con modelo: ${model}, temperature: ${temperature}`);
   }
+  
+  // Configurar parámetros por defecto para las llamadas
+  client.defaultConfig = {
+    temperature,
+    max_tokens: maxTokens
+  };
+  
   return client;
 }
