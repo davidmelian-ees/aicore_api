@@ -135,8 +135,29 @@ export async function createContext(name, description = '') {
  * @returns {Promise<Array<Object>>} - Lista de contextos
  */
 export async function listContexts() {
-  await initializeContexts();
-  return Array.from(contexts.values());
+  // Leer contextos directamente desde SQLite (fuente de verdad)
+  const { sqliteVectorStore } = await import('./sqliteVectorStore.js');
+  
+  try {
+    const contextsFromDB = sqliteVectorStore.getAllContexts();
+    
+    // Si hay contextos en SQLite, usarlos
+    if (contextsFromDB && contextsFromDB.length > 0) {
+      console.log(`[RAG] 📊 Listando ${contextsFromDB.length} contextos desde SQLite`);
+      return contextsFromDB;
+    }
+    
+    // Fallback: leer desde contexts.json si SQLite está vacío
+    console.log('[RAG] ⚠️ SQLite vacío, usando contexts.json como fallback');
+    await initializeContexts();
+    return Array.from(contexts.values());
+    
+  } catch (error) {
+    console.error('[RAG] ❌ Error leyendo contextos desde SQLite:', error);
+    // Fallback: leer desde contexts.json
+    await initializeContexts();
+    return Array.from(contexts.values());
+  }
 }
 
 /**
@@ -145,8 +166,29 @@ export async function listContexts() {
  * @returns {Promise<Object|null>} - Información del contexto o null si no existe
  */
 export async function getContextInfo(contextId) {
-  await initializeContexts();
-  return contexts.get(contextId) || null;
+  // Leer contexto directamente desde SQLite (fuente de verdad)
+  const { sqliteVectorStore } = await import('./sqliteVectorStore.js');
+  
+  try {
+    const contextsFromDB = sqliteVectorStore.getAllContexts();
+    const context = contextsFromDB.find(ctx => ctx.id === contextId);
+    
+    if (context) {
+      console.log(`[RAG] 📊 Contexto ${contextId} encontrado en SQLite`);
+      return context;
+    }
+    
+    // Fallback: leer desde contexts.json
+    console.log(`[RAG] ⚠️ Contexto ${contextId} no encontrado en SQLite, buscando en contexts.json`);
+    await initializeContexts();
+    return contexts.get(contextId) || null;
+    
+  } catch (error) {
+    console.error(`[RAG] ❌ Error leyendo contexto ${contextId} desde SQLite:`, error);
+    // Fallback: leer desde contexts.json
+    await initializeContexts();
+    return contexts.get(contextId) || null;
+  }
 }
 
 /**

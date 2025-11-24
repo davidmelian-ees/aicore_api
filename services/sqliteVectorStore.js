@@ -87,6 +87,69 @@ class SQLiteVectorStore {
   }
 
   /**
+   * Cierra la conexión a la base de datos
+   */
+  close() {
+    if (this.db) {
+      try {
+        console.log('[SQLITE-VECTOR] 🔒 Cerrando conexión a base de datos...');
+        this.db.close();
+        this.db = null;
+        this.isInitialized = false;
+        console.log('[SQLITE-VECTOR] ✅ Conexión cerrada');
+      } catch (error) {
+        console.error('[SQLITE-VECTOR] ⚠️ Error cerrando conexión:', error.message);
+      }
+    }
+  }
+
+  /**
+   * Reinicializa la base de datos (útil después de restaurar un backup)
+   */
+  async reinitialize() {
+    console.log('[SQLITE-VECTOR] 🔄 Reinicializando base de datos...');
+    this.close();
+    await this.initialize();
+    console.log('[SQLITE-VECTOR] ✅ Base de datos reinicializada');
+  }
+
+  /**
+   * Obtiene todos los contextos únicos de los documentos
+   * @returns {Array} - Lista de contextos con estadísticas
+   */
+  getAllContexts() {
+    this._ensureInitialized();
+    
+    try {
+      const query = `
+        SELECT 
+          context_id,
+          COUNT(DISTINCT document_id) as document_count,
+          COUNT(*) as chunk_count,
+          MIN(created_at) as created_at
+        FROM documents
+        GROUP BY context_id
+        ORDER BY created_at DESC
+      `;
+      
+      const contexts = this.db.prepare(query).all();
+      
+      return contexts.map(ctx => ({
+        id: ctx.context_id,
+        name: ctx.context_id === 'default' ? 'Contexto Principal' : ctx.context_id,
+        description: `Contexto con ${ctx.document_count} documentos`,
+        createdAt: ctx.created_at,
+        documentCount: ctx.document_count,
+        chunkCount: ctx.chunk_count
+      }));
+      
+    } catch (error) {
+      console.error('[SQLITE-VECTOR] Error obteniendo contextos:', error);
+      return [];
+    }
+  }
+
+  /**
    * Agrega un documento con su embedding
    * @param {Object} document - Documento a agregar
    * @param {Array<number>} embedding - Vector de embedding
