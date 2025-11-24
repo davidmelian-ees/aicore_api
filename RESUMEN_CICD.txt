@@ -1,0 +1,126 @@
+╔════════════════════════════════════════════════════════════╗
+║     RESUMEN RÁPIDO - CI/CD BTP CLOUD FOUNDRY              ║
+╚════════════════════════════════════════════════════════════╝
+
+❓ PROBLEMA:
+   BTP CI/CD no acepta manifest.yml, solo mta.yaml
+
+✅ SOLUCIÓN:
+   Usar MTA (Multi-Target Application) en lugar de manifest
+
+═══════════════════════════════════════════════════════════
+
+📦 ARCHIVOS CREADOS:
+
+✅ mta.yaml              ← Descriptor MTA principal
+✅ mta-prod.mtaext       ← Extensión para producción
+✅ .mbtrc                ← Configuración de build
+✅ build-mta.bat         ← Script para build local
+✅ GUIA_CICD_BTP.md      ← Guía completa paso a paso
+✅ .gitignore            ← Actualizado con archivos MTA
+
+═══════════════════════════════════════════════════════════
+
+🚀 PASOS PARA CONFIGURAR CI/CD:
+
+1️⃣ CREAR JOB EN BTP CI/CD
+   • Ve a BTP Cockpit → DEV → CI/CD Service
+   • Click en "Create Job"
+   • Nombre: ai-core-api-prod-deploy
+
+2️⃣ CONFIGURAR BUILD
+   • Build Tool: MTA Build Tool
+   • Build Descriptor: mta.yaml ✅
+   • MTA Extension: mta-prod.mtaext (opcional)
+
+3️⃣ CONFIGURAR DEPLOY
+   • Target: Cloud Foundry
+   • API: https://api.cf.eu10.hana.ondemand.com
+   • Org: [Tu organización]
+   • Space: production
+
+4️⃣ CREDENCIALES
+   • Cloud Foundry: Tu email + password de BTP
+   • Git: Tu usuario + token (si es privado)
+
+5️⃣ GUARDAR Y EJECUTAR
+   • Click en "Save"
+   • Click en "Run"
+
+═══════════════════════════════════════════════════════════
+
+🔨 PROBAR BUILD LOCALMENTE (OPCIONAL):
+
+1. Instalar MBT:
+   npm install -g mbt
+
+2. Ejecutar build:
+   Doble click en: build-mta.bat
+
+3. Resultado:
+   mta_archives/ai-core-api_1.0.0.mtar
+
+═══════════════════════════════════════════════════════════
+
+📋 DIFERENCIAS CLAVE:
+
+┌──────────────┬────────────────┬──────────────────┐
+│              │ manifest.yml   │ mta.yaml         │
+├──────────────┼────────────────┼──────────────────┤
+│ Uso          │ Deploy manual  │ CI/CD automático │
+│ BTP CI/CD    │ ❌ No soportado│ ✅ Soportado     │
+│ Build Tool   │ No requiere    │ Requiere MBT     │
+│ Complejidad  │ Simple         │ Más complejo     │
+└──────────────┴────────────────┴──────────────────┘
+
+═══════════════════════════════════════════════════════════
+
+💡 IMPORTANTE:
+
+• Mantén AMBOS archivos:
+  - manifest.yml → Para deploy manual con "cf push"
+  - mta.yaml → Para CI/CD automatizado
+
+• El mta.yaml está basado en tu manifest.yml actual
+
+• Todas las configuraciones son las mismas:
+  - Memory: 2048M
+  - Buildpack: nodejs_buildpack
+  - Service: aicore-app-auth
+  - Variables: VECTOR_STORE_TYPE, NODE_ENV
+
+═══════════════════════════════════════════════════════════
+
+🎯 PRÓXIMOS PASOS:
+
+1. Revisa el archivo mta.yaml creado
+2. Sube los archivos a tu repositorio Git:
+   git add mta.yaml mta-prod.mtaext .mbtrc
+   git commit -m "Add MTA configuration for CI/CD"
+   git push
+
+3. Crea el job en BTP CI/CD siguiendo la guía
+4. Ejecuta el job y verifica el deploy
+
+═══════════════════════════════════════════════════════════
+
+📚 DOCUMENTACIÓN:
+
+• Guía completa: GUIA_CICD_BTP.md
+• Archivo principal: mta.yaml
+• Extensión prod: mta-prod.mtaext
+
+═══════════════════════════════════════════════════════════
+
+🆘 SI TIENES PROBLEMAS:
+
+1. Verifica que mta.yaml está en la raíz del repo
+2. Asegúrate que el servicio aicore-app-auth existe en prod
+3. Revisa logs del job en BTP CI/CD
+4. Consulta GUIA_CICD_BTP.md para troubleshooting
+
+═══════════════════════════════════════════════════════════
+
+✅ ¡LISTO PARA CI/CD EN PRODUCCIÓN!
+
+═══════════════════════════════════════════════════════════
