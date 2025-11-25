@@ -14,6 +14,7 @@ import pdfVisualAnalyzer from '../services/pdfVisualAnalyzer.js';
 import { highlightErrorsInPDF, parseErrorsFromAIResponse } from '../services/pdfHighlightService.js';
 import { storeErrorsForPliego, getErrorsForPliego, generateAggregatedReport, formatAggregatedReport, deleteErrorsForPliego, clearAllErrors } from '../services/pliegoErrorsService.js';
 import loggerService from '../services/loggerService.js';
+import { convertDocxToPdf, convertDocxBufferToPdf, isDocxFile, detectFileTypeFromBuffer } from '../services/docToPdfConverter.js';
 
 const router = express.Router();
 
@@ -37,10 +38,13 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
+    const isPdf = file.mimetype === 'application/pdf';
+    const isDocx = isDocxFile(file.mimetype, file.originalname);
+    
+    if (isPdf || isDocx) {
       cb(null, true);
     } else {
-      cb(new Error('Solo se permiten archivos PDF'), false);
+      cb(new Error('Solo se permiten archivos PDF, DOC o DOCX'), false);
     }
   },
   limits: {
@@ -52,12 +56,16 @@ const upload = multer({
 /**
  * POST /api/pdf-correction/generate-list
  * Genera un PDF con el contenido original + lista de correcciones
- * Soporta dos formatos:
- * 1. Multipart/form-data con campo 'pdf' (archivo)
- * 2. JSON con campo 'pdfBase64' (string base64)
+ * Soporta tres formatos:
+ * 1. Multipart/form-data con campo 'pdf' (archivo PDF o DOC/DOCX)
+ * 2. JSON con campo 'pdfBase64' (string base64 de PDF o DOC/DOCX)
+ * 
+ * Los archivos DOC/DOCX se convierten automáticamente a PDF antes de procesarse.
+ * La detección del tipo de archivo se hace por magic bytes, no por extensión.
  */
 router.post('/generate-list', upload.single('pdf'), async (req, res) => {
   let tempFilePath = null;
+  let convertedPdfPath = null;
   
   try {
     // Determinar origen del PDF: archivo o base64
@@ -66,34 +74,86 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
 
     if (req.file) {
       // Caso 1: Archivo subido via multipart/form-data
-      pdfPath = req.file.path;
       fileName = req.file.originalname;
-      loggerService.info('PDF-CORRECTION-API', 'Archivo PDF recibido', { fileName, size: req.file.size });
-      console.log(`[PDF-CORRECTION] Procesando archivo: ${fileName}`);
+      
+      // Verificar si es un archivo DOC/DOCX que necesita conversión
+      if (isDocxFile(req.file.mimetype, req.file.originalname)) {
+        loggerService.info('PDF-CORRECTION-API', 'Archivo DOC/DOCX recibido', { fileName, size: req.file.size });
+        console.log(`[PDF-CORRECTION] Convirtiendo DOC/DOCX a PDF: ${fileName}`);
+        
+        // Convertir DOCX a PDF
+        const pdfBuffer = await convertDocxToPdf(req.file.path);
+        
+        // Guardar PDF convertido temporalmente
+        const uploadDir = 'uploads/pdf-corrections';
+        await fs.mkdir(uploadDir, { recursive: true });
+        
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        convertedPdfPath = path.join(uploadDir, `converted-${uniqueSuffix}.pdf`);
+        await fs.writeFile(convertedPdfPath, pdfBuffer);
+        
+        pdfPath = convertedPdfPath;
+        fileName = fileName.replace(/\.(docx?|DOCX?)$/, '.pdf');
+        
+        loggerService.info('PDF-CORRECTION-API', 'DOC/DOCX convertido a PDF', { fileName, size: pdfBuffer.length });
+        console.log(`[PDF-CORRECTION] Conversión completada: ${fileName}`);
+      } else {
+        // Es un PDF normal
+        pdfPath = req.file.path;
+        loggerService.info('PDF-CORRECTION-API', 'Archivo PDF recibido', { fileName, size: req.file.size });
+        console.log(`[PDF-CORRECTION] Procesando archivo: ${fileName}`);
+      }
     } else if (req.body.pdfBase64) {
-      // Caso 2: PDF en base64
-      console.log(`[PDF-CORRECTION] Procesando PDF desde base64`);
+      // Caso 2: Documento en base64 (PDF o DOC/DOCX)
+      console.log(`[PDF-CORRECTION] Procesando documento desde base64`);
       
       // Crear archivo temporal desde base64
       const uploadDir = 'uploads/pdf-corrections';
       await fs.mkdir(uploadDir, { recursive: true });
       
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      tempFilePath = path.join(uploadDir, `pdf-base64-${uniqueSuffix}.pdf`);
       
-      // Decodificar base64 y escribir archivo
-      const pdfBuffer = Buffer.from(req.body.pdfBase64, 'base64');
-      await fs.writeFile(tempFilePath, pdfBuffer);
+      // Decodificar base64
+      const fileBuffer = Buffer.from(req.body.pdfBase64, 'base64');
       
-      pdfPath = tempFilePath;
-      fileName = req.body.fileName || `documento-${uniqueSuffix}.pdf`;
-      loggerService.info('PDF-CORRECTION-API', 'PDF base64 recibido y guardado', { fileName, size: pdfBuffer.length });
-      console.log(`[PDF-CORRECTION] PDF base64 guardado temporalmente: ${tempFilePath}`);
+      // Detectar tipo de archivo
+      const fileType = detectFileTypeFromBuffer(fileBuffer);
+      console.log(`[PDF-CORRECTION] Tipo de archivo detectado: ${fileType}`);
+      
+      if (fileType === 'docx' || fileType === 'doc') {
+        // Es un DOC/DOCX, convertir a PDF
+        loggerService.info('PDF-CORRECTION-API', 'DOC/DOCX base64 recibido', { size: fileBuffer.length });
+        console.log(`[PDF-CORRECTION] Convirtiendo DOC/DOCX base64 a PDF...`);
+        
+        const pdfBuffer = await convertDocxBufferToPdf(fileBuffer);
+        
+        // Guardar PDF convertido temporalmente
+        convertedPdfPath = path.join(uploadDir, `converted-base64-${uniqueSuffix}.pdf`);
+        await fs.writeFile(convertedPdfPath, pdfBuffer);
+        
+        pdfPath = convertedPdfPath;
+        fileName = req.body.fileName ? req.body.fileName.replace(/\.(docx?|DOCX?)$/, '.pdf') : `documento-${uniqueSuffix}.pdf`;
+        
+        loggerService.info('PDF-CORRECTION-API', 'DOC/DOCX base64 convertido a PDF', { fileName, size: pdfBuffer.length });
+        console.log(`[PDF-CORRECTION] Conversión base64 completada: ${fileName}`);
+      } else if (fileType === 'pdf') {
+        // Es un PDF normal
+        tempFilePath = path.join(uploadDir, `pdf-base64-${uniqueSuffix}.pdf`);
+        await fs.writeFile(tempFilePath, fileBuffer);
+        
+        pdfPath = tempFilePath;
+        fileName = req.body.fileName || `documento-${uniqueSuffix}.pdf`;
+        loggerService.info('PDF-CORRECTION-API', 'PDF base64 recibido y guardado', { fileName, size: fileBuffer.length });
+        console.log(`[PDF-CORRECTION] PDF base64 guardado temporalmente: ${tempFilePath}`);
+      } else {
+        // Tipo de archivo no soportado
+        throw new Error(`Tipo de archivo no soportado. Se esperaba PDF, DOC o DOCX pero se detectó: ${fileType}`);
+      }
     } else {
-      loggerService.warn('PDF-CORRECTION-API', 'Request sin PDF');
+      loggerService.warn('PDF-CORRECTION-API', 'Request sin PDF o DOC');
       return res.status(400).json({
         success: false,
-        error: 'Debes proporcionar un archivo PDF (campo "pdf") o un string base64 (campo "pdfBase64")'
+        error: 'Debes proporcionar un archivo PDF/DOC/DOCX (campo "pdf") o un string base64 (campo "pdfBase64")'
       });
     }
 
@@ -165,9 +225,14 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
       'Content-Length': combinedResult.pdfBuffer.length
     });
 
-    // Limpiar archivo temporal
-    const fileToClean = req.file?.path || tempFilePath;
-    if (fileToClean) {
+    // Limpiar archivos temporales
+    const filesToClean = [
+      req.file?.path,
+      tempFilePath,
+      convertedPdfPath
+    ].filter(Boolean);
+    
+    for (const fileToClean of filesToClean) {
       try {
         await fs.unlink(fileToClean);
         console.log(`[PDF-CORRECTION] Archivo temporal limpiado: ${fileToClean}`);
@@ -181,9 +246,14 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
   } catch (error) {
     console.error('[PDF-CORRECTION] Error en generate-list:', error);
     
-    // Limpiar archivo temporal en caso de error
-    const fileToClean = req.file?.path || tempFilePath;
-    if (fileToClean) {
+    // Limpiar archivos temporales en caso de error
+    const filesToClean = [
+      req.file?.path,
+      tempFilePath,
+      convertedPdfPath
+    ].filter(Boolean);
+    
+    for (const fileToClean of filesToClean) {
       try {
         await fs.unlink(fileToClean);
       } catch (cleanupError) {
