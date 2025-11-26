@@ -51,7 +51,9 @@ const upload = multer({
     // Tipos de archivo permitidos
     const allowedTypes = [
       'text/plain',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+      'application/msword', // .doc
+      'application/vnd.ms-word', // .doc (alternativo)
       'text/markdown',
       'application/json',
       'text/csv',
@@ -60,14 +62,14 @@ const upload = multer({
       'application/vnd.ms-excel' // .xls
     ];
     
-    const allowedExtensions = ['.txt', '.docx', '.md', '.json', '.csv', '.pdf', '.xlsx', '.xls'];
+    const allowedExtensions = ['.txt', '.doc', '.docx', '.md', '.json', '.csv', '.pdf', '.xlsx', '.xls'];
     
     const fileExtension = path.extname(file.originalname).toLowerCase();
     
     if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(fileExtension)) {
       cb(null, true);
     } else {
-      cb(new Error(`Tipo de archivo no soportado: ${file.mimetype}. Permitidos: txt, docx, md, json, csv, pdf, xlsx, xls`));
+      cb(new Error(`Tipo de archivo no soportado: ${file.mimetype}. Permitidos: txt, doc, docx, md, json, csv, pdf, xlsx, xls`));
     }
   }
 });
