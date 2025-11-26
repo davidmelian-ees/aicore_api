@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import mammoth from 'mammoth';
+import WordExtractor from 'word-extractor';
 import * as pdfjsLib from 'pdfjs-dist';
 import * as XLSX from 'xlsx';
 
@@ -23,6 +24,9 @@ export async function extractTextFromFile(filePath, mimeType) {
       
       case '.pdf':
         return await extractTextFromPDF(filePath);
+      
+      case '.doc':
+        return await extractTextFromDoc(filePath);
       
       case '.docx':
         return await extractTextFromDocx(filePath);
@@ -110,6 +114,24 @@ async function extractTextFromPDF(filePath) {
   } catch (error) {
     console.error(`[PDF] Error extrayendo texto de ${filePath}:`, error);
     throw new Error(`Error procesando PDF: ${error.message}`);
+  }
+}
+
+/**
+ * Extrae texto de archivos DOC (Word 97-2003)
+ */
+async function extractTextFromDoc(filePath) {
+  try {
+    console.log(`[DOC] Procesando archivo DOC: ${filePath}`);
+    const extractor = new WordExtractor();
+    const buffer = await fs.readFile(filePath);
+    const extracted = await extractor.extract(buffer);
+    const text = extracted.getBody();
+    console.log(`[DOC] Texto extraído: ${text.length} caracteres`);
+    return text;
+  } catch (error) {
+    console.error(`[DOC] Error extrayendo texto de ${filePath}:`, error);
+    throw new Error(`Error procesando DOC: ${error.message}`);
   }
 }
 
