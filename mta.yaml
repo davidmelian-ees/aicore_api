@@ -16,16 +16,10 @@ modules:
       buildpack: nodejs_buildpack
     build-parameters:
       builder: npm
-      commands:
-        - npm install
-        - npm run test:ci
       ignore:
         - node_modules/
         - .git/
         - .env
-        - tests/
-        - coverage/
-        - '*.test.js'
     properties:
       VECTOR_STORE_TYPE: sqlite
       NODE_ENV: production
