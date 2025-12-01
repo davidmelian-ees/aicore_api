@@ -130,9 +130,36 @@ resources:                    # Servicios externos
 El pipeline ejecutará:
 
 1. **Fetch** - Descarga código del repositorio
-2. **Build** - Construye el MTA usando `mbt build`
-3. **Test** - Ejecuta tests (si están configurados)
-4. **Deploy** - Despliega a Cloud Foundry
+2. **Install** - `npm install` (instala dependencias)
+3. **Test** - `npm run test:ci` ✅ **TESTS UNITARIOS**
+4. **Build** - Construye el MTA usando `mbt build`
+5. **Deploy** - Despliega a Cloud Foundry
+
+### ✅ Tests Integrados
+
+Los tests se ejecutan automáticamente durante el build:
+
+```yaml
+build-parameters:
+  commands:
+    - npm install
+    - npm run test:ci  # ← Tests ejecutados aquí
+```
+
+**Si los tests fallan:**
+- ❌ El build se detiene
+- ❌ No se despliega a producción
+- 📧 Se notifica el error
+- 📊 Se muestra el reporte de tests
+
+**Tests implementados:**
+- ✅ RAG Service (8 tests)
+- ✅ Chat History (9 tests)
+- ✅ Validaciones (12 tests)
+- ✅ Health Check (4 tests)
+- **Total: 33 tests**
+
+Ver **TESTING_QUICKSTART.md** para más detalles.
 
 ## 📊 Diferencias: manifest.yml vs mta.yaml
 

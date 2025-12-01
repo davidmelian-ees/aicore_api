@@ -388,11 +388,18 @@ export async function searchContext(query, options = {}) {
       results = store.search(queryEmbedding, topK * 2, minSimilarity);
     }
     
-    // Filtrar por contexto
+    // Filtrar por contexto (ESTRICTO)
     if (contextId && contextId !== 'all') {
-      results = results.filter(result => 
-        result.metadata?.contextId === contextId
-      );
+      console.log(`[RAG] Filtrando por contextId: ${contextId}`);
+      results = results.filter(result => {
+        const resultContextId = result.metadata?.contextId || 'default';
+        const match = resultContextId === contextId;
+        if (!match) {
+          console.log(`[RAG] ❌ Chunk descartado - contextId: ${resultContextId} (esperado: ${contextId})`);
+        }
+        return match;
+      });
+      console.log(`[RAG] ✅ Después de filtrar por contexto: ${results.length} chunks`);
     }
     
     // Filtrar por documento específico si se especifica

@@ -47,6 +47,7 @@ aicore_api/
 │   └── xsuaaConfig.js                 # Configuración XSUAA
 ├── routes/
 │   ├── rag.js                         # Endpoints RAG principales + BACKUP
+│   ├── chatHistory.js                 # Endpoints historial de chats
 │   ├── pdfCorrection.js               # Endpoints corrección PDF
 │   ├── pliegoValidation.js            # Endpoints validación pliegos
 │   ├── health.js                      # Health check
@@ -60,12 +61,16 @@ aicore_api/
 │   ├── embeddingService.js            # Generación embeddings
 │   ├── documentProcessor.js           # Procesamiento documentos
 │   ├── pdfCorrectionService.js        # Corrección PDFs
-│   └── pliegoValidationService.js     # Validación estructural pliegos
+│   ├── pliegoValidationService.js     # Validación estructural pliegos
+│   └── chatHistoryService.js          # Historial de chats por contexto
 ├── data/                              # Datos persistentes
 │   ├── contexts.json                  # Contextos guardados
-│   ├── rag_vectors.db                 # Base datos SQLite
+│   ├── rag_vectors.db                 # Base datos SQLite (vectores)
 │   ├── rag_vectors.db-wal             # Write-Ahead Log
-│   └── rag_vectors.db-shm             # Shared memory
+│   ├── rag_vectors.db-shm             # Shared memory
+│   ├── chat_history.db                # Base datos SQLite (historial chats)
+│   ├── chat_history.db-wal            # Write-Ahead Log
+│   └── chat_history.db-shm            # Shared memory
 ├── backups/                           # Backups automáticos de BD
 │   └── rag_vectors_backup_*.db        # Backups timestamped
 ├── scripts/                           # Scripts de automatización
@@ -133,7 +138,11 @@ SCRIPTS PRINCIPALES:
    - Consultas en lenguaje natural
    - Recuperación de contexto relevante
    - Generación de respuestas con IA
-   - Historial de conversación
+   - Historial de conversaciones persistente por contexto
+   - Sesiones de chat organizadas por usuario y contexto
+   - Títulos automáticos generados del primer mensaje
+   - Eliminación de sesiones con confirmación
+   - Filtrado automático de sesiones vacías
 
 5. CORRECCIÓN DE PDFs:
    - Detección automática de errores OCR
@@ -188,6 +197,16 @@ BÚSQUEDA Y CHAT:
 POST   /api/rag/search                 # Búsqueda semántica
 POST   /api/rag/chat                   # Chat con RAG
 POST   /api/rag/chat/stream            # Chat streaming
+
+HISTORIAL DE CHATS:
+POST   /api/chat-history/sessions                        # Crear sesión de chat
+GET    /api/chat-history/sessions                        # Listar sesiones (por usuario/contexto)
+GET    /api/chat-history/sessions/:sessionId             # Obtener sesión específica
+PUT    /api/chat-history/sessions/:sessionId             # Actualizar título de sesión
+DELETE /api/chat-history/sessions/:sessionId             # Eliminar sesión
+POST   /api/chat-history/sessions/:sessionId/messages    # Agregar mensaje a sesión
+GET    /api/chat-history/sessions/:sessionId/messages    # Obtener mensajes de sesión
+GET    /api/chat-history/stats                           # Estadísticas de historial
 
 BACKUP Y RESTAURACIÓN:
 GET    /api/rag/download-db            # Descargar backup de base de datos
@@ -290,9 +309,13 @@ FLUJO DE CHAT RAG:
 
 PERSISTENCIA:
 - Contextos: JSON plano en ./data/contexts.json
-- Documentos: SQLite con tabla 'documents' (id, content, embedding, metadata, context_id, document_id, chunk_index, created_at)
+- Documentos: SQLite con tabla 'vectors' (id, content, embedding, metadata, context_id, document_id, chunk_index, created_at)
 - Embeddings: JSON arrays almacenados como TEXT en SQLite
 - Búsqueda: Cálculo de similitud coseno en memoria sobre embeddings
+- Historial de chats: SQLite con tablas 'chat_sessions' y 'chat_messages'
+  * chat_sessions: id, user_id, context_id, title, created_at, updated_at, message_count
+  * chat_messages: id, session_id, role, content, metadata, created_at
+- Índices: context_id, document_id, session_id, user_id para búsquedas rápidas
 
 ================================================================================
                             CARACTERÍSTICAS ESPECIALES

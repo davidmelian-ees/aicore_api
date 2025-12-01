@@ -1,0 +1,198 @@
+{
+  "PLIEGO_1764576258835": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764576258835",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T08:04:29.516Z",
+      "contextId": "dc298384-bea0-49f3-9980-73436ebfbff0"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherencia numérica: Presupuesto declarado (29.040.000,00 EUR) no coincide con suma de lotes (32.185.999,99 EUR). Diferencia: 3.145.999,99 EUR",
+        "location": "Apartado 2.- DADES ECONÒMIQUES",
+        "context": "PRESSUPOST DE LICITACIÓ - Tabla de lotes",
+        "detectedAt": "2025-12-01T08:04:29.510Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentario de desarrollador detectado: \"Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula següent\"",
+        "location": "Sección no especificada",
+        "context": "Instrucciones técnicas que deben eliminarse. Tag SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT",
+        "detectedAt": "2025-12-01T08:04:29.510Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentario de desarrollador detectado: \"Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o ZVRM_QDC_MAT_LIC ( Escollir quina de les 2) S'haur de treure el text en groc.\"",
+        "location": "Sección no especificada",
+        "context": "Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "detectedAt": "2025-12-01T08:04:29.510Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Tag SAP sin reemplazar: {B}CRITERIS{/B}",
+        "location": "Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "context": "QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ",
+        "detectedAt": "2025-12-01T08:04:29.510Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 1,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "COMENTARIO_DESARROLLADOR": 2,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1764576286684": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764576286684",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T08:04:57.459Z",
+      "contextId": "dc298384-bea0-49f3-9980-73436ebfbff0"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherencia numérica: Presupuesto declarado (29.040.000,00 EUR) no coincide con suma de lotes (32.186.000,00 EUR). Diferencia: 3.146.000,00 EUR",
+        "location": "Apartado 2.- DADES ECONÒMIQUES",
+        "context": "PRESSUPOST DE LICITACIÓ - Tabla de lotes",
+        "detectedAt": "2025-12-01T08:04:57.455Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentario de desarrollador detectado: \"Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula segent\"",
+        "location": "Sección de \"OBRES D'ESPECIAL SINGULARITAT\"",
+        "context": "Instrucciones técnicas que deben eliminarse. Tag SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT",
+        "detectedAt": "2025-12-01T08:04:57.455Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentario de desarrollador detectado: \"Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o ZVRM_QDC_MAT_LIC ( Escollir quina de les 2) S'haur de treure el text en groc.\"",
+        "location": "Sección de \"PROJECTE REALITZAT AMB METODOLOGIA BIM\"",
+        "context": "Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "detectedAt": "2025-12-01T08:04:57.456Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Tag SAP sin reemplazar: {B}CRITERIS{/B}",
+        "location": "Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "context": "QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ",
+        "detectedAt": "2025-12-01T08:04:57.456Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 2,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "COMENTARIO_DESARROLLADOR": 2,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1764576333335": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764576333335",
+      "fileName": "documento-1764576331613-698206612.pdf",
+      "analyzedAt": "2025-12-01T08:05:44.225Z",
+      "contextId": "dc298384-bea0-49f3-9980-73436ebfbff0"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherencia numérica: Presupuesto declarado (243.936,00 EUR) no coincide con suma de lotes (244.783,00 EUR). Diferencia: 847,00 EUR",
+        "location": "Apartado 2.- DADES ECONÒMIQUES",
+        "context": "PRESSUPOST DE LICITACIÓ - Tabla de lotes",
+        "detectedAt": "2025-12-01T08:05:44.221Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Tag SAP sin reemplazar: Error! Argument de modificador desconegut.",
+        "location": "Apartado 1.- OBJECTE",
+        "context": "Codi CPV",
+        "detectedAt": "2025-12-01T08:05:44.221Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TABLA_INCOMPLETA",
+        "description": "Tabla APLICA/NO APLICA incompleta. Filas 1.04 y 1.06 tienen solo 1 valor cuando deberían tener 2",
+        "location": "Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "context": "QUADRE D'APARTATS D'APLICACI - Filas 1.04 (emissions CO2eq) y 1.06 (fusta certificada)",
+        "detectedAt": "2025-12-01T08:05:44.221Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Formato de importes inconsistente: \"Despesa tallagespa 60.00\" debería ser \"60,00 EUR\"",
+        "location": "Apartado 24.- ALTRES ESPECIFICITATS I CONDICIONS DEL CONTRACTE",
+        "context": "L'estimaci de despeses a càrrec del Contractista",
+        "detectedAt": "2025-12-01T08:05:44.221Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Formato de importes inconsistente: \"Despesa cotxes 12000.00\" debería ser \"12.000,00 EUR\"",
+        "location": "Apartado 24.- ALTRES ESPECIFICITATS I CONDICIONS DEL CONTRACTE",
+        "context": "L'estimaci de despeses a càrrec del Contractista",
+        "detectedAt": "2025-12-01T08:05:44.221Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "TAG_SIN_REEMPLAZAR": 1,
+        "TABLA_INCOMPLETA": 1,
+        "ERROR_GENERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1764576370645": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764576370645",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T08:06:20.259Z",
+      "contextId": "dc298384-bea0-49f3-9980-73436ebfbff0"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherencia numérica: Presupuesto declarado (29.040.000,00 EUR) no coincide con suma de lotes (32.186.000,00 EUR). Diferencia: 3.146.000,00 EUR",
+        "location": "Apartado 2.- DADES ECONÒMIQUES",
+        "context": "PRESSUPOST DE LICITACIÓ - Tabla de lotes",
+        "detectedAt": "2025-12-01T08:06:20.255Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentario de desarrollador detectado: \"Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula següent\"",
+        "location": "Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "context": "Instrucciones técnicas que deben eliminarse. Tag SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT",
+        "detectedAt": "2025-12-01T08:06:20.256Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentario de desarrollador detectado: \"Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o ZVRM_QDC_MAT_LIC ( Escollir quina de les 2) S'haur de treure el text en groc.\"",
+        "location": "Apartado 19.- CONDICIONS ESPECIALS D'EXECUCI / OBLIGACIONS ESSENCIALS DEL CONTRACTE",
+        "context": "Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "detectedAt": "2025-12-01T08:06:20.256Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 1,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "COMENTARIO_DESARROLLADOR": 2
+      }
+    }
+  }
+}
