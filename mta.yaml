@@ -25,6 +25,7 @@ modules:
       NODE_ENV: production
     requires:
       - name: aicore-app-auth
+      - name: default_aicore
     provides:
       - name: ai_core_api_api
         properties:
@@ -35,3 +36,7 @@ resources:
     type: org.cloudfoundry.existing-service
     parameters:
       service-name: aicore-app-auth
+  - name: default_aicore
+    type: org.cloudfoundry.existing-service
+    parameters:
+      service-name: default_aicore
