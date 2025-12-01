@@ -8,6 +8,7 @@ import analyticsRoutes from "./routes/analytics.js";
 import authRoutes from "./routes/auth.js";
 import pliegoErrorsRoutes from "./routes/pliegoErrors.js";
 import logsRoutes from "./routes/logs.js";
+import chatHistoryRoutes from "./routes/chatHistory.js";
 import { requestLogger, extractUsername } from "./middleware/requestLogger.js";
 import { initializeSampleData } from "./scripts/init-sample-data.js";
 import { persistenceManager } from "./services/persistenceManager.js";
@@ -164,6 +165,7 @@ if (isProduction) {
 // Configurar rutas de la API
 app.use('/api/chat', chatRoutes);
 app.use('/api/rag', ragRoutes);
+app.use('/api/chat-history', chatHistoryRoutes);
 // IMPORTANTE: Registrar rutas específicas ANTES de las rutas con parámetros dinámicos
 app.use('/api/pdf-correction/errors', pliegoErrorsRoutes);
 app.use('/api/pdf-correction', pdfCorrectionRoutes);
