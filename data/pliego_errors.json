@@ -194,5 +194,159 @@
         "COMENTARIO_DESARROLLADOR": 2
       }
     }
+  },
+  "PLIEGO_1764584225342": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764584225342",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T10:17:07.704Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1764584898219": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764584898219",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T10:28:20.637Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1764584928250": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764584928250",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T10:28:50.292Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1764584944357": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764584944357",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T10:29:06.491Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1764584976415": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764584976415",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T10:29:38.512Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1764585244111": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764585244111",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T10:34:06.489Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1764585786117": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764585786117",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T10:43:08.238Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1764585801970": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764585801970",
+      "fileName": "PCAP_CT1074723_GIS.pdf",
+      "analyzedAt": "2025-12-01T10:43:32.672Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherencia numérica: Presupuesto declarado (29.040.000,00 EUR) no coincide con suma de lotes (32.186.000,00 EUR). Diferencia: 3.146.000,00 EUR",
+        "location": "Apartado 2.- DADES ECONÒMIQUES",
+        "context": "PRESSUPOST DE LICITACIÓ - Tabla de lotes",
+        "detectedAt": "2025-12-01T10:43:32.669Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Tag SAP sin reemplazar: Error! Argument de modificador desconegut.",
+        "location": "Apartado 2.- DADES ECONÒMIQUES",
+        "context": "Codi CPV",
+        "detectedAt": "2025-12-01T10:43:32.669Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentario de desarrollador detectado: \"Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula segent\"",
+        "location": "Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "context": "Instrucciones técnicas que deben eliminarse. Tags SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT",
+        "detectedAt": "2025-12-01T10:43:32.669Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentario de desarrollador detectado: \"Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o ZVRM_QDC_MAT_LIC ( Escollir quina de les 2) S'haur de treure el text en groc.\"",
+        "location": "Apartado 19.- CONDICIONS ESPECIALS D'EXECUCI",
+        "context": "Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "detectedAt": "2025-12-01T10:43:32.669Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 1,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "TAG_SIN_REEMPLAZAR": 1,
+        "COMENTARIO_DESARROLLADOR": 2
+      }
+    }
   }
 }

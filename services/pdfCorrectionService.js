@@ -664,7 +664,14 @@ RELEVANCIA: ${result.similarity}
       console.log(`[PDF-CORRECTION] ⚠️ customPrompt ignorado - usando prompt de validación estructurado`);
     }
 
-    console.log(`[PDF-CORRECTION] Generando correcciones con SAP AI Core (${correctionPrompt.length} caracteres)...`);
+    console.log(`[PDF-CORRECTION] ========================================`);
+    console.log(`[PDF-CORRECTION] 🤖 LLAMANDO A SAP AI CORE`);
+    console.log(`[PDF-CORRECTION] Prompt length: ${correctionPrompt.length} caracteres`);
+    console.log(`[PDF-CORRECTION] Text length: ${textForAnalysis.length} caracteres`);
+    console.log(`[PDF-CORRECTION] Context ID: ${contextId || 'ninguno'}`);
+    console.log(`[PDF-CORRECTION] RAG Context: ${ragContext ? 'SÍ' : 'NO'}`);
+    console.log(`[PDF-CORRECTION] Visual Errors: ${visualErrors ? 'SÍ' : 'NO'}`);
+    console.log(`[PDF-CORRECTION] ========================================`);
     
     let correctionsList;
     try {
@@ -672,13 +679,26 @@ RELEVANCIA: ${result.similarity}
         temperature: 0.2,  // Temperatura muy baja para validación consistente y precisa
         maxTokens: 4000 
       });
+      
+      console.log(`[PDF-CORRECTION] ⏳ Enviando request a SAP AI Core...`);
+      const aiStartTime = Date.now();
+      
       const response = await client.run({
         messages: [{ role: 'user', content: correctionPrompt }],
         temperature: 0.2,  // Temperatura baja = respuestas más deterministas y precisas
         max_tokens: 4000
       });
       
+      const aiDuration = Date.now() - aiStartTime;
+      console.log(`[PDF-CORRECTION] ✅ Respuesta recibida de SAP AI Core en ${aiDuration}ms`);
+      
       correctionsList = response.getContent();
+      
+      console.log(`[PDF-CORRECTION] 📝 Contenido de respuesta:`);
+      console.log(`[PDF-CORRECTION] - Length: ${correctionsList?.length || 0} caracteres`);
+      console.log(`[PDF-CORRECTION] - Primeros 500 caracteres:`);
+      console.log(correctionsList?.substring(0, 500) || '[VACÍO]');
+      console.log(`[PDF-CORRECTION] ========================================`);
       
       if (!correctionsList || correctionsList.trim().length === 0) {
         throw new Error('SAP AI Core devolvió una respuesta vacía');
@@ -690,14 +710,14 @@ RELEVANCIA: ${result.similarity}
       loggerService.success('PDF-CORRECTION', 'Correcciones generadas por IA', { 
         length: correctionsList.length 
       });
-      console.log(`[PDF-CORRECTION] Correcciones generadas: ${correctionsList.length} caracteres`);
+      console.log(`[PDF-CORRECTION] ✅ Correcciones procesadas: ${correctionsList.length} caracteres`);
       
     } catch (aiError) {
       loggerService.error('PDF-CORRECTION', 'Error en SAP AI Core', { 
         error: aiError.message,
         status: aiError.status || aiError.code
       });
-      console.error(`[PDF-CORRECTION] Error detallado en SAP AI Core:`, {
+      console.error(`[PDF-CORRECTION] ❌ ERROR en SAP AI Core:`, {
         message: aiError.message,
         status: aiError.status || aiError.code,
         response: aiError.response?.data || 'No response data',

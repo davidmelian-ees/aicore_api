@@ -161,6 +161,32 @@ export async function listContexts() {
 }
 
 /**
+ * Obtiene el primer contexto disponible (el que tenga más documentos)
+ * @returns {Promise<string|null>} - ID del primer contexto disponible o null
+ */
+export async function getFirstAvailableContext() {
+  try {
+    const allContexts = await listContexts();
+    
+    if (!allContexts || allContexts.length === 0) {
+      console.log('[RAG] ⚠️ No hay contextos disponibles');
+      return null;
+    }
+    
+    // Ordenar por número de documentos (descendente) y tomar el primero
+    const sortedContexts = allContexts.sort((a, b) => (b.documentCount || 0) - (a.documentCount || 0));
+    const firstContext = sortedContexts[0];
+    
+    console.log(`[RAG] 📌 Primer contexto disponible: ${firstContext.id} (${firstContext.documentCount || 0} documentos)`);
+    return firstContext.id;
+    
+  } catch (error) {
+    console.error('[RAG] ❌ Error obteniendo primer contexto:', error);
+    return null;
+  }
+}
+
+/**
  * Obtiene información de un contexto específico
  * @param {string} contextId - ID del contexto
  * @returns {Promise<Object|null>} - Información del contexto o null si no existe
