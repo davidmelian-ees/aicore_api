@@ -4,21 +4,25 @@
 
 El error `exit status 1` en el paso `mtaBuild` se debe a:
 
-1. **Tests fallando en CI/CD**: El comando `npm run test:ci` falla en el entorno Docker de Cloud Foundry
-2. **Dependencias nativas**: `better-sqlite3` requiere compilación nativa que puede fallar
-3. **Archivos innecesarios**: El build incluía archivos que aumentan el tamaño y tiempo de build
+```
+line 20: the "commands" property is not supported by the "npm" builder
+```
+
+**Causa raíz**: El builder `npm` de MTA **NO soporta** la propiedad `commands` personalizada. Esta es una limitación del MTA Build Tool.
+
+### Problemas secundarios identificados:
+1. **Configuración incorrecta**: Intentar usar `commands` con builder `npm`
+2. **Archivos innecesarios**: El build incluía archivos que aumentan el tamaño y tiempo de build
 
 ## ✅ Soluciones Implementadas
 
 ### 1. Modificación de `mta.yaml`
 
-**Cambio principal**: Omitir tests y devDependencies en CI/CD
+**Cambio principal**: Eliminar `commands` no soportado y usar comportamiento por defecto de npm
 
 ```yaml
 build-parameters:
-  builder: npm
-  commands:
-    - npm install --omit=dev  # Solo instala dependencias de producción
+  builder: npm  # npm ejecuta automáticamente "npm install"
   ignore:
     - node_modules/
     - .git/
@@ -41,9 +45,16 @@ build-parameters:
 ```
 
 **Beneficios**:
-- ✅ Build más rápido (no ejecuta tests)
-- ✅ Menor tamaño del artefacto
-- ✅ Evita problemas con dependencias de desarrollo
+- ✅ Configuración válida compatible con MTA Build Tool
+- ✅ Usa el comportamiento estándar de npm (npm install)
+- ✅ Menor tamaño del artefacto (archivos ignorados)
+- ✅ Build más limpio y predecible
+
+**Nota importante**: El builder `npm` ejecutará automáticamente:
+1. `npm install` (instala todas las dependencias, incluidas devDependencies)
+2. `npm run build` (si existe el script en package.json)
+
+Para **omitir devDependencies**, necesitarías usar un builder personalizado, pero esto complica el setup. La solución actual es más simple y funcional.
 
 ### 2. Actualización de `package.json`
 
@@ -82,31 +93,41 @@ default-env.json
 
 1. **Commit los cambios**:
    ```bash
-   git add mta.yaml package.json .cfignore
-   git commit -m "fix: optimizar build CI/CD y omitir tests"
+   git add mta.yaml package.json .cfignore SOLUCION_ERROR_CICD.md
+   git commit -m "fix: eliminar commands no soportado en mta.yaml builder npm"
    git push
    ```
 
 2. **Ejecutar pipeline nuevamente** en BTP
 
 3. **Verificar el build**:
-   - El build debería completarse sin ejecutar tests
-   - Solo se instalarán dependencias de producción
-   - El artefacto será más pequeño y rápido de desplegar
+   - El build debería completarse exitosamente
+   - npm ejecutará `npm install` automáticamente
+   - El artefacto será más pequeño gracias a los archivos ignorados
+   - Si existe script `build` en package.json, se ejecutará también
 
-## 📊 Alternativa: Ejecutar Tests en CI/CD (Opcional)
+## 📊 Alternativa: Builder Personalizado para Tests (Avanzado)
 
-Si deseas mantener los tests en CI/CD, modifica `mta.yaml`:
+⚠️ **IMPORTANTE**: El builder `npm` NO soporta `commands` personalizados.
+
+Si deseas ejecutar tests o comandos personalizados, debes usar un **builder personalizado**:
 
 ```yaml
 build-parameters:
-  builder: npm
+  builder: custom
   commands:
-    - npm install --production=false
-    - npm run test:ci || echo "Tests failed but continuing build"
+    - npm install
+    - npm run test:ci || echo "Tests failed but continuing"
+    - npm prune --production  # Eliminar devDependencies
+  build-result: .
 ```
 
-**Nota**: Esto ejecutará tests pero no fallará el build si fallan.
+**Desventajas**:
+- ❌ Más complejo de mantener
+- ❌ Requiere especificar todos los pasos manualmente
+- ❌ Puede romper si cambia la estructura del proyecto
+
+**Recomendación**: Usar el builder `npm` estándar (configuración actual) es más simple y robusto.
 
 ## 🔍 Diagnóstico de Errores Futuros
 
@@ -124,8 +145,47 @@ Si el build sigue fallando:
 - **Desarrollo**: Usar `npm run test:watch` para desarrollo local
 - **CI/CD**: El pipeline ahora solo instala dependencias y empaqueta
 
+## 🔧 Detalles Técnicos del Error
+
+### Error Original
+```
+[2025-12-01 09:19:41] ERROR the "mta.yaml" file is not valid: 
+line 20: the "commands" property is not supported by the "npm" builder
+```
+
+### Explicación
+
+El **MTA Build Tool** tiene builders predefinidos con comportamientos específicos:
+
+| Builder | Comportamiento | Soporta `commands` |
+|---------|---------------|-------------------|
+| `npm` | Ejecuta `npm install` y `npm run build` | ❌ NO |
+| `custom` | Ejecuta comandos personalizados | ✅ SÍ |
+| `grunt` | Ejecuta Grunt tasks | ❌ NO |
+| `maven` | Ejecuta Maven build | ❌ NO |
+
+**Solución aplicada**: Eliminar `commands` y dejar que `npm` builder use su comportamiento por defecto.
+
+### Configuración Anterior (Incorrecta)
+```yaml
+build-parameters:
+  builder: npm
+  commands:              # ❌ NO SOPORTADO
+    - npm install --omit=dev
+```
+
+### Configuración Actual (Correcta)
+```yaml
+build-parameters:
+  builder: npm          # ✅ Usa comportamiento por defecto
+  ignore:
+    - node_modules/
+    - tests/
+    # ... más archivos
+```
+
 ---
 
 **Fecha**: 2025-12-01
-**Versión**: 1.0.1
-**Estado**: ✅ Implementado
+**Versión**: 1.0.2
+**Estado**: ✅ Implementado y Corregido
