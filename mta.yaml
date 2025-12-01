@@ -17,8 +17,7 @@ modules:
     build-parameters:
       builder: npm
       commands:
-        - npm install
-        - npm run test:ci
+        - npm install --omit=dev
       ignore:
         - node_modules/
         - .git/
@@ -26,6 +25,18 @@ modules:
         - tests/
         - coverage/
         - '*.test.js'
+        - '*.md'
+        - backups/
+        - logs/
+        - uploads/
+        - sample_documents/
+        - python_tools/
+        - prompts_dev/
+        - prompts_proyect/
+        - postman/
+        - scripts/
+        - venv/
+        - '*.bat'
     properties:
       VECTOR_STORE_TYPE: sqlite
       NODE_ENV: production
