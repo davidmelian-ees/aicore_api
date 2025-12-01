@@ -170,7 +170,15 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
 
     // Extraer parámetros de la solicitud
     const pliegoId = req.body.pliegoId || `PLIEGO_${Date.now()}`;
-    const contextId = req.body.contextId || null;
+    // Si no se especifica contextId o viene vacío, usar el primer contexto disponible
+    let contextId = req.body.contextId;
+    if (!contextId || contextId.trim() === '' || contextId === 'default') {
+      // Obtener el primer contexto disponible de la BD
+      const { getFirstAvailableContext } = await import('../services/ragService.js');
+      const firstContext = await getFirstAvailableContext();
+      contextId = firstContext || '09a6c72e-9c6f-4448-8ac7-d22d1c13e90b'; // Fallback al contexto conocido
+      console.log(`[PDF-CORRECTION] ℹ️ No se especificó contextId, usando: ${contextId}`);
+    }
     const customPrompt = req.body.customPrompt || req.body.prompt || null;
     const username = req.username || req.body.username || 'anonymous';
     const skipVisualAnalysis = req.body.skipVisualAnalysis === 'true' || req.body.skipVisualAnalysis === true;
@@ -210,12 +218,19 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
       visualReport // Pasar errores visuales a la IA (puede ser null)
     );
 
+    console.log(`[PDF-CORRECTION] 📊 Resultado del análisis:`);
+    console.log(`[PDF-CORRECTION] - Success: ${aiResult.success}`);
+    console.log(`[PDF-CORRECTION] - correctionsList length: ${aiResult.correctionsList?.length || 0}`);
+    console.log(`[PDF-CORRECTION] - correctionsList preview:`, aiResult.correctionsList?.substring(0, 200));
+
     if (!aiResult.success) {
       throw new Error('Error en análisis de IA: ' + (aiResult.error || 'Unknown error'));
     }
 
     // 3. Almacenar errores en la base de datos
     console.log(`[PDF-CORRECTION] 💾 Almacenando errores para pliego: ${pliegoId}...`);
+    console.log(`[PDF-CORRECTION] 📝 correctionsList a almacenar:`, aiResult.correctionsList?.substring(0, 300));
+    
     const storeResult = await storeErrorsForPliego(
       pliegoId,
       aiResult.correctionsList,
