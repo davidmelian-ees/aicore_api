@@ -67,3 +67,38 @@ curl_commands.bat
 # Documentación de desarrollo (opcional)
 FOR_CONTEXT_PROCECED/
 FOR_CONTEXT/
+
+# Archivos batch de Windows
+*.bat
+
+# Documentos de muestra y prompts
+sample_documents/
+prompts_dev/
+prompts_proyect/
+
+# Herramientas Python
+python_tools/
+venv/
+
+# Backups y uploads locales
+backups/
+uploads/
+
+# Archivos de análisis y documentación extensa
+*.md
+!README.md
+
+# Imágenes y diagramas
+Images/
+*.png
+*.jpg
+*.jpeg
+
+# Coverage y archivos de test
+coverage/
+*.test.js
+jest.config.js
+
+# Archivos de configuración local
+.mbtrc
+default-env.json
