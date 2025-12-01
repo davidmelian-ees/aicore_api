@@ -29,3 +29,8 @@ venv_upload/
 # Logs
 *.log
 logs/
+
+# Tests y cobertura
+coverage/
+*.lcov
+.nyc_output/
