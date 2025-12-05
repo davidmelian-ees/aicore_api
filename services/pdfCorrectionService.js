@@ -121,6 +121,12 @@ Genera un informe detallado de errores estructurales, ortográficos y de formato
   return `SISTEMA DE VALIDACIÓN DE PLIEGOS SAP
 ================================================================================
 
+⚠️⚠️⚠️ INSTRUCCIÓN CRÍTICA OBLIGATORIA ⚠️⚠️⚠️
+TODO EL INFORME DE VALIDACIÓN DEBE ESTAR ESCRITO EN IDIOMA CATALÁN.
+Todas las descripciones de errores, advertencias, sugerencias y explicaciones 
+DEBEN estar en CATALÀ. Esto es OBLIGATORIO y NO NEGOCIABLE.
+================================================================================
+
 CONTEXTO DE VALIDACIÓN:
 ${prompts.validationSystem}
 
@@ -216,72 +222,76 @@ INSTRUCCIONES DE VALIDACIÓN:
 7. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
 ================================================================================
 
-🔴 ERRORES CRÍTICOS:
-- [Descripción del error]
-    - Ubicación: [Sección/Apartado exacto donde se encuentra]
-    - Contexto: [Tabla, cuadro o párrafo específico]
+⚠️ ⚠️ ⚠️ OBLIGATORIO: TODO EL INFORME DEBE ESTAR EN IDIOMA CATALÁN ⚠️ ⚠️ ⚠️
 
-🟡 ADVERTENCIAS:
-- [Descripción de la advertencia]
-    - Ubicación: [Sección/Apartado exacto donde se encuentra]
-    - Contexto: [Tabla, cuadro o párrafo específico]
+🔴 ERRORS CRÍTICS:
+- [Descripció de l'error EN CATALÀ]
+    - Ubicació: [Secció/Apartat exacte on es troba]
+    - Context: [Taula, quadre o paràgraf específic]
 
-✅ SUGERENCIAS:
-- [Correcciones específicas recomendadas]
-- [Cada sugerencia en una línea separada]
+🟡 ADVERTÈNCIES:
+- [Descripció de l'advertència EN CATALÀ]
+    - Ubicació: [Secció/Apartat exacte on es troba]
+    - Context: [Taula, quadre o paràgraf específic]
 
-📋 CAMPOS VARIABLES DETECTADOS:
-- [Lista de variables SAP encontradas]
-- [Cada variable en una línea separada]
+✅ SUGGERIMENTS:
+- [Correccions específiques recomanades EN CATALÀ]
+- [Cada suggeriment en una línia separada]
+
+📋 CAMPS VARIABLES DETECTATS:
+- [Llista de variables SAP trobades]
+- [Cada variable en una línia separada]
 
 ================================================================================
 
-IMPORTANTE:
-- Usa EXACTAMENTE los emojis y títulos mostrados arriba
-- NO uses símbolos de euro (€), usa "EUR" en su lugar
-- Cada sección debe empezar con el emoji correspondiente
-- Usa guiones (-) para listas
-- No uses números ni letras para listas
-- Si no hay elementos en una sección, omítela completamente
-- Mantén el formato limpio sin símbolos extra (#, *, etc.)
-- Todos los importes deben expresarse como "29.040.000,00 EUR" (sin símbolo €)
+IMPORTANT:
+- ⚠️ OBLIGATORI: Tot el text de l'informe HA D'ESTAR EN CATALÀ
+- Usa EXACTAMENT els emojis i títols mostrats a dalt
+- NO usis símbols d'euro (€), usa "EUR" en el seu lloc
+- Cada secció ha de començar amb l'emoji corresponent
+- Usa guions (-) per a llistes
+- No usis números ni lletres per a llistes
+- Si no hi ha elements en una secció, omet-la completament
+- Mantén el format net sense símbols extra (#, *, etc.)
+- Tots els imports han d'expressar-se com "29.040.000,00 EUR" (sense símbol €)
+- ⚠️ CRÍTICO: Totes les descripcions, explicacions i suggeriments han d'estar escrites en CATALÀ
 
-⚠️ EJEMPLO 1 - FORMATO CON UBICACIÓN (TAG SIN REEMPLAZAR):
+⚠️ EXEMPLE 1 - FORMAT AMB UBICACIÓ (TAG SENSE REEMPLAÇAR) - EN CATALÀ:
 
-Si encuentras en el texto:
+Si trobes en el text:
 "18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
  QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
  {B}CRITERIS{/B}    APLICA    NO APLICA"
 
-DEBES REPORTAR:
-🔴 ERRORES CRÍTICOS:
-- Tag SAP sin reemplazar: {B}CRITERIS{/B}
-    - Ubicación: Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
-    - Contexto: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
+HAS DE REPORTAR EN CATALÀ:
+🔴 ERRORS CRÍTICS:
+- Tag SAP sense reemplaçar: {B}CRITERIS{/B}
+    - Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
+    - Context: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
 
-⚠️ EJEMPLO 2 - VALIDACIÓN NUMÉRICA CON UBICACIÓN:
+⚠️ EXEMPLE 2 - VALIDACIÓ NUMÈRICA AMB UBICACIÓ - EN CATALÀ:
 
-Si encuentras en el texto:
+Si trobes en el text:
 "2.- DADES ECONÒMIQUES
  PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
  Lot 1: 241.840,28 euros
  Lot 2: 1.942,72 euros"
 
-DEBES hacer:
-1. Extraer: 243.936,00 (presupuesto declarado)
-2. Extraer lotes: 241.840,28 y 1.942,72
+HAS DE FER:
+1. Extreure: 243.936,00 (pressupost declarat)
+2. Extreure lots: 241.840,28 i 1.942,72
 3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
 4. COMPARAR: 243.936,00 ≠ 243.783,00
-5. DIFERENCIA: 153,00 euros
-6. REPORTAR:
-🔴 ERRORES CRÍTICOS:
-- Incoherencia numérica: Presupuesto declarado (243.936,00 EUR) no coincide con suma de lotes (243.783,00 EUR). Diferencia: 153,00 EUR
-    - Ubicación: Apartado 2.- DADES ECONÒMIQUES
-    - Contexto: PRESSUPOST DE LICITACIÓ - Tabla de lotes
+5. DIFERÈNCIA: 153,00 euros
+6. REPORTAR EN CATALÀ:
+🔴 ERRORS CRÍTICS:
+- Incoherència numèrica: Pressupost declarat (243.936,00 EUR) no coincideix amb la suma de lots (243.783,00 EUR). Diferència: 153,00 EUR
+    - Ubicació: Apartat 2.- DADES ECONÒMIQUES
+    - Context: PRESSUPOST DE LICITACIÓ - Taula de lots
 
-⚠️ EJEMPLO 3 - VALIDACIÓN TABLAS APLICA/NO APLICA CON UBICACIÓN:
+⚠️ EXEMPLE 3 - VALIDACIÓ TAULES APLICA/NO APLICA AMB UBICACIÓ - EN CATALÀ:
 
-Si encuentras en el texto:
+Si trobes en el text:
 "15.- CRITERIS D'ADJUDICACIÓ
  QUADRE RESUM DE CRITERIS
  1.03 Compromís sobre subcontractació    APLICA    APLICA
@@ -289,69 +299,71 @@ Si encuentras en el texto:
  1.05 Declaracions Ambientals            APLICA    APLICA
  1.06 Utilització de fusta certificada   APLICA"
 
-DEBES hacer:
-1. Identificar tabla con 2 columnas: APLICA | NO APLICA
-2. Contar valores por fila:
-   - Fila 1.03: 2 valores ✅
+HAS DE FER:
+1. Identificar taula amb 2 columnes: APLICA | NO APLICA
+2. Comptar valors per fila:
+   - Fila 1.03: 2 valors ✅
    - Fila 1.04: 1 valor ❌ (falta columna NO APLICA)
-   - Fila 1.05: 2 valores ✅
+   - Fila 1.05: 2 valors ✅
    - Fila 1.06: 1 valor ❌ (falta columna NO APLICA)
-3. REPORTAR:
-🔴 ERRORES CRÍTICOS:
-- Tabla APLICA/NO APLICA incompleta. Filas 1.04 y 1.06 tienen solo 1 valor cuando deberían tener 2
-    - Ubicación: Apartado 15.- CRITERIS D'ADJUDICACIÓ
-    - Contexto: QUADRE RESUM DE CRITERIS - Filas 1.04 (emissions CO2eq) y 1.06 (fusta certificada)
+3. REPORTAR EN CATALÀ:
+🔴 ERRORS CRÍTICS:
+- Taula APLICA/NO APLICA incompleta. Les files 1.04 i 1.06 tenen només 1 valor quan n'haurien de tenir 2
+    - Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ
+    - Context: QUADRE RESUM DE CRITERIS - Files 1.04 (emissions CO2eq) i 1.06 (fusta certificada)
 
-NO asumas que las tablas están completas. SIEMPRE cuenta los valores por fila.
+NO assumeixis que les taules estan completes. SEMPRE compta els valors per fila.
 
-⚠️ EJEMPLO 4 - DETECCIÓN DE COMENTARIOS DE DESARROLLADORES CON UBICACIÓN:
+⚠️ EXEMPLE 4 - DETECCIÓ DE COMENTARIS DE DESENVOLUPADORS AMB UBICACIÓ - EN CATALÀ:
 
-Si encuentras en el texto:
+Si trobes en el text:
 "12.- CRITERIS DE SOSTENIBILITAT
  Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o 
  ZVRM_QDC_MAT_LIC -> Escollir quina de les 2) S'haurà de treure el text en groc."
 
-DEBES hacer:
-1. Detectar nombre + dos puntos: "Oriol:"
-2. Detectar instrucciones técnicas: "S'haurà de treure", "Escollir quina de les 2"
+HAS DE FER:
+1. Detectar nom + dos punts: "Oriol:"
+2. Detectar instruccions tècniques: "S'haurà de treure", "Escollir quina de les 2"
 3. Detectar tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
-4. Detectar referencias a tablas SAP: "si hi ha valors a la taula"
-5. REPORTAR:
-🔴 ERRORES CRÍTICOS:
-- Comentario de desarrollador detectado: "Oriol: En cas que apliqui el CO2..."
-    - Ubicación: Apartado 12.- CRITERIS DE SOSTENIBILITAT
-    - Contexto: Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
+4. Detectar referències a taules SAP: "si hi ha valors a la taula"
+5. REPORTAR EN CATALÀ:
+🔴 ERRORS CRÍTICS:
+- Comentari de desenvolupador detectat: "Oriol: En cas que apliqui el CO2..."
+    - Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT
+    - Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
 
-⚠️ EJEMPLO 4 - DETECCIÓN DE CONDICIONES TÉCNICAS SAP:
+⚠️ EXEMPLE 5 - DETECCIÓ DE CONDICIONS TÈCNIQUES SAP - EN CATALÀ:
 
-Si encuentras:
+Si trobes:
 "Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula següent"
 
-DEBES hacer:
-1. Detectar nombre + dos puntos: "Oriol:"
-2. Detectar condición técnica: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000"
+HAS DE FER:
+1. Detectar nom + dos punts: "Oriol:"
+2. Detectar condició tècnica: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000"
 3. Detectar tag SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
-4. Detectar instrucción: "no treure la taula"
-5. REPORTAR: "🔴 ERROR CRÍTICO: Comentario de desarrollador con condición técnica SAP
-   - Línea: 'Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000...'
-   - Tag SAP sin reemplazar: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
-   - Este texto debe eliminarse completamente del pliego final"
+4. Detectar instrucció: "no treure la taula"
+5. REPORTAR EN CATALÀ: "🔴 ERROR CRÍTIC: Comentari de desenvolupador amb condició tècnica SAP
+   - Línia: 'Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000...'
+   - Tag SAP sense reemplaçar: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
+   - Aquest text s'ha d'eliminar completament del plec final"
 
-BUSCA ACTIVAMENTE estos patrones en TODO el documento.
+BUSCA ACTIVAMENT aquests patrons en TOT el document.
 
 ================================================================================
-TEXTO DEL PLIEGO A VALIDAR:
+TEXT DEL PLEC A VALIDAR:
 ================================================================================
 
 ${textForAnalysis}
 
 ================================================================================
-GENERA EL INFORME SIGUIENDO EL FORMATO EXACTO:
-RECUERDA: 
-- VERIFICA TODAS LAS SUMAS Y CÁLCULOS NUMÉRICOS
-- CUENTA LOS VALORES EN CADA FILA DE TABLAS APLICA/NO APLICA
-- BUSCA COMENTARIOS DE DESARROLLADORES (Oriol:, David:, etc.)
-- BUSCA TAGS SAP SIN REEMPLAZAR (ZRM_, ZVRM_, etc.)
+GENERA L'INFORME SEGUINT EL FORMAT EXACTE EN CATALÀ:
+RECORDA: 
+- ⚠️ TOT L'INFORME HA D'ESTAR EN CATALÀ
+- VERIFICA TOTES LES SUMES I CÀLCULS NUMÈRICS
+- COMPTA ELS VALORS EN CADA FILA DE TAULES APLICA/NO APLICA
+- BUSCA COMENTARIS DE DESENVOLUPADORS (Oriol:, David:, etc.)
+- BUSCA TAGS SAP SENSE REEMPLAÇAR (ZRM_, ZVRM_, etc.)
+- ⚠️ OBLIGATORI: Totes les descripcions han d'estar escrites en CATALÀ
 ================================================================================`;
 }
 
