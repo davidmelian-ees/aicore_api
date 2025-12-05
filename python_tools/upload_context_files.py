@@ -25,7 +25,7 @@ from typing import List, Dict, Optional
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class ContextUploader:
-    def __init__(self, base_url: str = "https://ai_core_api.cfapps.eu10-005.hana.ondemand.com", bearer_token: str = None):
+    def __init__(self, base_url: str = "https://generalitat-de-catalunya-dev-environment-auo8uoen-dev-a5eded457.cfapps.eu10-005.hana.ondemand.com", bearer_token: str = None):
         self.base_url = base_url.rstrip('/')
         self.upload_endpoint = f"{self.base_url}/api/rag/upload"
         self.session = requests.Session()
@@ -151,9 +151,10 @@ class ContextUploader:
     def test_connection(self) -> bool:
         """Prueba la conexión con el servidor."""
         try:
-            health_url = f"{self.base_url}/api/rag/health"
+            health_url = f"{self.base_url}/health"
             response = self.session.get(health_url, timeout=5)
             
+            print(health_url)
             if response.status_code == 200:
                 print(f"Conexion exitosa con {self.base_url}")
                 return True
@@ -245,7 +246,7 @@ def main():
     
     parser.add_argument(
         '--url', 
-        default='https://ai_core_api.cfapps.eu10-005.hana.ondemand.com',
+        default='https://generalitat-de-catalunya-dev-environment-auo8uoen-dev-a5eded457.cfapps.eu10-005.hana.ondemand.com',
         help='URL base del servidor (default: Cloud Foundry)'
     )
     

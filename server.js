@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth.js";
 import pliegoErrorsRoutes from "./routes/pliegoErrors.js";
 import logsRoutes from "./routes/logs.js";
 import chatHistoryRoutes from "./routes/chatHistory.js";
+import aiCoreHealthRoutes from "./routes/aiCoreHealth.js";
 import { requestLogger, extractUsername } from "./middleware/requestLogger.js";
 import { initializeSampleData } from "./scripts/init-sample-data.js";
 import { persistenceManager } from "./services/persistenceManager.js";
@@ -171,6 +172,7 @@ app.use('/api/pdf-correction/errors', pliegoErrorsRoutes);
 app.use('/api/pdf-correction', pdfCorrectionRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/logs', logsRoutes);
+app.use('/api/ai-core', aiCoreHealthRoutes);
 
 // Rutas de autenticación SIEMPRE disponibles (incluso en desarrollo)
 app.use('/oauth', authRoutes);
