@@ -880,8 +880,8 @@ async function addFileAndContextAnalysisReportPages(pdf, analysisReport, context
 
   // Fecha y hora
   const now = new Date();
-  const dateStr = now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES');
-  currentPage.drawText(`Generado: ${dateStr}`, {
+  const dateStr = now.toLocaleDateString('ca-ES') + ' ' + now.toLocaleTimeString('ca-ES');
+  currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
     size: 10,
@@ -1003,8 +1003,8 @@ async function addContextAnalysisReportPages(pdf, analysisReport, contextId, doc
 
   // Fecha y hora
   const now = new Date();
-  const dateStr = now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES');
-  currentPage.drawText(`Generado: ${dateStr}`, {
+  const dateStr = now.toLocaleDateString('ca-ES') + ' ' + now.toLocaleTimeString('ca-ES');
+  currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
     size: 10,
@@ -1093,7 +1093,7 @@ async function addValidationReportPages(pdf, validationReport) {
   let lineCount = 0;
   
   // Título principal
-  currentPage.drawText('INFORME DE VALIDACIÓN DE PLIEGO', {
+  currentPage.drawText('INFORME DE VALIDACIÓ DE PLEC', {
     x: margin,
     y: yPosition,
     size: 18,
@@ -1105,8 +1105,8 @@ async function addValidationReportPages(pdf, validationReport) {
   
   // Fecha y hora
   const now = new Date();
-  const dateStr = now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES');
-  currentPage.drawText(`Generado: ${dateStr}`, {
+  const dateStr = now.toLocaleDateString('ca-ES') + ' ' + now.toLocaleTimeString('ca-ES');
+  currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
     size: 10,
@@ -1131,7 +1131,7 @@ async function addValidationReportPages(pdf, validationReport) {
       lineCount = 0;
       
       // Título en nueva página
-      currentPage.drawText('INFORME DE VALIDACIÓN (continuación)', {
+      currentPage.drawText('INFORME DE VALIDACIÓ (continuació)', {
         x: margin,
         y: yPosition,
         size: 16,
