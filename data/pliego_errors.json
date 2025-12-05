@@ -348,5 +348,124 @@
         "COMENTARIO_DESARROLLADOR": 2
       }
     }
+  },
+  "PLIEGO_1764926052477": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1764926052477",
+      "fileName": "documento-1764926049135-128429914.pdf",
+      "analyzedAt": "2025-12-05T09:14:33.468Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (243.936,00 EUR) no coincideix amb la suma de lots (244.783,00 EUR). Diferència: 847,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.453Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.454Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.454Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Tag SAP sense reemplaçar: Error! Argument de modificador desconegut.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.454Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.454Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Codi CPV",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.454Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.454Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.454Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.454Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Presència de text genèric: \"(sector públic concret que ha fet l'encàrrec si no és l'Administració de la Generalitat)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.455Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.455Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Descripció del contracte",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.455Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Comentari de desenvolupador detectat: \"S'ha de treballar molt\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.455Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 20.- SUBCONTRACTACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-05T09:14:33.455Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 6,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 12,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
   }
 }
