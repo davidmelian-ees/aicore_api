@@ -81,13 +81,17 @@ async function loadValidationPrompts() {
       erroresComunes,
       validationSystem,
       analisisPliegos,
-      ejemplosErrores
+      ejemplosErrores,
+      conocimientoGemini,
+      estructuraComun
     ] = await Promise.all([
       fs.readFile(path.join(promptsDir, 'NOMENCLATURA_PLIEGOS.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'ERRORES_COMUNES_PLIEGOS.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'PLIEGOS_VALIDATION_SYSTEM.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'ANALISIS_PLIEGOS_GENERADOS.txt'), 'utf8'),
-      fs.readFile(path.join(promptsDir, 'PLIEGOS_ERRORES_EJEMPLOS.txt'), 'utf8')
+      fs.readFile(path.join(promptsDir, 'PLIEGOS_ERRORES_EJEMPLOS.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'CONOCIMIENTO_CRITICO_GEMINI.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'ESTRUCTURA_COMUN_PLIEGOS.txt'), 'utf8')
     ]);
     
     return {
@@ -95,7 +99,9 @@ async function loadValidationPrompts() {
       erroresComunes,
       validationSystem,
       analisisPliegos,
-      ejemplosErrores
+      ejemplosErrores,
+      conocimientoGemini,
+      estructuraComun
     };
   } catch (error) {
     console.error('[PDF-CORRECTION] Error cargando prompts:', error);
@@ -125,9 +131,31 @@ Genera un informe detallado de errores estructurales, ortográficos y de formato
 TODO EL INFORME DE VALIDACIÓN DEBE ESTAR ESCRITO EN IDIOMA CATALÁN.
 Todas las descripciones de errores, advertencias, sugerencias y explicaciones 
 DEBEN estar en CATALÀ. Esto es OBLIGATORIO y NO NEGOCIABLE.
+
+⚠️⚠️⚠️ MODO DE VALIDACIÓN: EXTREMADAMENTE ESTRICTO ⚠️⚠️⚠️
+NO TOLERES NINGÚN ERROR. NO ASUMAS NADA. VERIFICA TODO.
+Si algo falta, está mal o es incoherente → REPORTA como ERROR CRÍTICO.
+Sé METICULOSO, EXHAUSTIVO y RIGUROSO en cada validación.
 ================================================================================
 
-CONTEXTO DE VALIDACIÓN:
+⚠️⚠️⚠️ CONOCIMIENTO CRÍTICO PRIORITARIO (GEMINI) ⚠️⚠️⚠️
+El siguiente conocimiento tiene PRIORIDAD MÁXIMA sobre cualquier otro análisis.
+Fue extraído del análisis de 4 pliegos reales + 2 plantillas oficiales.
+DEBES aplicar estas reglas ANTES que cualquier otra validación.
+================================================================================
+
+${prompts.conocimientoGemini}
+
+================================================================================
+ESTRUCTURA COMÚN OBLIGATORIA DE TODOS LOS PLIEGOS
+================================================================================
+
+${prompts.estructuraComun}
+
+================================================================================
+CONTEXTO DE VALIDACIÓN ADICIONAL:
+================================================================================
+
 ${prompts.validationSystem}
 
 ERRORES COMUNES A DETECTAR:
@@ -193,7 +221,10 @@ INSTRUCCIONES DE VALIDACIÓN:
    - EXTRAE todos los importes de cada lote
    - SUMA manualmente: Lot1 + Lot2 + Lot3 + ... = TOTAL
    - COMPARA: ¿TOTAL calculado == TOTAL declarado?
-   - Si NO coinciden: REPORTA como ERROR CRÍTICO con cálculos explícitos
+   - CALCULA LA DIFERENCIA: |TOTAL calculado - TOTAL declarado|
+   - ⚠️ CRÍTICO: Si la diferencia es CERO (0,00 EUR), NO reportes ningún error
+   - ⚠️ CRÍTICO: SOLO si la diferencia es MAYOR que cero: REPORTA como ERROR CRÍTICO con cálculos explícitos
+   - Si coinciden exactamente (diferencia = 0): NO reportes nada, está correcto
 
 4. VALIDA TABLAS APLICA/NO APLICA COLUMNA POR COLUMNA:
    - Si encuentras tabla con columnas "APLICA" y "NO APLICA"
@@ -269,7 +300,7 @@ HAS DE REPORTAR EN CATALÀ:
     - Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
     - Context: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
 
-⚠️ EXEMPLE 2 - VALIDACIÓ NUMÈRICA AMB UBICACIÓ - EN CATALÀ:
+⚠️ EXEMPLE 2A - VALIDACIÓ NUMÈRICA AMB ERROR (diferència > 0) - EN CATALÀ:
 
 Si trobes en el text:
 "2.- DADES ECONÒMIQUES
@@ -282,12 +313,29 @@ HAS DE FER:
 2. Extreure lots: 241.840,28 i 1.942,72
 3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
 4. COMPARAR: 243.936,00 ≠ 243.783,00
-5. DIFERÈNCIA: 153,00 euros
-6. REPORTAR EN CATALÀ:
+5. DIFERÈNCIA: 153,00 euros (MAJOR QUE ZERO)
+6. REPORTAR EN CATALÀ (perquè diferència > 0):
 🔴 ERRORS CRÍTICS:
 - Incoherència numèrica: Pressupost declarat (243.936,00 EUR) no coincideix amb la suma de lots (243.783,00 EUR). Diferència: 153,00 EUR
     - Ubicació: Apartat 2.- DADES ECONÒMIQUES
     - Context: PRESSUPOST DE LICITACIÓ - Taula de lots
+
+⚠️ EXEMPLE 2B - VALIDACIÓ NUMÈRICA SENSE ERROR (diferència = 0) - EN CATALÀ:
+
+Si trobes en el text:
+"2.- DADES ECONÒMIQUES
+ PRESSUPOST DE LICITACIÓ: 243.783,00 euros (IVA inclòs)
+ Lot 1: 241.840,28 euros
+ Lot 2: 1.942,72 euros"
+
+HAS DE FER:
+1. Extreure: 243.783,00 (pressupost declarat)
+2. Extreure lots: 241.840,28 i 1.942,72
+3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
+4. COMPARAR: 243.783,00 == 243.783,00 ✅
+5. DIFERÈNCIA: 0,00 euros (ZERO)
+6. ⚠️ NO REPORTAR RES - Els números coincideixen perfectament
+   NO posis cap error crític ni advertència sobre això
 
 ⚠️ EXEMPLE 3 - VALIDACIÓ TAULES APLICA/NO APLICA AMB UBICACIÓ - EN CATALÀ:
 
@@ -357,13 +405,77 @@ ${textForAnalysis}
 
 ================================================================================
 GENERA L'INFORME SEGUINT EL FORMAT EXACTE EN CATALÀ:
-RECORDA: 
-- ⚠️ TOT L'INFORME HA D'ESTAR EN CATALÀ
-- VERIFICA TOTES LES SUMES I CÀLCULS NUMÈRICS
-- COMPTA ELS VALORS EN CADA FILA DE TAULES APLICA/NO APLICA
-- BUSCA COMENTARIS DE DESENVOLUPADORS (Oriol:, David:, etc.)
-- BUSCA TAGS SAP SENSE REEMPLAÇAR (ZRM_, ZVRM_, etc.)
-- ⚠️ OBLIGATORI: Totes les descripcions han d'estar escrites en CATALÀ
+
+⚠️⚠️⚠️ VALIDACIÓ EXTREMADAMENT ESTRICTA - LLISTA DE VERIFICACIÓ OBLIGATÒRIA ⚠️⚠️⚠️
+
+ABANS DE GENERAR L'INFORME, VERIFICA OBLIGATÒRIAMENT:
+
+1️⃣ ESTRUCTURA DEL PLEC (PRIORITAT MÀXIMA):
+   ✓ Verifica TOTS els apartats del 1 al 24 existeixen
+   ✓ Si falten apartats (ej: del 13 al 17) → ERROR CRÍTIC amb apartats faltants (14, 15, 16)
+   ✓ Verifica que existeix el Cuadro de Características (pàgines 2-8)
+   ✓ Verifica que existeix l'Apartado 18 (Documentació a presentar)
+   ✓ NO assumeixis res - si no veus el número d'apartat, està FALTANT
+
+2️⃣ APARTADO 18 - CUADRO DE CARACTERÍSTICAS (CRÍTICO):
+   ✓ Verifica que existeix aquest quadre
+   ✓ Verifica que indica què APLICA i què NO APLICA
+   ✓ Si falta → ERROR CRÍTIC
+
+3️⃣ APARTADO 9 - SOLVÈNCIA I CLASSIFICACIÓ (FILTRO ELIMINATORI):
+   ✓ Verifica que existeix classificació empresarial
+   ✓ Verifica Grup, Subgrup i Categoria
+   ✓ Si hi ha lots: verifica classificació per lot
+   ✓ Si falta → ERROR CRÍTIC
+
+4️⃣ ESTRUCTURA DE 3 SOBRES (CLÁUSULA 8):
+   ✓ Verifica que es menciona el DEUC (Sobre 1)
+   ✓ Verifica que es menciona format TCQ2000 (Sobre 3)
+   ✓ Verifica partida de Seguretat i Salut
+   ✓ Si falta → ERROR CRÍTIC
+
+5️⃣ JEFE DE OBRA I PERSONAL CLAU:
+   ✓ Verifica requisits d'experiència
+   ✓ Si pressupost > 500.000€: Verifica separació Cap d'Obra ≠ Responsable de Seguretat
+   ✓ Verifica compatibilitat (màxim 2 obres vigents)
+   ✓ Si falta o és incorrecte → ERROR CRÍTIC
+
+6️⃣ VALIDACIÓ NUMÈRICA (MOLT IMPORTANT):
+   ✓ Extreu pressupost total declarat
+   ✓ Extreu tots els imports de lots
+   ✓ SUMA manualment: Lot1 + Lot2 + ... = TOTAL
+   ✓ CALCULA diferència: |TOTAL calculat - TOTAL declarat|
+   ✓ Si diferència = 0,00 EUR → NO reportis error (està correcte)
+   ✓ Si diferència > 0,00 EUR → ERROR CRÍTIC amb càlculs explícits
+
+7️⃣ TAULES APLICA/NO APLICA:
+   ✓ Identifica taules amb columnes APLICA i NO APLICA
+   ✓ Compta valors per fila (han de ser 2)
+   ✓ Si una fila té només 1 valor → ERROR CRÍTIC amb número de fila
+
+8️⃣ COMENTARIS DE DESENVOLUPADORS I TAGS SAP:
+   ✓ Busca noms + dos punts (Oriol:, David:, Maria:)
+   ✓ Busca instruccions tècniques (S'haurà de treure, Escollir)
+   ✓ Busca tags SAP sense reemplaçar (ZRM_, ZVRM_, {B}, {/B})
+   ✓ Si trobes QUALSEVOL → ERROR CRÍTIC
+
+9️⃣ REFERÈNCIES OBLIGATÒRIES:
+   ✓ Annex 7 (Mesa de contractació)
+   ✓ Annex 8A i 8B (Criteris d'adjudicació)
+   ✓ Cláusula 11 (Ofertes anormalment baixes)
+   ✓ Article 198.4 LCSP (Pagament de certificacions)
+   ✓ Si falta alguna → ERROR CRÍTIC
+
+🔟 IDIOMA:
+   ✓ TOT L'INFORME HA D'ESTAR EN CATALÀ
+   ✓ Totes les descripcions, explicacions i suggeriments en CATALÀ
+   ✓ NO NEGOCIABLE
+
+⚠️⚠️⚠️ IMPORTANT ⚠️⚠️⚠️
+SÉ EXTREMADAMENT ESTRICTE. NO PERDONIS CAP ERROR.
+Si tens dubte sobre si algo està bé o malament → REPORTA com ERROR CRÍTIC.
+Millor reportar un fals positiu que deixar passar un error real.
+
 ================================================================================`;
 }
 
@@ -878,9 +990,10 @@ async function addFileAndContextAnalysisReportPages(pdf, analysisReport, context
 
   yPosition -= 30;
 
-  // Fecha y hora
+  // Fecha y hora (zona horaria Europe/Madrid - UTC+1/UTC+2)
   const now = new Date();
-  const dateStr = now.toLocaleDateString('ca-ES') + ' ' + now.toLocaleTimeString('ca-ES');
+  const dateStr = now.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' ' + 
+                  now.toLocaleTimeString('ca-ES', { timeZone: 'Europe/Madrid', hour12: false });
   currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
@@ -1001,9 +1114,10 @@ async function addContextAnalysisReportPages(pdf, analysisReport, contextId, doc
 
   yPosition -= 30;
 
-  // Fecha y hora
+  // Fecha y hora (zona horaria Europe/Madrid - UTC+1/UTC+2)
   const now = new Date();
-  const dateStr = now.toLocaleDateString('ca-ES') + ' ' + now.toLocaleTimeString('ca-ES');
+  const dateStr = now.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' ' + 
+                  now.toLocaleTimeString('ca-ES', { timeZone: 'Europe/Madrid', hour12: false });
   currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
@@ -1103,9 +1217,10 @@ async function addValidationReportPages(pdf, validationReport) {
   
   yPosition -= 30;
   
-  // Fecha y hora
+  // Fecha y hora (zona horaria Europe/Madrid - UTC+1/UTC+2)
   const now = new Date();
-  const dateStr = now.toLocaleDateString('ca-ES') + ' ' + now.toLocaleTimeString('ca-ES');
+  const dateStr = now.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' ' + 
+                  now.toLocaleTimeString('ca-ES', { timeZone: 'Europe/Madrid', hour12: false });
   currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
