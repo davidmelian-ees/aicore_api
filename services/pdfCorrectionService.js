@@ -214,17 +214,43 @@ INSTRUCCIONES DE VALIDACIÓN:
    
    NUNCA reportes un error sin indicar su ubicación exacta en el documento.
 
-3. REALIZA CÁLCULOS MATEMÁTICOS EXPLÍCITOS:
-   - Si encuentras "PRESSUPOST DE LICITACIÓ" o "PRESUPUESTO DE LICITACIÓN"
-   - EXTRAE el importe total declarado
-   - BUSCA la tabla de lotes inmediatamente después
-   - EXTRAE todos los importes de cada lote
-   - SUMA manualmente: Lot1 + Lot2 + Lot3 + ... = TOTAL
-   - COMPARA: ¿TOTAL calculado == TOTAL declarado?
-   - CALCULA LA DIFERENCIA: |TOTAL calculado - TOTAL declarado|
-   - ⚠️ CRÍTICO: Si la diferencia es CERO (0,00 EUR), NO reportes ningún error
-   - ⚠️ CRÍTICO: SOLO si la diferencia es MAYOR que cero: REPORTA como ERROR CRÍTICO con cálculos explícitos
-   - Si coinciden exactamente (diferencia = 0): NO reportes nada, está correcto
+3. REALIZA CÁLCULOS MATEMÁTICOS EXPLÍCITOS (SOLO SI HAY LOTES):
+   
+   ⚠️⚠️⚠️ REGLAS CRÍTICAS PARA VALIDACIÓN NUMÉRICA ⚠️⚠️⚠️
+   
+   A) IDENTIFICAR SI HAY LOTES:
+      - Busca en el texto: "Lot 1", "Lot 2", "Lote 1", "Lote 2", etc.
+      - Busca apartado "LOTITZACIÓ" y verifica si dice "SÍ" o "NO"
+      - Si NO encuentras lotes → SALTA ESTA VALIDACIÓN COMPLETAMENTE
+      - Si encuentras lotes → Continúa con validación numérica
+   
+   B) IVA INCLUIDO VS IVA NO INCLUIDO (NO ES UN ERROR):
+      - Si ves: "5.720.043,51 euros (IVA inclòs), 4.727.308,69 euros (IVA no inclòs)"
+      - Esto NO es un error - Son dos formas de expresar el mismo presupuesto
+      - NUNCA compares el importe con IVA vs el importe sin IVA
+      - SOLO compara importes de la MISMA categoría (ambos con IVA o ambos sin IVA)
+   
+   C) VALIDACIÓN NUMÉRICA (SOLO SI HAY LOTES):
+      - Identifica si el presupuesto está con IVA o sin IVA
+      - EXTRAE el importe total declarado (con IVA o sin IVA, según corresponda)
+      - BUSCA la tabla de lotes inmediatamente después
+      - VERIFICA que los lotes estén en la MISMA categoría (con IVA o sin IVA)
+      - EXTRAE todos los importes de cada lote
+      - SUMA manualmente: Lot1 + Lot2 + Lot3 + ... = TOTAL
+      - COMPARA: ¿TOTAL calculado == TOTAL declarado?
+      - CALCULA LA DIFERENCIA: |TOTAL calculado - TOTAL declarado|
+   
+   D) REPORTE DE ERRORES:
+      - ⚠️ CRÍTICO: Si la diferencia es CERO (0,00 EUR) → NO reportes NINGÚN error
+      - ⚠️ CRÍTICO: Si la diferencia es 0,01 EUR o menos → NO reportes error (redondeo)
+      - ⚠️ CRÍTICO: SOLO si la diferencia es MAYOR que 0,01 EUR → REPORTA como ERROR CRÍTICO
+      - Si coinciden exactamente (diferencia = 0) → NO reportes nada, está correcto
+   
+   E) SI NO HAY LOTES:
+      - NO busques tabla de lotes
+      - NO hagas ninguna suma
+      - NO reportes ningún error numérico
+      - Simplemente verifica que existe el presupuesto declarado
 
 4. VALIDA TABLAS APLICA/NO APLICA COLUMNA POR COLUMNA:
    - Si encuentras tabla con columnas "APLICA" y "NO APLICA"
@@ -300,21 +326,23 @@ HAS DE REPORTAR EN CATALÀ:
     - Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
     - Context: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
 
-⚠️ EXEMPLE 2A - VALIDACIÓ NUMÈRICA AMB ERROR (diferència > 0) - EN CATALÀ:
+⚠️ EXEMPLE 2A - VALIDACIÓ NUMÈRICA AMB ERROR (diferència > 0,01 EUR) - EN CATALÀ:
 
 Si trobes en el text:
 "2.- DADES ECONÒMIQUES
  PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
- Lot 1: 241.840,28 euros
- Lot 2: 1.942,72 euros"
+ LOTITZACIÓ: Sí
+ Lot 1: 241.840,28 euros (IVA inclòs)
+ Lot 2: 1.942,72 euros (IVA inclòs)"
 
 HAS DE FER:
-1. Extreure: 243.936,00 (pressupost declarat)
-2. Extreure lots: 241.840,28 i 1.942,72
-3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
-4. COMPARAR: 243.936,00 ≠ 243.783,00
-5. DIFERÈNCIA: 153,00 euros (MAJOR QUE ZERO)
-6. REPORTAR EN CATALÀ (perquè diferència > 0):
+1. Verificar que hi ha lots: SÍ (Lot 1, Lot 2)
+2. Extreure pressupost amb IVA: 243.936,00
+3. Extreure lots amb IVA: 241.840,28 i 1.942,72
+4. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
+5. COMPARAR: 243.936,00 ≠ 243.783,00
+6. DIFERÈNCIA: 153,00 euros (MAJOR QUE 0,01 EUR)
+7. REPORTAR EN CATALÀ (perquè diferència > 0,01):
 🔴 ERRORS CRÍTICS:
 - Incoherència numèrica: Pressupost declarat (243.936,00 EUR) no coincideix amb la suma de lots (243.783,00 EUR). Diferència: 153,00 EUR
     - Ubicació: Apartat 2.- DADES ECONÒMIQUES
@@ -324,18 +352,49 @@ HAS DE FER:
 
 Si trobes en el text:
 "2.- DADES ECONÒMIQUES
- PRESSUPOST DE LICITACIÓ: 243.783,00 euros (IVA inclòs)
- Lot 1: 241.840,28 euros
- Lot 2: 1.942,72 euros"
+ PRESSUPOST DE LICITACIÓ: 846.326,48 euros (IVA inclòs)
+ LOTITZACIÓ: Sí
+ Lot 1: 423.163,24 euros (IVA inclòs)
+ Lot 2: 423.163,24 euros (IVA inclòs)"
 
 HAS DE FER:
-1. Extreure: 243.783,00 (pressupost declarat)
-2. Extreure lots: 241.840,28 i 1.942,72
-3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
-4. COMPARAR: 243.783,00 == 243.783,00 ✅
-5. DIFERÈNCIA: 0,00 euros (ZERO)
-6. ⚠️ NO REPORTAR RES - Els números coincideixen perfectament
+1. Verificar que hi ha lots: SÍ (Lot 1, Lot 2)
+2. Extreure pressupost amb IVA: 846.326,48
+3. Extreure lots amb IVA: 423.163,24 i 423.163,24
+4. SUMAR: 423.163,24 + 423.163,24 = 846.326,48
+5. COMPARAR: 846.326,48 == 846.326,48 ✅
+6. DIFERÈNCIA: 0,00 euros (ZERO)
+7. ⚠️ NO REPORTAR RES - Els números coincideixen perfectament
    NO posis cap error crític ni advertència sobre això
+
+⚠️ EXEMPLE 2C - IVA INCLÒS VS IVA NO INCLÒS (NO ÉS ERROR) - EN CATALÀ:
+
+Si trobes en el text:
+"2.- DADES ECONÒMIQUES
+ PRESSUPOST DE LICITACIÓ: 5.720.043,51 euros (IVA inclòs), 4.727.308,69 euros (IVA no inclòs)
+ VALOR GLOBAL ESTIMAT: 4.727.308,69 euros (IVA no inclòs)
+ LOTITZACIÓ: No"
+
+HAS DE FER:
+1. Verificar que hi ha lots: NO (LOTITZACIÓ: No)
+2. ⚠️ NO fer cap validació numèrica
+3. ⚠️ NO comparar 5.720.043,51 amb 4.727.308,69 (són el mateix pressupost amb/sense IVA)
+4. ⚠️ NO REPORTAR RES - No hi ha lots, no hi ha error
+5. Simplement verifica que existeix el pressupost
+
+⚠️ EXEMPLE 2D - PLEC SENSE LOTS (NO VALIDAR) - EN CATALÀ:
+
+Si trobes en el text:
+"2.- DADES ECONÒMIQUES
+ PRESSUPOST DE LICITACIÓ: 12.874.250,88 euros (IVA inclòs)
+ LOTITZACIÓ: No"
+
+HAS DE FER:
+1. Verificar que hi ha lots: NO (LOTITZACIÓ: No)
+2. ⚠️ NO buscar taula de lots
+3. ⚠️ NO fer cap suma
+4. ⚠️ NO REPORTAR cap error numèric
+5. Simplement verifica que existeix el pressupost declarat
 
 ⚠️ EXEMPLE 3 - VALIDACIÓ TAULES APLICA/NO APLICA AMB UBICACIÓ - EN CATALÀ:
 
@@ -440,13 +499,25 @@ ABANS DE GENERAR L'INFORME, VERIFICA OBLIGATÒRIAMENT:
    ✓ Verifica compatibilitat (màxim 2 obres vigents)
    ✓ Si falta o és incorrecte → ERROR CRÍTIC
 
-6️⃣ VALIDACIÓ NUMÈRICA (MOLT IMPORTANT):
-   ✓ Extreu pressupost total declarat
-   ✓ Extreu tots els imports de lots
+6️⃣ VALIDACIÓ NUMÈRICA (NOMÉS SI HI HA LOTS):
+   ✓ PRIMER: Verifica si hi ha lots (busca "Lot 1", "Lot 2" o "LOTITZACIÓ: Sí")
+   ✓ Si NO hi ha lots → SALTA aquesta validació completament
+   ✓ Si hi ha lots → Continua:
+   ✓ Identifica si els imports són amb IVA o sense IVA
+   ✓ NOMÉS compara imports de la MATEIXA categoria (ambdós amb IVA o ambdós sense IVA)
+   ✓ NUNCA comparis import amb IVA vs import sense IVA (NO és un error)
+   ✓ Extreu pressupost total declarat (amb o sense IVA)
+   ✓ Extreu tots els imports de lots (amb o sense IVA, la mateixa categoria)
    ✓ SUMA manualment: Lot1 + Lot2 + ... = TOTAL
    ✓ CALCULA diferència: |TOTAL calculat - TOTAL declarat|
-   ✓ Si diferència = 0,00 EUR → NO reportis error (està correcte)
-   ✓ Si diferència > 0,00 EUR → ERROR CRÍTIC amb càlculs explícits
+   ✓ Si diferència = 0,00 EUR → NO reportis error (està perfecte)
+   ✓ Si diferència ≤ 0,01 EUR → NO reportis error (redondeo)
+   ✓ Si diferència > 0,01 EUR → ERROR CRÍTIC amb càlculs explícits
+   
+   ⚠️ EXEMPLES DE CASOS QUE NO SÓN ERRORS:
+   - "846.326,48 EUR" vs suma de lots "846.326,48 EUR" → Diferència 0,00 → NO ERROR
+   - "5.720.043,51 EUR (IVA inclòs), 4.727.308,69 EUR (IVA no inclòs)" → NO ERROR (mateix pressupost)
+   - "12.874.250,88 EUR" sense lots → NO ERROR (no hi ha res a validar)
 
 7️⃣ TAULES APLICA/NO APLICA:
    ✓ Identifica taules amb columnes APLICA i NO APLICA
