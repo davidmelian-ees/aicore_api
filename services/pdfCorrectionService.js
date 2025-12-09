@@ -83,7 +83,8 @@ async function loadValidationPrompts() {
       analisisPliegos,
       ejemplosErrores,
       conocimientoGemini,
-      estructuraComun
+      estructuraComun,
+      partesVariables
     ] = await Promise.all([
       fs.readFile(path.join(promptsDir, 'NOMENCLATURA_PLIEGOS.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'ERRORES_COMUNES_PLIEGOS.txt'), 'utf8'),
@@ -91,7 +92,8 @@ async function loadValidationPrompts() {
       fs.readFile(path.join(promptsDir, 'ANALISIS_PLIEGOS_GENERADOS.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'PLIEGOS_ERRORES_EJEMPLOS.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'CONOCIMIENTO_CRITICO_GEMINI.txt'), 'utf8'),
-      fs.readFile(path.join(promptsDir, 'ESTRUCTURA_COMUN_PLIEGOS.txt'), 'utf8')
+      fs.readFile(path.join(promptsDir, 'ESTRUCTURA_COMUN_PLIEGOS.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'PARTES_VARIABLES_PLIEGOS_OBRAS.txt'), 'utf8')
     ]);
     
     return {
@@ -101,7 +103,8 @@ async function loadValidationPrompts() {
       analisisPliegos,
       ejemplosErrores,
       conocimientoGemini,
-      estructuraComun
+      estructuraComun,
+      partesVariables
     };
   } catch (error) {
     console.error('[PDF-CORRECTION] Error cargando prompts:', error);
@@ -151,6 +154,12 @@ ESTRUCTURA COMÚN OBLIGATORIA DE TODOS LOS PLIEGOS
 ================================================================================
 
 ${prompts.estructuraComun}
+
+================================================================================
+⚠️ PARTES VARIABLES DE PLIEGOS DE OBRAS (SUPER IMPORTANTE) ⚠️
+================================================================================
+
+${prompts.partesVariables}
 
 ================================================================================
 CONTEXTO DE VALIDACIÓN ADICIONAL:
@@ -261,12 +270,42 @@ INSTRUCCIONES DE VALIDACIÓN:
    - REPORTA con número de fila y nombre del criterio
 
 5. DETECTA COMENTARIOS DE DESARROLLADORES Y TAGS SAP:
-   - BUSCA texto con nombre + dos puntos: "Oriol:", "David:", "Maria:"
-   - BUSCA instrucciones técnicas: "S'haurà de treure", "no treure", "Escollir"
-   - BUSCA variables SAP sin reemplazar que empiecen con Z: ZRM_, ZVRM_, ZVRM_QDC_
-   - BUSCA referencias a tablas SAP: "si hi ha valors a la taula ZRM_"
-   - BUSCA condiciones técnicas: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000"
-   - Si encuentras CUALQUIERA de estos: ERROR CRÍTICO
+   
+   ⚠️⚠️⚠️ IMPORTANTE: SÉ EXTREMADAMENTE PRECISO ⚠️⚠️⚠️
+   SOLO reporta comentarios de desarrollador si REALMENTE existen en el texto.
+   NO inventes ni asumas que hay comentarios si no los ves explícitamente.
+   
+   A) COMENTARIOS DE DESARROLLADORES (SOLO SI EXISTEN):
+      Patrones EXACTOS a buscar:
+      - "Oriol:" seguido de texto (ej: "Oriol: revisar este apartado")
+      - "David:" seguido de texto (ej: "David: pendiente de actualizar")
+      - "Maria:" seguido de texto
+      - "Nombre:" seguido de instrucciones técnicas
+      
+      Instrucciones técnicas EXACTAS:
+      - "S'haurà de treure" (literal)
+      - "Escollir" (literal)
+      - "Revisar" (literal)
+      - "Pendiente" (literal)
+      - "TODO:" (literal)
+      
+      ⚠️ SI NO ENCUENTRAS ESTOS PATRONES EXACTOS → NO REPORTES NADA
+   
+   B) TAGS SAP SIN REEMPLAZAR (SOLO SI EXISTEN):
+      Patrones EXACTOS a buscar:
+      - ZRM_ (ej: ZRM_VARIABLE)
+      - ZVRM_ (ej: ZVRM_CAMPO)
+      - {B} o {/B} (tags de negrita)
+      - {I} o {/I} (tags de cursiva)
+      - &INCLUDE (código ABAP)
+      - <variable> sin reemplazar
+      
+      ⚠️ SI NO ENCUENTRAS ESTOS PATRONES EXACTOS → NO REPORTES NADA
+   
+   C) REPORTE (SOLO SI ENCUENTRAS ALGO):
+      - REPORTA cada ocurrencia con ubicación exacta
+      - Cita el texto EXACTO encontrado
+      - NO reportes falsos positivos
 
 6. GENERA un informe detallado con:
    - Errores críticos (bloquean generación)
@@ -525,10 +564,42 @@ ABANS DE GENERAR L'INFORME, VERIFICA OBLIGATÒRIAMENT:
    ✓ Si una fila té només 1 valor → ERROR CRÍTIC amb número de fila
 
 8️⃣ COMENTARIS DE DESENVOLUPADORS I TAGS SAP:
-   ✓ Busca noms + dos punts (Oriol:, David:, Maria:)
-   ✓ Busca instruccions tècniques (S'haurà de treure, Escollir)
-   ✓ Busca tags SAP sense reemplaçar (ZRM_, ZVRM_, {B}, {/B})
-   ✓ Si trobes QUALSEVOL → ERROR CRÍTIC
+   
+   ⚠️⚠️⚠️ IMPORTANT: SÉ EXTREMADAMENT PRECÍS ⚠️⚠️⚠️
+   NOMÉS reporta comentaris de desenvolupador si REALMENT existeixen en el text.
+   NO inventis ni assumeixis que hi ha comentaris si no els veus explícitament.
+   
+   A) COMENTARIS DE DESENVOLUPADORS (NOMÉS SI EXISTEIXEN):
+      Patrons EXACTES a buscar:
+      ✓ "Oriol:" seguit de text (ex: "Oriol: revisar aquest apartat")
+      ✓ "David:" seguit de text (ex: "David: pendent d'actualitzar")
+      ✓ "Maria:" seguit de text
+      ✓ "Nom:" seguit d'instruccions tècniques
+      
+      Instruccions tècniques EXACTES:
+      ✓ "S'haurà de treure" (literal)
+      ✓ "Escollir" (literal)
+      ✓ "Revisar" (literal)
+      ✓ "Pendiente" (literal)
+      ✓ "TODO:" (literal)
+      
+      ⚠️ SI NO TROBES AQUESTS PATRONS EXACTES → NO REPORTIS RES
+   
+   B) TAGS SAP SENSE REEMPLAÇAR (NOMÉS SI EXISTEIXEN):
+      Patrons EXACTES a buscar:
+      ✓ ZRM_ (ex: ZRM_VARIABLE)
+      ✓ ZVRM_ (ex: ZVRM_CAMPO)
+      ✓ {B} o {/B} (tags de negreta)
+      ✓ {I} o {/I} (tags de cursiva)
+      ✓ &INCLUDE (codi ABAP)
+      ✓ <variable> sense reemplaçar
+      
+      ⚠️ SI NO TROBES AQUESTS PATRONS EXACTES → NO REPORTIS RES
+   
+   C) REPORTE (NOMÉS SI TROBES ALGUNA COSA):
+      ✓ REPORTA cada ocurrència amb ubicació exacta
+      ✓ Cita el text EXACTE trobat
+      ✓ NO reportis falsos positius
 
 9️⃣ REFERÈNCIES OBLIGATÒRIES:
    ✓ Annex 7 (Mesa de contractació)
