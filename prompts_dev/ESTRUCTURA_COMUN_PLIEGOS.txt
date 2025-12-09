@@ -4,8 +4,19 @@ ESTRUCTURA COMÚN DE TODOS LOS PLIEGOS - ANÁLISIS OPENAI
 Fuente: Análisis de 3 pliegos de contexto
 Prioridad: ALTA - Complementa el conocimiento de Gemini
 
+⚠️⚠️⚠️ INSTRUCCIÓN CRÍTICA OBLIGATORIA ⚠️⚠️⚠️
+
 Estos son los apartados que SIEMPRE aparecen en todos los pliegos.
 Si falta alguno de estos apartados, es un ERROR CRÍTICO.
+
+DEBES VERIFICAR LA EXISTENCIA DE CADA APARTADO NUMERADO (1 al 24).
+Si encuentras que el pliego salta de un número a otro (ej: del 13 al 17),
+DEBES REPORTAR como ERROR CRÍTICO los apartados faltantes (14, 15, 16).
+
+MÉTODO DE VALIDACIÓN OBLIGATORIO:
+1. Busca en el texto cada apartado numerado del 1) al 24)
+2. Si un apartado NO existe, anótalo como FALTANTE
+3. Al final, REPORTA todos los apartados faltantes como ERRORES CRÍTICOS
 
 ================================================================================
 APARTADOS OBLIGATORIOS EN TODOS LOS PLIEGOS
@@ -191,6 +202,45 @@ ERRORES CRÍTICOS DE ESTRUCTURA
 🔴 ERROR: No se hace referencia a Annex 8A y 8B (Criteris d'adjudicació)
 🔴 ERROR: No se menciona la Cláusula 11 (Ofertes anormalment baixes)
 🔴 ERROR: No se especifica el artículo 198.4 LCSP en Pagament de certificacions
+
+================================================================================
+⚠️ EJEMPLO DE DETECCIÓN DE APARTADOS FALTANTES ⚠️
+================================================================================
+
+ESCENARIO: El pliego tiene apartado 13, luego salta directamente al 17
+
+TEXTO DEL PLIEGO:
+"...
+13) APERTURA DE SOBRES
+[contenido del apartado 13]
+
+17) DOCUMENTACIÓ FACILITADA
+[contenido del apartado 17]
+..."
+
+⚠️ DETECCIÓN OBLIGATORIA:
+1. Verificar secuencia: 1, 2, 3, ..., 13, ?, ?, ?, 17, ...
+2. Identificar salto: Del 13 al 17 (faltan 14, 15, 16)
+3. Buscar en el texto:
+   - ¿Existe "14)" o "MESA DE CONTRACTACIÓ"? → NO
+   - ¿Existe "15)" o "CRITERIS D'ADJUDICACIÓ"? → NO
+   - ¿Existe "16)" o "OFERTA ANORMALMENT BAIXA"? → NO
+
+REPORTE OBLIGATORIO EN CATALÀ:
+🔴 ERRORS CRÍTICS:
+- Apartats faltants en l'estructura del plec: 14, 15 i 16
+    - Ubicació: Entre l'apartat 13 (APERTURA DE SOBRES) i l'apartat 17 (DOCUMENTACIÓ FACILITADA)
+    - Context: Falten els apartats obligatoris:
+      * 14) MESA DE CONTRACTACIÓ I COMISSIÓ TÈCNICA
+      * 15) CRITERIS D'ADJUDICACIÓ
+      * 16) OFERTA ANORMALMENT BAIXA
+    - Impacte: ERROR CRÍTIC - Estructura incompleta del plec
+
+⚠️⚠️⚠️ IMPORTANTE ⚠️⚠️⚠️
+SIEMPRE verifica la secuencia completa del 1 al 24.
+Si faltan apartados, DEBES reportarlos como ERROR CRÍTICO.
+NO asumas que están en otro lugar del documento.
+Si no encuentras el número del apartado, está FALTANTE.
 
 ================================================================================
 FIN DE LA ESTRUCTURA COMÚN DE PLIEGOS

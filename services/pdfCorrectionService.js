@@ -131,6 +131,11 @@ Genera un informe detallado de errores estructurales, ortográficos y de formato
 TODO EL INFORME DE VALIDACIÓN DEBE ESTAR ESCRITO EN IDIOMA CATALÁN.
 Todas las descripciones de errores, advertencias, sugerencias y explicaciones 
 DEBEN estar en CATALÀ. Esto es OBLIGATORIO y NO NEGOCIABLE.
+
+⚠️⚠️⚠️ MODO DE VALIDACIÓN: EXTREMADAMENTE ESTRICTO ⚠️⚠️⚠️
+NO TOLERES NINGÚN ERROR. NO ASUMAS NADA. VERIFICA TODO.
+Si algo falta, está mal o es incoherente → REPORTA como ERROR CRÍTICO.
+Sé METICULOSO, EXHAUSTIVO y RIGUROSO en cada validación.
 ================================================================================
 
 ⚠️⚠️⚠️ CONOCIMIENTO CRÍTICO PRIORITARIO (GEMINI) ⚠️⚠️⚠️
@@ -400,15 +405,77 @@ ${textForAnalysis}
 
 ================================================================================
 GENERA L'INFORME SEGUINT EL FORMAT EXACTE EN CATALÀ:
-RECORDA: 
-- ⚠️ TOT L'INFORME HA D'ESTAR EN CATALÀ
-- VERIFICA TOTES LES SUMES I CÀLCULS NUMÈRICS
-- ⚠️⚠️⚠️ CRÍTICO: Si la diferència numèrica és ZERO (0,00 EUR), NO reportis cap error
-- ⚠️⚠️⚠️ NOMÉS reporta incoherència numèrica si la diferència és MAJOR que zero
-- COMPTA ELS VALORS EN CADA FILA DE TAULES APLICA/NO APLICA
-- BUSCA COMENTARIS DE DESENVOLUPADORS (Oriol:, David:, etc.)
-- BUSCA TAGS SAP SENSE REEMPLAÇAR (ZRM_, ZVRM_, etc.)
-- ⚠️ OBLIGATORI: Totes les descripcions han d'estar escrites en CATALÀ
+
+⚠️⚠️⚠️ VALIDACIÓ EXTREMADAMENT ESTRICTA - LLISTA DE VERIFICACIÓ OBLIGATÒRIA ⚠️⚠️⚠️
+
+ABANS DE GENERAR L'INFORME, VERIFICA OBLIGATÒRIAMENT:
+
+1️⃣ ESTRUCTURA DEL PLEC (PRIORITAT MÀXIMA):
+   ✓ Verifica TOTS els apartats del 1 al 24 existeixen
+   ✓ Si falten apartats (ej: del 13 al 17) → ERROR CRÍTIC amb apartats faltants (14, 15, 16)
+   ✓ Verifica que existeix el Cuadro de Características (pàgines 2-8)
+   ✓ Verifica que existeix l'Apartado 18 (Documentació a presentar)
+   ✓ NO assumeixis res - si no veus el número d'apartat, està FALTANT
+
+2️⃣ APARTADO 18 - CUADRO DE CARACTERÍSTICAS (CRÍTICO):
+   ✓ Verifica que existeix aquest quadre
+   ✓ Verifica que indica què APLICA i què NO APLICA
+   ✓ Si falta → ERROR CRÍTIC
+
+3️⃣ APARTADO 9 - SOLVÈNCIA I CLASSIFICACIÓ (FILTRO ELIMINATORI):
+   ✓ Verifica que existeix classificació empresarial
+   ✓ Verifica Grup, Subgrup i Categoria
+   ✓ Si hi ha lots: verifica classificació per lot
+   ✓ Si falta → ERROR CRÍTIC
+
+4️⃣ ESTRUCTURA DE 3 SOBRES (CLÁUSULA 8):
+   ✓ Verifica que es menciona el DEUC (Sobre 1)
+   ✓ Verifica que es menciona format TCQ2000 (Sobre 3)
+   ✓ Verifica partida de Seguretat i Salut
+   ✓ Si falta → ERROR CRÍTIC
+
+5️⃣ JEFE DE OBRA I PERSONAL CLAU:
+   ✓ Verifica requisits d'experiència
+   ✓ Si pressupost > 500.000€: Verifica separació Cap d'Obra ≠ Responsable de Seguretat
+   ✓ Verifica compatibilitat (màxim 2 obres vigents)
+   ✓ Si falta o és incorrecte → ERROR CRÍTIC
+
+6️⃣ VALIDACIÓ NUMÈRICA (MOLT IMPORTANT):
+   ✓ Extreu pressupost total declarat
+   ✓ Extreu tots els imports de lots
+   ✓ SUMA manualment: Lot1 + Lot2 + ... = TOTAL
+   ✓ CALCULA diferència: |TOTAL calculat - TOTAL declarat|
+   ✓ Si diferència = 0,00 EUR → NO reportis error (està correcte)
+   ✓ Si diferència > 0,00 EUR → ERROR CRÍTIC amb càlculs explícits
+
+7️⃣ TAULES APLICA/NO APLICA:
+   ✓ Identifica taules amb columnes APLICA i NO APLICA
+   ✓ Compta valors per fila (han de ser 2)
+   ✓ Si una fila té només 1 valor → ERROR CRÍTIC amb número de fila
+
+8️⃣ COMENTARIS DE DESENVOLUPADORS I TAGS SAP:
+   ✓ Busca noms + dos punts (Oriol:, David:, Maria:)
+   ✓ Busca instruccions tècniques (S'haurà de treure, Escollir)
+   ✓ Busca tags SAP sense reemplaçar (ZRM_, ZVRM_, {B}, {/B})
+   ✓ Si trobes QUALSEVOL → ERROR CRÍTIC
+
+9️⃣ REFERÈNCIES OBLIGATÒRIES:
+   ✓ Annex 7 (Mesa de contractació)
+   ✓ Annex 8A i 8B (Criteris d'adjudicació)
+   ✓ Cláusula 11 (Ofertes anormalment baixes)
+   ✓ Article 198.4 LCSP (Pagament de certificacions)
+   ✓ Si falta alguna → ERROR CRÍTIC
+
+🔟 IDIOMA:
+   ✓ TOT L'INFORME HA D'ESTAR EN CATALÀ
+   ✓ Totes les descripcions, explicacions i suggeriments en CATALÀ
+   ✓ NO NEGOCIABLE
+
+⚠️⚠️⚠️ IMPORTANT ⚠️⚠️⚠️
+SÉ EXTREMADAMENT ESTRICTE. NO PERDONIS CAP ERROR.
+Si tens dubte sobre si algo està bé o malament → REPORTA com ERROR CRÍTIC.
+Millor reportar un fals positiu que deixar passar un error real.
+
 ================================================================================`;
 }
 

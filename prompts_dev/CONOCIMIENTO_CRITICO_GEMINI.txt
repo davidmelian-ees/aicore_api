@@ -4,6 +4,11 @@ CONOCIMIENTO CRÍTICO DE PLIEGOS - ANÁLISIS GEMINI (PRIORITARIO)
 Fuente: Análisis de 4 pliegos + 2 plantillas
 Prioridad: MÁXIMA - Este conocimiento prevalece sobre otros análisis
 
+⚠️⚠️⚠️ MODO DE VALIDACIÓN: EXTREMADAMENTE ESTRICTO ⚠️⚠️⚠️
+NO TOLERES NINGUNA DESVIACIÓN DE ESTAS REGLAS.
+Cada punto marcado como "ERROR CRÍTICO" debe reportarse SIN EXCEPCIÓN.
+NO asumas que algo está bien si no lo ves explícitamente en el documento.
+
 ================================================================================
 1. CUADRO DE CARACTERÍSTICAS (LA HOJA DE RUTA) ⚠️ CRÍTICO
 ================================================================================
