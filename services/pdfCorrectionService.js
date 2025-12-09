@@ -81,13 +81,17 @@ async function loadValidationPrompts() {
       erroresComunes,
       validationSystem,
       analisisPliegos,
-      ejemplosErrores
+      ejemplosErrores,
+      conocimientoGemini,
+      estructuraComun
     ] = await Promise.all([
       fs.readFile(path.join(promptsDir, 'NOMENCLATURA_PLIEGOS.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'ERRORES_COMUNES_PLIEGOS.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'PLIEGOS_VALIDATION_SYSTEM.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'ANALISIS_PLIEGOS_GENERADOS.txt'), 'utf8'),
-      fs.readFile(path.join(promptsDir, 'PLIEGOS_ERRORES_EJEMPLOS.txt'), 'utf8')
+      fs.readFile(path.join(promptsDir, 'PLIEGOS_ERRORES_EJEMPLOS.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'CONOCIMIENTO_CRITICO_GEMINI.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'ESTRUCTURA_COMUN_PLIEGOS.txt'), 'utf8')
     ]);
     
     return {
@@ -95,7 +99,9 @@ async function loadValidationPrompts() {
       erroresComunes,
       validationSystem,
       analisisPliegos,
-      ejemplosErrores
+      ejemplosErrores,
+      conocimientoGemini,
+      estructuraComun
     };
   } catch (error) {
     console.error('[PDF-CORRECTION] Error cargando prompts:', error);
@@ -127,7 +133,24 @@ Todas las descripciones de errores, advertencias, sugerencias y explicaciones
 DEBEN estar en CATALÀ. Esto es OBLIGATORIO y NO NEGOCIABLE.
 ================================================================================
 
-CONTEXTO DE VALIDACIÓN:
+⚠️⚠️⚠️ CONOCIMIENTO CRÍTICO PRIORITARIO (GEMINI) ⚠️⚠️⚠️
+El siguiente conocimiento tiene PRIORIDAD MÁXIMA sobre cualquier otro análisis.
+Fue extraído del análisis de 4 pliegos reales + 2 plantillas oficiales.
+DEBES aplicar estas reglas ANTES que cualquier otra validación.
+================================================================================
+
+${prompts.conocimientoGemini}
+
+================================================================================
+ESTRUCTURA COMÚN OBLIGATORIA DE TODOS LOS PLIEGOS
+================================================================================
+
+${prompts.estructuraComun}
+
+================================================================================
+CONTEXTO DE VALIDACIÓN ADICIONAL:
+================================================================================
+
 ${prompts.validationSystem}
 
 ERRORES COMUNES A DETECTAR:
@@ -193,7 +216,10 @@ INSTRUCCIONES DE VALIDACIÓN:
    - EXTRAE todos los importes de cada lote
    - SUMA manualmente: Lot1 + Lot2 + Lot3 + ... = TOTAL
    - COMPARA: ¿TOTAL calculado == TOTAL declarado?
-   - Si NO coinciden: REPORTA como ERROR CRÍTICO con cálculos explícitos
+   - CALCULA LA DIFERENCIA: |TOTAL calculado - TOTAL declarado|
+   - ⚠️ CRÍTICO: Si la diferencia es CERO (0,00 EUR), NO reportes ningún error
+   - ⚠️ CRÍTICO: SOLO si la diferencia es MAYOR que cero: REPORTA como ERROR CRÍTICO con cálculos explícitos
+   - Si coinciden exactamente (diferencia = 0): NO reportes nada, está correcto
 
 4. VALIDA TABLAS APLICA/NO APLICA COLUMNA POR COLUMNA:
    - Si encuentras tabla con columnas "APLICA" y "NO APLICA"
@@ -269,7 +295,7 @@ HAS DE REPORTAR EN CATALÀ:
     - Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
     - Context: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
 
-⚠️ EXEMPLE 2 - VALIDACIÓ NUMÈRICA AMB UBICACIÓ - EN CATALÀ:
+⚠️ EXEMPLE 2A - VALIDACIÓ NUMÈRICA AMB ERROR (diferència > 0) - EN CATALÀ:
 
 Si trobes en el text:
 "2.- DADES ECONÒMIQUES
@@ -282,12 +308,29 @@ HAS DE FER:
 2. Extreure lots: 241.840,28 i 1.942,72
 3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
 4. COMPARAR: 243.936,00 ≠ 243.783,00
-5. DIFERÈNCIA: 153,00 euros
-6. REPORTAR EN CATALÀ:
+5. DIFERÈNCIA: 153,00 euros (MAJOR QUE ZERO)
+6. REPORTAR EN CATALÀ (perquè diferència > 0):
 🔴 ERRORS CRÍTICS:
 - Incoherència numèrica: Pressupost declarat (243.936,00 EUR) no coincideix amb la suma de lots (243.783,00 EUR). Diferència: 153,00 EUR
     - Ubicació: Apartat 2.- DADES ECONÒMIQUES
     - Context: PRESSUPOST DE LICITACIÓ - Taula de lots
+
+⚠️ EXEMPLE 2B - VALIDACIÓ NUMÈRICA SENSE ERROR (diferència = 0) - EN CATALÀ:
+
+Si trobes en el text:
+"2.- DADES ECONÒMIQUES
+ PRESSUPOST DE LICITACIÓ: 243.783,00 euros (IVA inclòs)
+ Lot 1: 241.840,28 euros
+ Lot 2: 1.942,72 euros"
+
+HAS DE FER:
+1. Extreure: 243.783,00 (pressupost declarat)
+2. Extreure lots: 241.840,28 i 1.942,72
+3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
+4. COMPARAR: 243.783,00 == 243.783,00 ✅
+5. DIFERÈNCIA: 0,00 euros (ZERO)
+6. ⚠️ NO REPORTAR RES - Els números coincideixen perfectament
+   NO posis cap error crític ni advertència sobre això
 
 ⚠️ EXEMPLE 3 - VALIDACIÓ TAULES APLICA/NO APLICA AMB UBICACIÓ - EN CATALÀ:
 
@@ -360,6 +403,8 @@ GENERA L'INFORME SEGUINT EL FORMAT EXACTE EN CATALÀ:
 RECORDA: 
 - ⚠️ TOT L'INFORME HA D'ESTAR EN CATALÀ
 - VERIFICA TOTES LES SUMES I CÀLCULS NUMÈRICS
+- ⚠️⚠️⚠️ CRÍTICO: Si la diferència numèrica és ZERO (0,00 EUR), NO reportis cap error
+- ⚠️⚠️⚠️ NOMÉS reporta incoherència numèrica si la diferència és MAJOR que zero
 - COMPTA ELS VALORS EN CADA FILA DE TAULES APLICA/NO APLICA
 - BUSCA COMENTARIS DE DESENVOLUPADORS (Oriol:, David:, etc.)
 - BUSCA TAGS SAP SENSE REEMPLAÇAR (ZRM_, ZVRM_, etc.)
@@ -878,9 +923,10 @@ async function addFileAndContextAnalysisReportPages(pdf, analysisReport, context
 
   yPosition -= 30;
 
-  // Fecha y hora
+  // Fecha y hora (zona horaria Europe/Madrid - UTC+1/UTC+2)
   const now = new Date();
-  const dateStr = now.toLocaleDateString('ca-ES') + ' ' + now.toLocaleTimeString('ca-ES');
+  const dateStr = now.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' ' + 
+                  now.toLocaleTimeString('ca-ES', { timeZone: 'Europe/Madrid', hour12: false });
   currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
@@ -1001,9 +1047,10 @@ async function addContextAnalysisReportPages(pdf, analysisReport, contextId, doc
 
   yPosition -= 30;
 
-  // Fecha y hora
+  // Fecha y hora (zona horaria Europe/Madrid - UTC+1/UTC+2)
   const now = new Date();
-  const dateStr = now.toLocaleDateString('ca-ES') + ' ' + now.toLocaleTimeString('ca-ES');
+  const dateStr = now.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' ' + 
+                  now.toLocaleTimeString('ca-ES', { timeZone: 'Europe/Madrid', hour12: false });
   currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
@@ -1103,9 +1150,10 @@ async function addValidationReportPages(pdf, validationReport) {
   
   yPosition -= 30;
   
-  // Fecha y hora
+  // Fecha y hora (zona horaria Europe/Madrid - UTC+1/UTC+2)
   const now = new Date();
-  const dateStr = now.toLocaleDateString('ca-ES') + ' ' + now.toLocaleTimeString('ca-ES');
+  const dateStr = now.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' ' + 
+                  now.toLocaleTimeString('ca-ES', { timeZone: 'Europe/Madrid', hour12: false });
   currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
