@@ -1,0 +1,200 @@
+================================================================================
+CONOCIMIENTO CRÍTICO DE PLIEGOS - ANÁLISIS GEMINI (PRIORITARIO)
+================================================================================
+Fuente: Análisis de 4 pliegos + 2 plantillas
+Prioridad: MÁXIMA - Este conocimiento prevalece sobre otros análisis
+
+⚠️⚠️⚠️ MODO DE VALIDACIÓN: EXTREMADAMENTE ESTRICTO ⚠️⚠️⚠️
+NO TOLERES NINGUNA DESVIACIÓN DE ESTAS REGLAS.
+Cada punto marcado como "ERROR CRÍTICO" debe reportarse SIN EXCEPCIÓN.
+NO asumas que algo está bien si no lo ves explícitamente en el documento.
+
+================================================================================
+1. CUADRO DE CARACTERÍSTICAS (LA HOJA DE RUTA) ⚠️ CRÍTICO
+================================================================================
+
+Ubicación: Páginas 2-8 aproximadamente (inicio del documento)
+Importancia: MÁXIMA - Define las reglas específicas del pliego
+Prevalencia: Todo lo que contradiga o especifique este cuadro prevalece sobre el texto general
+
+⚠️ APARTADO 18 - DOCUMENTACIÓN A PRESENTAR (INDISPENSABLE):
+- Este cuadro indica exactamente qué apartados de la memoria técnica APLICAN y cuáles NO
+- ERROR CRÍTICO: Incluir información de un apartado que dice "No aplica" → Pérdida de tiempo
+- ERROR CRÍTICO: Omitir un apartado que dice "Aplica" → EXCLUSIÓN AUTOMÁTICA
+
+VALIDACIÓN OBLIGATORIA:
+- Verificar que existe el Cuadro de Características
+- Verificar que el Apartado 18 está completo
+- Verificar coherencia entre Apartado 18 y contenido del pliego
+
+================================================================================
+2. SOLVENCIA Y CLASIFICACIÓN (APARTADO 9) - FILTRO ELIMINATORIO
+================================================================================
+
+Importancia: CRÍTICA - Primer filtro "go / no-go"
+
+PLIEGOS SIN LOTES:
+- Se exige una clasificación empresarial única y obligatoria
+- Ejemplo: Grupo A, Subgrupo 4, Categoría 5
+- Debe estar claramente especificada
+
+PLIEGOS CON LOTES:
+- La solvencia o clasificación se exige POR SEPARADO para cada lote
+- Debe verificarse el cumplimiento para el lote específico
+- Cada lote puede tener requisitos diferentes
+
+ALTERNATIVA A LA CLASIFICACIÓN:
+- Si valor < 500.000€: Puede permitirse solvencia técnica/económica alternativa
+- Debe indicarse EXPLÍCITAMENTE en el pliego
+- Si no se indica, la clasificación es OBLIGATORIA
+
+VALIDACIÓN OBLIGATORIA:
+- Verificar que existe Apartado 9
+- Verificar clasificación empresarial especificada
+- Si hay lotes: verificar clasificación por lote
+- Verificar coherencia con el presupuesto
+
+================================================================================
+3. ESTRUCTURA DE LOS 3 SOBRES (CLÁUSULA 8) ⚠️ ERROR MÁS COMÚN Y FATAL
+================================================================================
+
+⚠️⚠️⚠️ REGLA DE ORO: NUNCA MEZCLAR DOCUMENTACIÓN ENTRE SOBRES ⚠️⚠️⚠️
+
+SOBRE 1 (DOCUMENTACIÓN GENERAL):
+- Documento clave: DEUC (Documento Europeo Único de Contratación)
+- Funciona como declaración responsable de cumplimiento
+- Si hay UTE: Cada empresa debe presentar su propio DEUC
+
+SOBRE 2 (OFERTA TÉCNICA - JUICIO DE VALOR):
+⚠️ REGLA DE ORO CRÍTICA: NUNCA incluir datos económicos ni referencias al presupuesto
+- Incluir precios en Sobre 2 → EXCLUSIÓN AUTOMÁTICA
+- Debe seguir el índice de la memoria según Apartado 18
+- Estructura: descripción, implantación, plan de trabajos, etc.
+
+SOBRE 3 (OFERTA ECONÓMICA Y CRITERIOS AUTOMÁTICOS):
+- Contenido: Precio + compromisos objetivos (BIM, CO2, Social)
+- Formato TCQ: OBLIGATORIO presentar presupuesto en formato TCQ2000
+- NO basta con PDF o Excel
+- El archivo TCQ debe coincidir céntimo a céntimo con la oferta firmada
+- Si hay discrepancia: PREVALECE EL TCQ
+
+⚠️ SEGURIDAD Y SALUD:
+- ERROR CRÍTICO: Bajar esta partida por debajo del presupuesto base → EXCLUSIÓN
+- ERROR CRÍTICO: Incoherencia con el detalle → EXCLUSIÓN
+
+VALIDACIÓN OBLIGATORIA:
+- Verificar que existe Cláusula 8
+- Verificar estructura de 3 sobres
+- Verificar que se menciona el DEUC
+- Verificar que se menciona el formato TCQ2000
+- Verificar partida de Seguridad y Salud
+
+================================================================================
+4. JEFE DE OBRA Y PERSONAL CLAVE - OBLIGACIÓN ESENCIAL
+================================================================================
+
+Importancia: CRÍTICA - A menudo es "Obligación Esencial"
+
+REQUISITO DE EXPERIENCIA:
+- Debe haber ejecutado obras de tipología similar
+- Periodo: Últimos 10 o 15 años (según pliego)
+- Debe especificarse claramente la tipología (túneles, edificación sanitaria, etc.)
+
+COMPATIBILIDAD:
+- El Jefe de Obra NO puede dirigir más de 2 obras vigentes con Infraestructures.cat
+- Excepción: Obras a punto de acabar
+- Debe verificarse la disponibilidad
+
+DIFERENCIA POR IMPORTE:
+- Obras > 500.000€: Jefe de Obra y Responsable de Seguridad deben ser PERSONAS DIFERENTES
+- Obras < 500.000€: Pueden coincidir
+- ERROR CRÍTICO: No cumplir esta separación → Posible exclusión
+
+VALIDACIÓN OBLIGATORIA:
+- Verificar requisitos de experiencia del Jefe de Obra
+- Verificar separación Jefe de Obra / Responsable de Seguridad según importe
+- Verificar que se menciona la compatibilidad de obras
+
+================================================================================
+5. COMPROMISOS "EXTRA" EVALUABLES (SOBRE 3) - PUNTUACIÓN
+================================================================================
+
+Importancia: ALTA - Afecta directamente a la puntuación
+
+BIM (ANNEX 5):
+- Si el proyecto ya está en BIM: OBLIGATORIO u ofrece muchos puntos
+- Compromiso: Mantener y explotar el modelo BIM
+- Debe mencionarse explícitamente
+
+AMBIENTALES (ANNEX 6B/6C/6D):
+- Distancias de transporte de materiales (CO2)
+- Uso de madera certificada
+- Etiquetas ecológicas en pinturas
+- Requiere: Cálculo de distancias reales de proveedores
+
+SOCIAL (ANNEX 6F):
+- Compromiso de subcontratar a Centros Especiales de Empleo
+- Porcentaje específico
+
+VALIDACIÓN OBLIGATORIA:
+- Verificar que existen los Anexos de compromisos
+- Verificar coherencia entre compromisos y criterios de adjudicación
+
+================================================================================
+6. LIMITACIÓN DE LOTES (ESTRATEGIA) - SOLO PLIEGOS CON LOTES
+================================================================================
+
+Importancia: CRÍTICA en pliegos con lotes
+
+REGLA DE "JUEGO LIMPIO":
+- Puedes presentarte a TODOS los lotes
+- Solo puedes ser adjudicatario de UNO (salvo excepciones)
+- Excepciones: Eres el único licitador o quedan desiertos
+
+ORDEN DE PREFERENCIA:
+- Debe indicarse en la declaración responsable
+- Si ganas dos lotes: Se adjudica el de prioridad 1
+- Debe estar claramente especificado
+
+VALIDACIÓN OBLIGATORIA:
+- Si hay lotes: Verificar reglas de limitación
+- Verificar que se menciona el orden de preferencia
+
+================================================================================
+DOCUMENTOS CLAVE A VERIFICAR EN TODO PLIEGO
+================================================================================
+
+SOBRE A (Documentación General):
+✓ DEUC
+
+SOBRE B (Oferta Técnica):
+✓ Memoria Técnica (SIN PRECIOS)
+✓ Índice según Apartado 18
+
+SOBRE C (Oferta Económica):
+✓ Oferta Económica
+✓ Archivo TCQ2000
+✓ Anexos de Compromisos:
+  - Annex 4: Jefe de Obra
+  - Annex 5: BIM (si aplica)
+  - Annex 6B/6C/6D: Ambientales
+  - Annex 6F: Social
+
+================================================================================
+ERRORES CRÍTICOS MÁS COMUNES (SEGÚN GEMINI)
+================================================================================
+
+🔴 ERROR 1: Mezclar documentación entre sobres (especialmente precios en Sobre 2)
+🔴 ERROR 2: No seguir el Apartado 18 del Cuadro de Características
+🔴 ERROR 3: Incluir apartados que dicen "No aplica"
+🔴 ERROR 4: Omitir apartados que dicen "Aplica"
+🔴 ERROR 5: No presentar formato TCQ2000 o con discrepancias
+🔴 ERROR 6: Modificar partida de Seguridad y Salud incorrectamente
+🔴 ERROR 7: No cumplir separación Jefe de Obra / Responsable de Seguridad en obras > 500k€
+🔴 ERROR 8: No verificar compatibilidad del Jefe de Obra
+🔴 ERROR 9: No especificar orden de preferencia en lotes
+🔴 ERROR 10: No presentar DEUC o presentarlo incompleto
+
+================================================================================
+FIN DEL CONOCIMIENTO CRÍTICO GEMINI
+================================================================================
