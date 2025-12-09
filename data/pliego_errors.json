@@ -948,5 +948,1975 @@
         "COMENTARIO_DESARROLLADOR": 1
       }
     }
+  },
+  "PLIEGO_1765272881811": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765272881811",
+      "fileName": "PCAP_CT1074723_GIS_Sin apartado 14_15_16.pdf",
+      "analyzedAt": "2025-12-09T09:34:55.170Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (29.040.000,00 EUR) no coincideix amb la suma de lots (32.185.999,99 EUR). Diferència: 3.145.999,99 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula següent\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Secció \"OBRES SIMILARS\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tag SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o ZVRM_QDC_MAT_LIC ( Escollir quina de les 2) S'haurà de treure el text en groc.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Secció \"PROJECTE REALITZAT AMB METODOLOGIA BIM\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Tag SAP sense reemplaçar: {B}CRITERIS{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Annex 7 (Mesa de contractació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No especificada en el document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències obligatòries",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No especificada en el document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències obligatòries",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a la Cláusula 11 (Ofertes anormalment baixes)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No especificada en el document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències obligatòries",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'article 198.4 LCSP (Pagament de certificacions)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No especificada en el document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:34:55.162Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 11,
+      "totalWarnings": 12,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 17,
+        "COMENTARIO_DESARROLLADOR": 2,
+        "TAG_SIN_REEMPLAZAR": 2,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765273770678": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765273770678",
+      "fileName": "CT1078146_plec_edificacio_obert_amb_lots.pdf",
+      "analyzedAt": "2025-12-09T09:49:47.358Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (13.571.354,91 EUR) no coincideix amb la suma de lots (13.571.354,90 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.5 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D’APARTATS/SUBAPARTATS D’APLICACIÓ - Files 8.3.5 (emissions CO2eq) i 8.3.6 (declaracions ambientals)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Annex 7 (Mesa de contractació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 14.- MESA DE CONTRACTACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es fa referència a l'Annex 7",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D’ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es fa referència als Annexos 8A i 8B",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a la Cláusula 11 (Ofertes anormalment baixes)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 16.- CRITERIS PER A LA DETERMINACIÓ DE L’EXISTÈNCIA D’OFERTES ANORMALMENT BAIXES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es fa referència a la Cláusula 11",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Article 198.4 LCSP (Pagament de certificacions)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 22.- PAGAMENT DE LES CERTIFICACIONS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es fa referència a l'Article 198.4 LCSP",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Diferència mínima en la suma de lots: La diferència és de només 0,01 EUR, podria ser un error de redondeig.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:49:47.350Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 20,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 19,
+        "COMENTARIO_DESARROLLADOR": 1,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765273794547": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765273794547",
+      "fileName": "CT1078146_plec_edificacio_obert_amb_lots.pdf",
+      "analyzedAt": "2025-12-09T09:50:11.143Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: El pressupost declarat (13.571.354,91 EUR) no coincideix amb la suma de lots (13.571.354,90 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.5 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D’APARTATS/SUBAPARTATS D’APLICACIÓ - Files 8.3.5 (emissions CO2eq) i 8.3.6 (declaracions ambientals)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a l'Annex 7 (Mesa de contractació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 14.- MESA DE CONTRACTACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències obligatòries",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a l'Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D’ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:50:11.141Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 6,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 11,
+        "COMENTARIO_DESARROLLADOR": 1,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765273897955": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765273897955",
+      "fileName": "CT1078312_plec_edificacio_obert_sense_lots.pdf",
+      "analyzedAt": "2025-12-09T09:51:51.708Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (5.720.043,51 EUR) no coincideix amb la suma de lots (no es proporcionen detalls de lots per verificar).",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files tenen només 1 valor quan n'haurien de tenir 2.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D’APARTATS/SUBAPARTATS D’APLICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referències obligatòries: No es menciona l'Annex 7 (Mesa de contractació) i Annex 8A i 8B (Criteris d'adjudicació).",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Diversos apartats",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències a annexos i clàusules obligatòries",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de detalls en la classificació empresarial: No es proporciona informació completa sobre el Grup, Subgrup i Categoria.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 9.- REQUISITS D’APTITUD DELS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Solvència / Classificació del contractista",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de menció del format TCQ2000 en la documentació facilitada.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:51:51.706Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 11,
+      "totalWarnings": 6,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 14,
+        "COMENTARIO_DESARROLLADOR": 1,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765273969790": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765273969790",
+      "fileName": "CT1078468_plec_civil_obert_amb_lots.pdf",
+      "analyzedAt": "2025-12-09T09:53:03.380Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (846.326,48 EUR) no coincideix amb la suma de lots (846.326,48 EUR). Diferència: 0,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.5 i 8.3.7 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D’APARTATS/SUBAPARTATS D’APLICACIÓ - Files 8.3.5 (emissions CO2eq) i 8.3.7 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Annex 7 (Mesa de contractació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 14.- MESA DE CONTRACTACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona l'Annex 7",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D’ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona l'Annex 8A i 8B",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a la Cláusula 11 (Ofertes anormalment baixes)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 16.- CRITERIS PER A LA DETERMINACIÓ DE L’EXISTÈNCIA D’OFERTES ANORMALMENT BAIXES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona la Cláusula 11",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Article 198.4 LCSP (Pagament de certificacions)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 22.- PAGAMENT DE LES CERTIFICACIONS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:53:03.378Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 12,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 17,
+        "COMENTARIO_DESARROLLADOR": 1,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765274053313": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765274053313",
+      "fileName": "CT1078312_plec_edificacio_obert_sense_lots.pdf",
+      "analyzedAt": "2025-12-09T09:54:28.059Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (5.720.043,51 EUR) no coincideix amb la suma de lots (4.727.308,69 EUR). Diferència: 992.734,82 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.4 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D’APARTATS/SUBAPARTATS D’APLICACIÓ - Files 8.3.4 (COMPROMÍS SOBRE ELS NIVELLS DE SUBCONTRACTACIÓ) i 8.3.6 (COMPROMIS SOBRE DECLARACIONS AMBIENTALS DE PRODUCTE)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a l'Annex 7 (Mesa de contractació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 14.- MESA DE CONTRACTACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referència a l'annex no especificada",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a l'Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D’ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:54:28.057Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 6,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 11,
+        "COMENTARIO_DESARROLLADOR": 1,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765274150780": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765274150780",
+      "fileName": "CT1078312_plec_edificacio_obert_sense_lots.pdf",
+      "analyzedAt": "2025-12-09T09:56:06.678Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (5.720.043,51 EUR) no coincideix amb la suma de lots (4.727.308,69 EUR). Diferència: 992.734,82 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.4, 8.3.6, 8.3.7 i 8.3.8 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D’APARTATS/SUBAPARTATS D’APLICACIÓ - Files 8.3.4 (subcontractació), 8.3.6 (declaracions ambientals), 8.3.7 (fusta certificada) i 8.3.8 (pintures ecològiques)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Tag SAP sense reemplaçar: {B}CRITERIS{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a Annex 7 (Mesa de contractació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 14.- MESA DE CONTRACTACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Integració dels membres",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D’ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:06.676Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 11,
+      "totalWarnings": 6,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 13,
+        "COMENTARIO_DESARROLLADOR": 1,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765274198105": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765274198105",
+      "fileName": "CT1078329_plec_civil_obert_sense_lots.pdf",
+      "analyzedAt": "2025-12-09T09:56:51.486Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (12.874.250,88 EUR) no coincideix amb la suma de lots (no es proporcionen lots en el text). Diferència: No calculable.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Falta informació de lots per verificar la suma",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 2.1 i 2.2 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D’APARTATS/SUBAPARTATS D’APLICACIÓ - Files 2.1 (MEMÒRIA) i 2.2 (METODOLOGIES DE QUALITAT)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 19.- CONDICIONS ESPECIALS D’EXECUCIÓ / OBLIGACIONS ESSENCIALS DEL CONTRACTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a Annex 7 (Mesa de contractació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 14.- MESA DE CONTRACTACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona l'annex 7",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D’ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona l'annex 8A i 8B",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a Cláusula 11 (Ofertes anormalment baixes)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 16.- CRITERIS PER A LA DETERMINACIÓ DE L’EXISTÈNCIA D’OFERTES ANORMALMENT BAIXES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona la clàusula 11",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a Article 198.4 LCSP (Pagament de certificacions)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 22.- PAGAMENT DE LES CERTIFICACIONS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T09:56:51.482Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 12,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 16,
+        "COMENTARIO_DESARROLLADOR": 1,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765275180408": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765275180408",
+      "fileName": "CT1078329_plec_civil_obert_sense_lots.pdf",
+      "analyzedAt": "2025-12-09T10:13:12.749Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referències obligatòries: No es menciona l'Annex 7 (Mesa de contractació) ni l'Annex 8A i 8B (Criteris d'adjudicació).",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No es troben en el text proporcionat.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències obligatòries que han d'estar presents en el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Error en la taula APLICA/NO APLICA: La fila 1.04 i 1.06 tenen només un valor quan haurien de tenir dos.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE RESUM DE CRITERIS - Files 1.04 (emissions CO2eq) i 1.06 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de coherència en la numeració de les seccions: Hi ha un salt en la numeració entre les seccions 13 i 17.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Entre l'apartat 13 (OBERTURA DEL SOBRE NÚM. 3) i l'apartat 17 (DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:13:12.747Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_GENERICO": 9,
+        "COMENTARIO_DESARROLLADOR": 1,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765275460702": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765275460702",
+      "fileName": "CT1078329_plec_civil_obert_sense_lots.pdf",
+      "analyzedAt": "2025-12-09T10:17:54.836Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de lotització: El document indica que no es preveu la divisió en lots, però no justifica adequadament aquesta decisió segons les raons tècniques especificades.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 10.- LOTITZACIÓ DEL CONTRACTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Justificació insuficient per a la no divisió en lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 2.1 i 2.2 tenen només 1 valor quan n'haurien de tenir 2.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D’APARTATS/SUBAPARTATS D’APLICACIÓ - Files 2.1 (MEMÒRIA) i 2.2 (METODOLOGIES DE QUALITAT)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 19.- CONDICIONS ESPECIALS D’EXECUCIÓ / OBLIGACIONS ESSENCIALS DEL CONTRACTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La secció de \"DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS\" no especifica clarament quins documents es proporcionaran.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Llista de documents no detallada",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La secció de \"REVISIÓ DE PREUS\" no proporciona la fórmula completa per a la revisió de preus.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 21.- REVISIÓ DE PREUS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:17:54.834Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 6,
+      "errorTypes": {
+        "ERROR_GENERICO": 12,
+        "COMENTARIO_DESARROLLADOR": 1,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765275509739": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765275509739",
+      "fileName": "PCAP_CT1074731_GIS.pdf",
+      "analyzedAt": "2025-12-09T10:18:38.798Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (243.936,00 EUR) no coincideix amb la suma de lots (244.783,00 EUR). Diferència: 847,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Tag SAP sense reemplaçar: Error! Argument de modificador desconegut.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Codi CPV",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula següent\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No especificada",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tag SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Annex 7 (Mesa de contractació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No especificada",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències obligatòries",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No especificada",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències obligatòries",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Cláusula 11 (Ofertes anormalment baixes)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No especificada",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències obligatòries",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Article 198.4 LCSP (Pagament de certificacions)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No especificada",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:18:38.796Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 12,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 16,
+        "TAG_SIN_REEMPLAZAR": 2,
+        "COMENTARIO_DESARROLLADOR": 1
+      }
+    }
+  },
+  "PLIEGO_1765275551704": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765275551704",
+      "fileName": "CT1078329_plec_civil_obert_sense_lots.pdf",
+      "analyzedAt": "2025-12-09T10:19:24.404Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de lotització: El plec indica que no es preveu la divisió en lots, però no justifica adequadament aquesta decisió segons l'article 99.3.b) de la Llei 9/2017.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 10.- LOTITZACIÓ DEL CONTRACTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Explicació insuficient sobre la no divisió en lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (12.874.250,88 EUR) no coincideix amb la suma de lots (no hi ha lots declarats). Diferència: 12.874.250,88 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - No hi ha lots per validar",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 2.1 i 2.2 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D’APARTATS/SUBAPARTATS D’APLICACIÓ - Files 2.1 (MEMÒRIA) i 2.2 (METODOLOGIES DE QUALITAT)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D’ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona explícitament l'Annex 8A i 8B",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a la Cláusula 11 (Ofertes anormalment baixes)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 16.- CRITERIS PER A LA DETERMINACIÓ DE L’EXISTÈNCIA D’OFERTES ANORMALMENT BAIXES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T10:19:24.402Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 6,
+      "errorTypes": {
+        "ERROR_GENERICO": 13,
+        "ERROR_NUMERICO": 1
+      }
+    }
+  },
+  "PLIEGO_1765279051745": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765279051745",
+      "fileName": "PCAP_CT1074723_GIS_Sin apartado 14_15_16.pdf",
+      "analyzedAt": "2025-12-09T11:17:43.960Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (29.040.000,00 EUR) no coincideix amb la suma de lots (32.185.999,99 EUR). Diferència: 3.145.999,99 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula següent\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Secció final del document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tag SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o ZVRM_QDC_MAT_LIC ( Escollir quina de les 2) S'haurà de treure el text en groc.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Secció final del document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Tag SAP sense reemplaçar: {B}CRITERIS{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referències obligatòries: Annex 7 (Mesa de contractació), Annex 8A i 8B (Criteris d'adjudicació), Cláusula 11 (Ofertes anormalment baixes), Article 198.4 LCSP (Pagament de certificacions)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Diversos apartats",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències no esmentades en el document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 1.9 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T11:17:43.950Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 11,
+      "totalWarnings": 6,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 11,
+        "COMENTARIO_DESARROLLADOR": 2,
+        "TAG_SIN_REEMPLAZAR": 2,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765285028788": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765285028788",
+      "fileName": "PLEC.pdf",
+      "analyzedAt": "2025-12-09T12:57:20.865Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Annex 7 (Mesa de contractació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.859Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 14.- MESA DE CONTRACTACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.859Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona l'annex 7 en el text",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.859Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es fa referència als annexos 8A i 8B",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a la Cláusula 11 (Ofertes anormalment baixes)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 16.- CRITERIS PER A LA DETERMINACIÓ D'OFERTES ANORMALMENT BAIXES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona la clàusula 11",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'article 198.4 LCSP (Pagament de certificacions)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 22.- PAGAMENT DE LES CERTIFICACIONS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es fa referència a l'article 198.4 LCSP",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 2.1 i 2.2 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-09T12:57:20.860Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 11,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_GENERICO": 14
+      }
+    }
   }
 }
