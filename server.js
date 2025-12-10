@@ -13,6 +13,7 @@ import aiCoreHealthRoutes from "./routes/aiCoreHealth.js";
 import { requestLogger, extractUsername } from "./middleware/requestLogger.js";
 import { initializeSampleData } from "./scripts/init-sample-data.js";
 import { persistenceManager } from "./services/persistenceManager.js";
+import validacionService from "./services/validacionService.js";
 
 const app = express();
 
@@ -238,6 +239,11 @@ async function startServer() {
   try {
     // Inicializar sistema de persistencia
     await persistenceManager.initialize();
+    
+    // Inicializar servicio de validaciones
+    console.log('💾 Inicializando servicio de validaciones...');
+    await validacionService.initialize();
+    console.log('✅ Servicio de validaciones listo');
     
     if (isProduction) {
       console.log('📄 Inicializando datos de ejemplo para Cloud Foundry...');

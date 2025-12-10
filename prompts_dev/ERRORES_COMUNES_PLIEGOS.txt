@@ -1054,7 +1054,7 @@ Lot | Descripció                    | Pressupost (IVA inclòs)
 
 SUMA LOTES: 241.840,28 + 2.095,72 = 243.936,00 euros
 PRESUPUESTO DECLARADO: 243.936,00 euros
-DIFERENCIA: 0,00 euros ← CORRECTO" -> No lanzar error bajo ningún concepto
+DIFERENCIA: 0,00 euros ← CORRECTO"
 
 ================================================================================
                                 NOTAS

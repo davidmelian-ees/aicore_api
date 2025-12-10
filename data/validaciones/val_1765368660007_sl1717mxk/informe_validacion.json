@@ -1,0 +1,30 @@
+{
+  "correctionsList": "🔴 ERRORS CRÍTICS:\n- Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR\n - Ubicació: Apartat 2.- DADES ECONÒMIQUES\n - Context: PRESSUPOST DE LICITACIÓ - Taula de lots\n - 💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència, encara que petita, pot indicar un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.\n\n🟡 ADVERTÈNCIES:\n- Taula APLICA/NO APLICA amb salts de línia: La fila 8.3.3 presenta un salt de línia entre els valors \"NO APLICA\" i \"APLICA\".\n - Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES\n - Context: QUADRE D'APARTATS D'APLICACIÓ - Fila 8.3.3\n - 💡 Per què és una advertència: Els salts de línia en les taules poden causar confusió en la interpretació dels valors aplicables. Tot i que no és un error crític, és important assegurar que la informació es presenti de manera clara i coherent per evitar malentesos.\n\n✅ SUGGERIMENTS:\n- Revisar i corregir la diferència numèrica entre el pressupost declarat i la suma de lots per assegurar la coherència.\n- Assegurar que les taules APLICA/NO APLICA no continguin salts de línia que puguin confondre la interpretació dels valors.\n\n📋 CAMPS VARIABLES DETECTATS:\n- {B}CRITERIS{/B}\n- ZRM_DM_MAT_CO2\n- ZVRM_QDC_MAT_LIC\n\n⚠️ NOTA: Els PDFs poden tenir salts de línia. \"NO APLICA NO APLICA\" = 2 valors ✅\n\n⚠️⚠️⚠️ IMPORTANT ⚠️⚠️⚠️\nSÉ EXTREMADAMENT ESTRICTE. NO PERDONIS CAP ERROR.\nSi tens dubte sobre si algo està bé o malament → REPORTA com ERROR CRÍTIC.\nMillor reportar un fals positiu que deixar passar un error real.\n\n🎯🎯🎯 INSTRUCCIÓ FINAL OBLIGATÒRIA 🎯🎯🎯\nPER A CADA ERROR CRÍTIC I ADVERTÈNCIA QUE REPORTIS:\n✅ SEMPRE inclou el camp \"💡 Per què és un error\" o \"💡 Per què és una advertència\"\n✅ Explica DETALLADAMENT:\n - Per què això és problemàtic\n - Quina norma o regla incompleix\n - Quin impacte pot tenir (reclamacions, invalidació, confusió)\n - Com hauria de ser correctament\n✅ Les explicacions han d'ajudar a entendre el CONTEXT i la GRAVETAT de l'error\n✅ Escriu les explicacions en CATALÀ, de forma clara i professional\n\nEXEMPLE D'EXPLICACIÓ BONA:\n\"💡 Per què és un error: El pressupost total ha de coincidir exactament amb la suma\ndels lots segons l'article 99 de la LCSP. Una diferència de 153 EUR pot generar\nreclamacions dels licitadors i obligar a rectificar el plec, retardant la licitació.\"\n\nEXEMPLE D'EXPLICACIÓ DOLENTA (NO FER AIXÒ):\n\"💡 Per què és un error: Els números no coincideixen\"",
+  "criticalErrors": 3,
+  "warnings": 4,
+  "visualAnalysis": {
+    "lineSpacing": {
+      "inconsistencies": [],
+      "standardSpacing": "1.15",
+      "totalInconsistencies": 0
+    },
+    "tableHeaders": {
+      "tablesWithoutBold": [],
+      "totalTables": 0,
+      "totalWithoutBold": 0
+    },
+    "tableWidths": {
+      "narrowTables": [],
+      "pageWidth": 595,
+      "usableWidth": 451,
+      "totalNarrowTables": 0
+    }
+  },
+  "metadata": {
+    "pliegoId": "PLIEGO_1765368647426",
+    "fileName": "GISA.pdf",
+    "fileSize": 2347008,
+    "processingTime": 13607,
+    "timestamp": "2025-12-10T12:11:00.006Z"
+  }
+}

@@ -2918,5 +2918,1988 @@
         "ERROR_GENERICO": 14
       }
     }
+  },
+  "PLIEGO_1765364337486": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765364337486",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T10:59:08.812Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.7 i 8.3.8 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.7 (pintures amb etiqueta ecològica) i 8.3.8 (compromís social)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Annex 7 (Mesa de contractació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 14.- MESA DE CONTRACTACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona l'annex corresponent",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona l'annex corresponent",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Cláusula 11 (Ofertes anormalment baixes)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 16.- CRITERIS PER A LA DETERMINACIÓ D'OFERTES ANORMALMENT BAIXES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona la clàusula corresponent",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Article 198.4 LCSP (Pagament de certificacions)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 22.- PAGAMENT DE LES CERTIFICACIONS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T10:59:08.807Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 12,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 17,
+        "COMENTARIO_DESARROLLADOR": 1,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765364562199": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765364562199",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:02:51.535Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:02:51.533Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:02:51.533Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:02:51.533Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. La fila 8.3.7 té només 1 valor quan n'hauria de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:02:51.533Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:02:51.533Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Fila 8.3.7 (Compromís d'utilització de pintures amb etiqueta ecològica)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:02:51.533Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:02:51.533Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:02:51.533Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 5,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 7
+      }
+    }
+  },
+  "PLIEGO_1765365556683": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765365556683",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:19:27.078Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:19:27.071Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:19:27.071Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:19:27.071Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.7 i 8.3.8 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:19:27.071Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:19:27.071Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.7 (pintures amb etiqueta ecològica) i 8.3.8 (compromís social)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:19:27.071Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta referència a Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:19:27.071Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:19:27.071Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 5,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 7
+      }
+    }
+  },
+  "PLIEGO_1765365816368": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765365816368",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:23:46.536Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:23:46.535Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:23:46.535Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:23:46.535Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. La fila 8.3.7 té només 1 valor quan n'hauria de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:23:46.535Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:23:46.535Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Fila 8.3.7 (Compromís d'utilització de pintures amb etiqueta ecològica)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:23:46.535Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:23:46.535Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:23:46.535Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 5,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 7
+      }
+    }
+  },
+  "PLIEGO_1765365895181": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765365895181",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:25:04.825Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: El pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.819Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.819Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.819Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: Tot i que la diferència és mínima, el pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.819Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.7 i 8.3.8 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.819Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.819Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.7 (pintures amb etiqueta ecològica) i 8.3.8 (compromís social)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.819Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és un error: El Quadre de Criteris ha de tenir dues columnes (APLICA i NO APLICA) per indicar clarament quins criteris s'apliquen a cada lot o situació. Si una fila només té un valor, no queda clar si el criteri aplica o no aplica, creant ambigüitat que pot generar reclamacions.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.819Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.820Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.820Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es fa referència als annexos específics per a criteris d'adjudicació",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:25:04.820Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 7,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 9
+      }
+    }
+  },
+  "PLIEGO_1765365964914": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765365964914",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:26:13.582Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Tot i que la diferència és mínima, pot indicar un error de transcripció que cal corregir per assegurar la coherència i evitar confusions en la licitació.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      },
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "💡 Per què és un error: Aquest és un comentari intern entre desenvolupadors que s'ha deixat per error en el document final. Els comentaris com \"Oriol:\" seguits d'instruccions tècniques són notes de treball que mai haurien d'aparèixer en el plec publicat. A més, conté referències a taules SAP que són codis interns del sistema. Aquest text ha de ser eliminat completament abans de publicar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.3 (nivells de subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:26:13.580Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 7,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 6,
+        "COMENTARIO_DESARROLLADOR": 2,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765366026813": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765366026813",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:27:17.914Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència, encara que petita, pot indicar un error de transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.3 (nivells de subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és un error: El Quadre de Criteris ha de tenir dues columnes (APLICA i NO APLICA) per indicar clarament quins criteris s'apliquen a cada lot o situació. Si una fila només té un valor, no queda clar si el criteri aplica o no aplica, creant ambigüitat que pot generar reclamacions. Cada fila ha de tenir exactament 2 valors per complir amb els requisits de transparència de la licitació.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referència a l'Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona l'Annex 8A i 8B",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:27:17.912Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 7,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 9
+      }
+    }
+  },
+  "PLIEGO_1765366333893": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765366333893",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:32:23.309Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència, encara que petita, pot indicar un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.3 (nivells de subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és un error: El Quadre de Criteris ha de tenir dues columnes (APLICA i NO APLICA) per indicar clarament quins criteris s'apliquen a cada lot o situació. Si una fila només té un valor, no queda clar si el criteri aplica o no aplica, creant ambigüitat que pot generar reclamacions. Cada fila ha de tenir exactament 2 valors per complir amb els requisits de transparència de la licitació.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Presència de tags SAP sense reemplaçar: {Data d'Encrrec}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Descripció del contracte",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:32:23.306Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 7,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 9
+      }
+    }
+  },
+  "PLIEGO_1765366396483": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765366396483",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:33:26.930Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència, encara que petita, pot indicar un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      },
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "💡 Per què és un error: Aquest és un comentari intern entre desenvolupadors que s'ha deixat per error en el document final. Els comentaris com \"Oriol:\" seguits d'instruccions tècniques (com \"S'haurà de treure\") són notes de treball que mai haurien d'aparèixer en el plec publicat. A més, conté referències a taules SAP (ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC) que són codis interns del sistema. Aquest text ha de ser eliminat completament abans de publicar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.3 (subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:33:26.920Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 7,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 6,
+        "COMENTARIO_DESARROLLADOR": 2,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765366514477": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765366514477",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:35:23.164Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.315,99 EUR). Diferència: 0,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:23.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:23.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:23.162Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: Tot i que els números coincideixen perfectament, és important verificar que la suma dels lots reflecteixi exactament el pressupost declarat per evitar qualsevol confusió o error de transcripció. La coherència numèrica és essencial per garantir la transparència i la fiabilitat del procés de licitació.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:23.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:23.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:23.162Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.3 (nivells de subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:23.162Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1765366539644": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765366539644",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:35:47.133Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.315,99 EUR). Diferència: 0,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:47.131Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:47.131Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:47.131Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: Tot i que els números coincideixen, és important verificar que la suma dels lots sigui exacta per evitar qualsevol error de transcripció o càlcul que pugui afectar la licitació. En aquest cas, la suma és correcta i no hi ha error.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:47.131Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referències clares a Annex 7 (Mesa de contractació) i Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:47.131Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Diversos apartats del plec",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:47.131Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Referències a annexos",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:35:47.131Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1765366601360": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765366601360",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:36:51.341Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència, encara que petita, pot indicar un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: En cas que apliqui el CO2...\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- CRITERIS DE SOSTENIBILITAT",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      },
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Context: Instruccions tècniques que s'han d'eliminar. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "💡 Per què és un error: Aquest és un comentari intern entre desenvolupadors que s'ha deixat per error en el document final. Els comentaris com \"Oriol:\" seguits d'instruccions tècniques (com \"S'haurà de treure\") són notes de treball que mai haurien d'aparèixer en el plec publicat. A més, conté referències a taules SAP (ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC) que són codis interns del sistema. Aquest text ha de ser eliminat completament abans de publicar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.3 (subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:36:51.338Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 7,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 6,
+        "COMENTARIO_DESARROLLADOR": 2,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1765366749112": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765366749112",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:39:18.762Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.315,99 EUR). Diferència: 0,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:39:18.760Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:39:18.760Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:39:18.760Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 0,00 EUR indica que els números coincideixen perfectament, per tant, no hi ha error.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:39:18.760Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de referències obligatòries: No es fa referència a l'Annex 7 (Mesa de contractació) i Annex 8A i 8B (Criteris d'adjudicació)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:39:18.760Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 14.- MESA DE CONTRACTACI i Apartat 15.- CRITERIS D'ADJUDICACI",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:39:18.760Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: No es menciona l'Annex 7 i Annex 8A i 8B en el text",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:39:18.760Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1765367590395": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765367590395",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T11:53:19.815Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.315,99 EUR). Diferència: 0,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:53:19.803Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:53:19.803Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:53:19.803Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: Tot i que els números coincideixen exactament, és important verificar sempre la coherència entre el pressupost declarat i la suma dels lots per assegurar la transparència i la correcció del plec. En aquest cas, no hi ha error, però la verificació és crucial per evitar problemes futurs.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:53:19.803Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA amb salts de línia: Les files 8.3.3 i 8.3.6 tenen salts de línia que poden causar confusió en la interpretació dels valors.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:53:19.803Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:53:19.803Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T11:53:19.803Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1765368582167": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765368582167",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:09:52.287Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:09:52.279Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:09:52.279Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:09:52.279Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència, encara que petita, pot indicar un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:09:52.279Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 1,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1765368647426": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765368647426",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:10:59.997Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:10:59.992Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:10:59.992Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:10:59.992Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència, encara que petita, pot indicar un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:10:59.992Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA amb salts de línia: La fila 8.3.3 presenta un salt de línia entre els valors \"NO APLICA\" i \"APLICA\".",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:10:59.992Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:10:59.992Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Fila 8.3.3",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:10:59.992Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1765369174998": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765369174998",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:19:43.958Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:19:43.947Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:19:43.947Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:19:43.947Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 0,01 EUR indica un possible error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:19:43.947Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:19:43.947Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:19:43.947Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACI - Files 8.3.3 (subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:19:43.947Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1765369561893": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765369561893",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:26:11.194Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:26:11.192Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:26:11.192Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:26:11.192Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència, encara que petita, pot indicar un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:26:11.192Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:26:11.192Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:26:11.192Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.3 (subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:26:11.192Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1765369918803": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765369918803",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:32:08.277Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.315,99 EUR). Diferència: 0,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:32:08.274Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:32:08.274Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:32:08.274Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 0,00 EUR indica que els números coincideixen perfectament, per tant, no hi ha error. Aquesta validació és important per assegurar la coherència i la transparència en el procés de licitació.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:32:08.274Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 1,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1765369942106": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765369942106",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:32:30.186Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.315,99 EUR). Diferència: 0,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:32:30.181Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:32:30.181Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:32:30.181Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 0,00 EUR indica que els números coincideixen perfectament, per tant, no hi ha error. Aquesta validació és per assegurar que no hi hagi discrepàncies que puguin invalidar la licitació.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:32:30.181Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 1,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1765370234466": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765370234466",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:37:22.648Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.315,99 EUR). Diferència: 0,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:37:22.646Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:37:22.646Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:37:22.646Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és un error: Tot i que els números coincideixen, és important verificar que no hi hagi errors de transcripció o càlcul que puguin afectar la licitació. La coherència numèrica és essencial per garantir la transparència i la fiabilitat del procés de licitació.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:37:22.646Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 1,
+      "errorTypes": {
+        "ERROR_NUMERICO": 1,
+        "ERROR_GENERICO": 3
+      }
+    }
+  },
+  "PLIEGO_1765370630094": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765370630094",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:43:58.195Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:43:58.189Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:43:58.189Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.3 (subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:43:58.189Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_GENERICO": 3
+      }
+    }
+  },
+  "PLIEGO_1765370664677": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765370664677",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:44:33.212Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1765370711165": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765370711165",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:45:21.019Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.314,99 EUR). Diferència: 1,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:21.017Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:21.017Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:21.017Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 1,00 EUR indica un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:21.017Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:21.017Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:21.017Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.3 (subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:21.017Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1765370743976": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765370743976",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:45:51.426Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.314,99 EUR). Diferència: 1,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:51.423Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:51.423Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:51.423Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 1,00 EUR indica un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:51.423Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:51.423Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:51.423Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACIÓ - Files 8.3.3 (subcontractació) i 8.3.6 (fusta certificada)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:45:51.423Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1765371034753": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765371034753",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:50:42.828Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.314,99 EUR). Diferència: 1,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:50:42.814Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:50:42.814Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:50:42.814Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 1,00 EUR pot indicar un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:50:42.815Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta l'apartat 4.- en l'estructura del plec",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:50:42.815Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Entre els apartats 3.- TERMINI D'EXECUCIÓ i 5.- SUBJECTE AL SISTEMA",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:50:42.815Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Estructura del plec",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:50:42.815Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1765371057901": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1765371057901",
+      "fileName": "GISA.pdf",
+      "analyzedAt": "2025-12-10T12:51:05.698Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.314,99 EUR). Diferència: 1,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:51:05.688Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:51:05.688Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:51:05.688Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 1,00 EUR indica un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:51:05.688Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta l'apartat 4.- en l'estructura del plec",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:51:05.688Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Entre els apartats 3.- TERMINI D'EXECUCIÓ i 5.- SUBJECTE AL SISTEMA",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:51:05.688Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Estructura general del plec",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-10T12:51:05.688Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
   }
 }
