@@ -1,0 +1,30 @@
+{
+  "correctionsList": "🔴 ERRORS CRÍTICS:\n🟡 ADVERTÈNCIES:\n- Cap advertència detectada en el document.\n\n✅ SUGGERIMENTS:\n- Assegurar que tots els imports i càlculs numèrics siguin revisats per evitar incoherències.\n- Verificar que no hi hagi comentaris de desenvolupadors o tags SAP sense reemplaçar en el document final.\n\n📋 CAMPS VARIABLES DETECTATS:\n- Cap camp variable detectat en el document.\n\nNota: El document sembla estar complet i coherent amb les instruccions i el context proporcionat. No s'han trobat errors crítics addicionals ni advertències significatives.",
+  "criticalErrors": 0,
+  "warnings": 0,
+  "visualAnalysis": {
+    "lineSpacing": {
+      "inconsistencies": [],
+      "standardSpacing": "1.15",
+      "totalInconsistencies": 0
+    },
+    "tableHeaders": {
+      "tablesWithoutBold": [],
+      "totalTables": 0,
+      "totalWithoutBold": 0
+    },
+    "tableWidths": {
+      "narrowTables": [],
+      "pageWidth": 595,
+      "usableWidth": 451,
+      "totalNarrowTables": 0
+    }
+  },
+  "metadata": {
+    "pliegoId": "PLIEGO_1765370664677",
+    "fileName": "GISA.pdf",
+    "fileSize": 2347008,
+    "processingTime": 9260,
+    "timestamp": "2025-12-10T12:44:33.216Z"
+  }
+}
