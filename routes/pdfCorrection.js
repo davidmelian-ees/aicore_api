@@ -15,6 +15,7 @@ import { highlightErrorsInPDF, parseErrorsFromAIResponse } from '../services/pdf
 import { storeErrorsForPliego, getErrorsForPliego, generateAggregatedReport, formatAggregatedReport, deleteErrorsForPliego, clearAllErrors } from '../services/pliegoErrorsService.js';
 import loggerService from '../services/loggerService.js';
 import { convertDocxToPdf, convertDocxBufferToPdf, isDocxFile, detectFileTypeFromBuffer } from '../services/docToPdfConverter.js';
+import validacionService from '../services/validacionService.js';
 
 const router = express.Router();
 
@@ -183,6 +184,13 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
     const username = req.username || req.body.username || 'anonymous';
     const skipVisualAnalysis = req.body.skipVisualAnalysis === 'true' || req.body.skipVisualAnalysis === true;
 
+    // 🧹 LIMPIEZA AUTOMÁTICA: Eliminar validaciones expiradas (>3 días)
+    console.log(`[PDF-CORRECTION] 🧹 Limpiando validaciones expiradas...`);
+    const eliminados = await validacionService.limpiarValidacionesExpiradas();
+    if (eliminados > 0) {
+      console.log(`[PDF-CORRECTION] ✅ Eliminadas ${eliminados} validaciones expiradas`);
+    }
+
     loggerService.info('PDF-VALIDATION', `Iniciando validación de pliego: ${pliegoId}`, {
       username,
       fileName,
@@ -254,6 +262,50 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
       processingTime: `${processingTime}ms`
     });
 
+    // 💾 GUARDAR VALIDACIÓN: Documento + Informe enlazados (3 días)
+    console.log(`[PDF-CORRECTION] 💾 Guardando validación enlazada...`);
+    let validacionGuardada = null;
+    try {
+      // Preparar documento para guardar
+      const documentoBuffer = await fs.readFile(pdfPath);
+      const documento = {
+        buffer: documentoBuffer,
+        originalname: fileName,
+        mimetype: 'application/pdf',
+        size: documentoBuffer.length
+      };
+      
+      // Preparar informe de validación
+      const informeValidacion = {
+        correctionsList: aiResult.correctionsList,
+        criticalErrors: storeResult.criticalErrors,
+        warnings: storeResult.warnings,
+        visualAnalysis: visualAnalysis,
+        metadata: {
+          pliegoId: pliegoId,
+          fileName: fileName,
+          fileSize: fileSize,
+          processingTime: processingTime,
+          timestamp: new Date().toISOString()
+        }
+      };
+      
+      // Guardar en BD de validaciones
+      validacionGuardada = await validacionService.guardarValidacion(
+        username,
+        documento,
+        informeValidacion,
+        aiResult.pdfBuffer, // PDF del informe
+        contextId
+      );
+      
+      console.log(`[PDF-CORRECTION] ✅ Validación guardada: ${validacionGuardada.id}`);
+      console.log(`[PDF-CORRECTION] ⏰ Expira: ${validacionGuardada.fecha_expiracion}`);
+    } catch (saveError) {
+      console.warn(`[PDF-CORRECTION] ⚠️ Error guardando validación (continuando):`, saveError.message);
+      // No bloquear el flujo si falla el guardado
+    }
+
     // 4. Preparar respuesta con metadata adicional
     const pdfBufferSize = aiResult.pdfBuffer.length;
     
@@ -303,7 +355,9 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
       'X-File-Name': fileName,
       'X-Pliego-Id': pliegoId,
       'X-Critical-Errors': storeResult.criticalErrors,
-      'X-Warnings': storeResult.warnings
+      'X-Warnings': storeResult.warnings,
+      'X-Validacion-Id': validacionGuardada?.id || '',
+      'X-Validacion-Expira': validacionGuardada?.fecha_expiracion || ''
     });
     
     console.log(`[PDF-CORRECTION] 📄 Enviando PDF directo con header fileSize: ${pdfBufferSize}`);
@@ -1040,6 +1094,438 @@ router.get('/errors/database/raw', async (req, res) => {
       success: false,
       error: 'Error leyendo base de datos',
       message: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones
+ * Lista validaciones del usuario (no expiradas)
+ */
+router.get('/validaciones', async (req, res) => {
+  try {
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 📋 Obteniendo validaciones para usuario: ${username}`);
+    
+    const validaciones = validacionService.obtenerValidaciones(username);
+    
+    res.json({
+      success: true,
+      total: validaciones.length,
+      validaciones: validaciones
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo validaciones:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id
+ * Obtiene validación completa (documento + informe)
+ */
+router.get('/validaciones/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 🔍 Obteniendo validación: ${id}`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Validación no encontrada o expirada' 
+      });
+    }
+    
+    res.json({
+      success: true,
+      validacion: validacion
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo validación:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id/documento
+ * Descarga el documento original
+ * Query params: formato=download|base64 (default: download)
+ */
+router.get('/validaciones/:id/documento', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    const formato = req.query.formato || 'download';
+    
+    console.log(`[PDF-CORRECTION] 📥 Descargando documento de validación: ${id} (formato: ${formato})`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Documento no encontrado o expirado' 
+      });
+    }
+    
+    const { documento_original, documento_nombre, documento_tipo } = validacion;
+    
+    // OPCIÓN A: Descargar archivo
+    if (formato === 'download') {
+      res.setHeader('Content-Type', documento_tipo);
+      res.setHeader('Content-Disposition', `attachment; filename="${documento_nombre}"`);
+      res.send(documento_original);
+    }
+    
+    // OPCIÓN B: Devolver como base64
+    else if (formato === 'base64') {
+      const base64 = documento_original.toString('base64');
+      res.json({
+        success: true,
+        documentBase64: `data:${documento_tipo};base64,${base64}`,
+        fileName: documento_nombre,
+        mimeType: documento_tipo,
+        size: documento_original.length
+      });
+    }
+    
+    else {
+      res.status(400).json({
+        success: false,
+        error: 'Formato no válido. Use "download" o "base64"'
+      });
+    }
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error descargando documento:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id/informe-pdf
+ * Descarga el informe de validación en PDF
+ */
+router.get('/validaciones/:id/informe-pdf', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 📄 Descargando informe PDF de validación: ${id}`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion || !validacion.informe_pdf) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Informe PDF no encontrado o expirado' 
+      });
+    }
+    
+    const { informe_pdf, documento_nombre } = validacion;
+    const nombrePdf = documento_nombre.replace(/\.[^/.]+$/, '') + '_informe.pdf';
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${nombrePdf}"`);
+    res.send(informe_pdf);
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error descargando informe PDF:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/pdf-correction/validaciones/:id
+ * Elimina una validación específica
+ */
+router.delete('/validaciones/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 🗑️ Eliminando validación: ${id}`);
+    
+    const eliminado = await validacionService.eliminarValidacion(id, username);
+    
+    if (!eliminado) {
+      return res.status(404).json({
+        success: false,
+        error: 'Validación no encontrada'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Validación eliminada correctamente'
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error eliminando validación:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/stats
+ * Obtiene estadísticas del servicio de validaciones
+ */
+router.get('/validaciones/stats', async (req, res) => {
+  try {
+    console.log('[PDF-CORRECTION] 📊 Obteniendo estadísticas de validaciones...');
+    
+    const stats = validacionService.getStats();
+    
+    res.json({
+      success: true,
+      stats: stats
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo estadísticas:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ================================================================================
+// ENDPOINTS DE VALIDACIONES (Sistema de retención 3 días)
+// ================================================================================
+
+/**
+ * GET /api/pdf-correction/validaciones
+ * Lista validaciones del usuario (no expiradas)
+ */
+router.get('/validaciones', async (req, res) => {
+  try {
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 📋 Obteniendo validaciones para usuario: ${username}`);
+    
+    const validaciones = validacionService.obtenerValidaciones(username);
+    
+    res.json({
+      success: true,
+      total: validaciones.length,
+      validaciones: validaciones
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo validaciones:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id
+ * Obtiene validación completa (documento + informe)
+ */
+router.get('/validaciones/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 🔍 Obteniendo validación: ${id}`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Validación no encontrada o expirada' 
+      });
+    }
+    
+    res.json({
+      success: true,
+      validacion: validacion
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo validación:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id/documento
+ * Descarga el documento original
+ * Query params: formato=download|base64 (default: download)
+ */
+router.get('/validaciones/:id/documento', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    const formato = req.query.formato || 'download';
+    
+    console.log(`[PDF-CORRECTION] 📥 Descargando documento de validación: ${id} (formato: ${formato})`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Documento no encontrado o expirado' 
+      });
+    }
+    
+    const { documento_original, documento_nombre, documento_tipo } = validacion;
+    
+    // OPCIÓN A: Descargar archivo
+    if (formato === 'download') {
+      res.setHeader('Content-Type', documento_tipo);
+      res.setHeader('Content-Disposition', `attachment; filename="${documento_nombre}"`);
+      res.send(documento_original);
+    }
+    
+    // OPCIÓN B: Devolver como base64
+    else if (formato === 'base64') {
+      const base64 = documento_original.toString('base64');
+      res.json({
+        success: true,
+        documentBase64: `data:${documento_tipo};base64,${base64}`,
+        fileName: documento_nombre,
+        mimeType: documento_tipo,
+        size: documento_original.length
+      });
+    }
+    
+    else {
+      res.status(400).json({
+        success: false,
+        error: 'Formato no válido. Use "download" o "base64"'
+      });
+    }
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error descargando documento:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id/informe-pdf
+ * Descarga el informe de validación en PDF
+ */
+router.get('/validaciones/:id/informe-pdf', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 📄 Descargando informe PDF de validación: ${id}`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion || !validacion.informe_pdf) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Informe PDF no encontrado o expirado' 
+      });
+    }
+    
+    const { informe_pdf, documento_nombre } = validacion;
+    const nombrePdf = documento_nombre.replace(/\.[^/.]+$/, '') + '_informe.pdf';
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${nombrePdf}"`);
+    res.send(informe_pdf);
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error descargando informe PDF:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/pdf-correction/validaciones/:id
+ * Elimina una validación específica
+ */
+router.delete('/validaciones/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 🗑️ Eliminando validación: ${id}`);
+    
+    const eliminado = await validacionService.eliminarValidacion(id, username);
+    
+    if (!eliminado) {
+      return res.status(404).json({
+        success: false,
+        error: 'Validación no encontrada'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Validación eliminada correctamente'
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error eliminando validación:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones-stats
+ * Obtiene estadísticas del servicio de validaciones
+ */
+router.get('/validaciones-stats', async (req, res) => {
+  try {
+    console.log('[PDF-CORRECTION] 📊 Obteniendo estadísticas de validaciones...');
+    
+    const stats = validacionService.getStats();
+    
+    res.json({
+      success: true,
+      stats: stats
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo estadísticas:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });

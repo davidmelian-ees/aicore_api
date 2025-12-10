@@ -1,0 +1,30 @@
+{
+  "correctionsList": "🔴 ERRORS CRÍTICS:\n- Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 0,01 EUR\n - Ubicació: Apartat 2.- DADES ECONÒMIQUES\n - Context: PRESSUPOST DE LICITACIÓ - Taula de lots\n - 💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 0,01 EUR indica un possible error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.\n\n🟡 ADVERTÈNCIES:\n- Taula APLICA/NO APLICA incompleta. Les files 8.3.3 i 8.3.6 tenen només 1 valor quan n'haurien de tenir 2\n - Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES\n - Context: QUADRE D'APARTATS D'APLICACI - Files 8.3.3 (subcontractació) i 8.3.6 (fusta certificada)\n - 💡 Per què és una advertència: El Quadre de Criteris ha de tenir dues columnes (APLICA i NO APLICA) per indicar clarament quins criteris s'apliquen a cada lot o situació. Si una fila només té un valor, no queda clar si el criteri aplica o no aplica, creant ambigüitat que pot generar reclamacions. Cada fila ha de tenir exactament 2 valors per complir amb els requisits de transparència de la licitació.\n\n✅ SUGGERIMENTS:\n- Reemplaçar el tag SAP {B}CRITERIS{/B} amb el format correcte.\n- Verificar i corregir la diferència numèrica entre el pressupost declarat i la suma de lots.\n- Completar les taules APLICA/NO APLICA amb els valors necessaris per evitar ambigüitats.\n\n📋 CAMPS VARIABLES DETECTATS:\n- {B}CRITERIS{/B}\n- ZRM_DM_MAT_CO2\n- ZVRM_QDC_MAT_LIC\n\nAquest informe ha estat generat seguint les instruccions i el format requerit. Tots els errors i advertències han estat reportats amb la seva ubicació exacta i explicació detallada.",
+  "criticalErrors": 3,
+  "warnings": 4,
+  "visualAnalysis": {
+    "lineSpacing": {
+      "inconsistencies": [],
+      "standardSpacing": "1.15",
+      "totalInconsistencies": 0
+    },
+    "tableHeaders": {
+      "tablesWithoutBold": [],
+      "totalTables": 0,
+      "totalWithoutBold": 0
+    },
+    "tableWidths": {
+      "narrowTables": [],
+      "pageWidth": 595,
+      "usableWidth": 451,
+      "totalNarrowTables": 0
+    }
+  },
+  "metadata": {
+    "pliegoId": "PLIEGO_1765369174998",
+    "fileName": "GISA.pdf",
+    "fileSize": 2347008,
+    "processingTime": 9777,
+    "timestamp": "2025-12-10T12:19:43.962Z"
+  }
+}

@@ -74,12 +74,29 @@ PARTES VARIABLES QUE REQUIEREN VALIDACIÓN ESPECÍFICA
    ✓ Condiciones particulares del proyecto
 
 3️⃣ ANNEX NÚM. 5 (VARIABLE POR PROYECTO)
-   - Título: Puede variar según el proyecto
-   - Contenido común: Relacionado con BIM o metodología de trabajo
-   - Validación:
-     ✓ Verifica que existe el Annex 5
-     ✓ Verifica que se menciona en el cuerpo del pliego
-     ✓ Contenido específico del proyecto
+   ⚠️⚠️⚠️ REGLA CRÍTICA ANTI-ALUCINACIÓN ⚠️⚠️⚠️
+   
+   SOLO reporta campos variables SI Y SOLO SI:
+   1. Los VES EXPLÍCITAMENTE en el documento
+   2. Están LITERALMENTE escritos en el Annex 5
+   3. Puedes CITAR la página exacta donde aparecen
+   
+   ❌ PROHIBIDO ABSOLUTAMENTE:
+   - Inventar campos que "podrían" existir
+   - Asumir campos basándote en otros pliegos
+   - Mencionar ejemplos como ZVRM_QDC_MAT_LIC o ZRM_DM_MAT_CO2 si NO están en el documento
+   - Reportar campos "comunes" o "típicos"
+   
+   ✅ SOLO SI VES CAMPOS EN EL DOCUMENTO:
+   - Verifica que estén en Apartado 15 Y en Annex 5
+   - Cita la página exacta donde aparecen
+   - Verifica que tengan descripción clara
+   - Verifica que tengan tipo de dato especificado
+   
+   ✅ SI NO HAY CAMPOS VARIABLES:
+   - Reporta: "No se detectaron campos variables en este pliego"
+   - NO inventes ejemplos
+   - NO menciones campos de otros pliegos del proyecto
 
 4️⃣ ANNEX NÚM. 7 (VARIABLE POR PROYECTO)
    - Título: "MESA DE CONTRACTACIÓ I COMISSIÓ TÈCNICA"

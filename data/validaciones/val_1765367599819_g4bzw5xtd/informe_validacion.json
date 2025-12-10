@@ -1,0 +1,30 @@
+{
+  "correctionsList": "🔴 ERRORS CRÍTICS:\n- Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.315,99 EUR). Diferència: 0,00 EUR\n - Ubicació: Apartat 2.- DADES ECONÒMIQUES\n - Context: PRESSUPOST DE LICITACIÓ - Taula de lots\n - 💡 Per què és un error: Tot i que els números coincideixen exactament, és important verificar sempre la coherència entre el pressupost declarat i la suma dels lots per assegurar la transparència i la correcció del plec. En aquest cas, no hi ha error, però la verificació és crucial per evitar problemes futurs.\n\n🟡 ADVERTÈNCIES:\n- Taula APLICA/NO APLICA amb salts de línia: Les files 8.3.3 i 8.3.6 tenen salts de línia que poden causar confusió en la interpretació dels valors.\n - Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES\n - Context: QUADRE D'APARTATS D'APLICACIÓ\n - 💡 Per què és una advertència: Els salts de línia dins de les cel·les poden dificultar la lectura i comprensió dels criteris aplicables. És recomanable revisar el format per assegurar que els valors es presenten de manera clara i coherent.\n\n✅ SUGGERIMENTS:\n- Revisar el format de les taules per evitar salts de línia que puguin confondre els licitadors.\n- Assegurar que totes les referències a annexos i clàusules siguin clares i accessibles.\n\n📋 CAMPS VARIABLES DETECTATS:\n- No es detectaren camps variables en aquest plec.",
+  "criticalErrors": 3,
+  "warnings": 4,
+  "visualAnalysis": {
+    "lineSpacing": {
+      "inconsistencies": [],
+      "standardSpacing": "1.15",
+      "totalInconsistencies": 0
+    },
+    "tableHeaders": {
+      "tablesWithoutBold": [],
+      "totalTables": 0,
+      "totalWithoutBold": 0
+    },
+    "tableWidths": {
+      "narrowTables": [],
+      "pageWidth": 595,
+      "usableWidth": 451,
+      "totalNarrowTables": 0
+    }
+  },
+  "metadata": {
+    "pliegoId": "PLIEGO_1765367590395",
+    "fileName": "GISA.pdf",
+    "fileSize": 2347008,
+    "processingTime": 10250,
+    "timestamp": "2025-12-10T11:53:19.819Z"
+  }
+}

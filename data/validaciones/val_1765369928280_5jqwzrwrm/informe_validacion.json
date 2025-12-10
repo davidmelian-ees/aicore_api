@@ -1,0 +1,30 @@
+{
+  "correctionsList": "🔴 ERRORS CRÍTICS:\n- Incoherència numèrica: Pressupost declarat (2.126.315,99 EUR) no coincideix amb la suma de lots (2.126.315,99 EUR). Diferència: 0,00 EUR\n - Ubicació: Apartat 2.- DADES ECONÒMIQUES\n - Context: PRESSUPOST DE LICITACIÓ - Taula de lots\n - 💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 0,00 EUR indica que els números coincideixen perfectament, per tant, no hi ha error. Aquesta validació és important per assegurar la coherència i la transparència en el procés de licitació.\n\n🟡 ADVERTÈNCIES:\n- Cap advertència detectada en el document.\n\n✅ SUGGERIMENTS:\n- Verificar que tots els apartats del plec compleixin amb les normes establertes per la LCSP.\n- Assegurar que les taules APLICA/NO APLICA tinguin el nombre correcte de valors per fila.\n\n📋 CAMPS VARIABLES DETECTATS:\n- No s'han detectat camps variables SAP sense reemplaçar en el document.",
+  "criticalErrors": 3,
+  "warnings": 1,
+  "visualAnalysis": {
+    "lineSpacing": {
+      "inconsistencies": [],
+      "standardSpacing": "1.15",
+      "totalInconsistencies": 0
+    },
+    "tableHeaders": {
+      "tablesWithoutBold": [],
+      "totalTables": 0,
+      "totalWithoutBold": 0
+    },
+    "tableWidths": {
+      "narrowTables": [],
+      "pageWidth": 595,
+      "usableWidth": 451,
+      "totalNarrowTables": 0
+    }
+  },
+  "metadata": {
+    "pliegoId": "PLIEGO_1765369918803",
+    "fileName": "GISA.pdf",
+    "fileSize": 2347008,
+    "processingTime": 10314,
+    "timestamp": "2025-12-10T12:32:08.280Z"
+  }
+}
