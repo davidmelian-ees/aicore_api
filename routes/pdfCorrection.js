@@ -1530,4 +1530,95 @@ router.get('/validaciones-stats', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/pdf-correction/validaciones-download-zip
+ * Descarga todas las validaciones en un archivo ZIP
+ */
+router.get('/validaciones-download-zip', async (req, res) => {
+  try {
+    console.log('[PDF-CORRECTION] 📦 Generando ZIP de validaciones...');
+    
+    const archiver = (await import('archiver')).default;
+    const validacionesPath = path.resolve('./data/validaciones');
+    
+    // Verificar que existe la carpeta
+    try {
+      await fs.access(validacionesPath);
+    } catch {
+      return res.status(404).json({
+        success: false,
+        error: 'No existe la carpeta de validaciones'
+      });
+    }
+    
+    // Leer contenido de la carpeta
+    const items = await fs.readdir(validacionesPath, { withFileTypes: true });
+    const folders = items.filter(item => item.isDirectory());
+    
+    if (folders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'No hay validaciones almacenadas'
+      });
+    }
+    
+    // Configurar respuesta para descarga
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `validaciones_${timestamp}.zip`;
+    
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    
+    // Crear archivo ZIP
+    const archive = archiver('zip', {
+      zlib: { level: 9 } // Máxima compresión
+    });
+    
+    // Manejar errores del archiver
+    archive.on('error', (err) => {
+      console.error('[PDF-CORRECTION] ❌ Error creando ZIP:', err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          error: err.message
+        });
+      }
+    });
+    
+    // Pipe al response
+    archive.pipe(res);
+    
+    // Añadir cada carpeta de validación al ZIP
+    for (const folder of folders) {
+      const folderPath = path.join(validacionesPath, folder.name);
+      archive.directory(folderPath, folder.name);
+      console.log(`[PDF-CORRECTION] 📁 Añadiendo: ${folder.name}`);
+    }
+    
+    // También añadir la base de datos si existe
+    const dbPath = path.resolve('./data/validaciones.db');
+    try {
+      await fs.access(dbPath);
+      archive.file(dbPath, { name: 'validaciones.db' });
+      console.log('[PDF-CORRECTION] 📁 Añadiendo: validaciones.db');
+    } catch {
+      // La base de datos no existe, continuar sin ella
+    }
+    
+    // Finalizar el archivo
+    await archive.finalize();
+    
+    console.log(`[PDF-CORRECTION] ✅ ZIP generado: ${filename} (${folders.length} validaciones)`);
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error generando ZIP:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+});
+
 export default router;

@@ -629,24 +629,31 @@ Si el contexto muestra que ninguno tiene Y → probablemente no es necesario.
 
 VALIDACIONES CRÍTICAS:
 
-1️⃣ DATOS ECONÓMICOS (si hay lots):
+1️⃣ ESTRUCTURA DE APARTADOS (MUY IMPORTANTE):
+   ✓ Verifica que los apartados numerados sean CONSECUTIVOS
+   ✓ Si ves "3.-" y luego "5.-" → FALTA el apartado "4.-" → ERROR CRÍTIC
+   ✓ Si ves "1.-", "2.-", "3.-", "5.-", "6.-" → FALTA "4.-" → ERROR CRÍTIC
+   ✓ Busca patrones: "X.-" donde X es un número
+   ✓ Reporta: "Falta l'apartat X.- en l'estructura del plec"
+   
+   Exemple:
+   Si trobes: "3.- TERMINI D'EXECUCIÓ" i després "5.- SUBJECTE AL SISTEMA"
+   → ERROR: "Falta l'apartat 4.- en l'estructura del plec"
+
+2️⃣ DATOS ECONÓMICOS (si hay lots):
    ✓ Suma de lots vs pressupost total
    🛑 SOLO reportar si diferència > 0,01 EUR
-   🛑 Si diferència = 0,00 EUR → NO REPORTAR RES
+   🛑 Si diferència ≤ 0,01 EUR → NO REPORTAR RES
 
-2️⃣ TAGS SAP SIN RELLENAR:
+3️⃣ TAGS SAP SIN RELLENAR:
    ✓ {B}, {/B}, {I}, {/I}
    ✓ ZRM_, ZVRM_
    ✓ &INCLUDE, <variables>
    ⚠️ NO inventar si no los ves
 
-3️⃣ COMENTARIOS DE DESARROLLADOR:
+4️⃣ COMENTARIOS DE DESARROLLADOR:
    ✓ "Oriol:", "David:", "Maria:" + instrucciones
    ✓ "S'haurà de treure", "Escollir", "TODO:"
-
-4️⃣ ESTRUCTURA (según CONTEXTO RAG):
-   ✓ Apartados que el contexto indica como obligatorios
-   ✓ NO asumir estructura fija, usar el contexto
 
 5️⃣ LOGOS Y VISUALES:
    ✓ Logo Generalitat en portada
@@ -1058,6 +1065,9 @@ RELEVANCIA: ${result.similarity}
       
       // Limpiar caracteres mal codificados
       correctionsList = cleanTextEncoding(correctionsList);
+      
+      // Filtrar falsos positivos de la IA
+      correctionsList = filterFalsePositives(correctionsList);
       
       loggerService.success('PDF-CORRECTION', 'Correcciones generadas por IA', { 
         length: correctionsList.length 
@@ -1663,6 +1673,71 @@ function cleanTextForPDF(text) {
     // Normalizar espacios múltiples
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/**
+ * Filtra falsos positivos de la respuesta de la IA
+ * Elimina errores que no deberían reportarse
+ */
+function filterFalsePositives(text) {
+  if (!text) return text;
+  
+  const lines = text.split('\n');
+  const filteredLines = [];
+  let skipNextLines = 0;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const lowerLine = line.toLowerCase();
+    
+    // Saltar líneas si estamos en modo skip
+    if (skipNextLines > 0) {
+      skipNextLines--;
+      continue;
+    }
+    
+    // Filtrar errores de diferencia 0,00 o 0,01 EUR
+    if (lowerLine.includes('diferència: 0,00') || 
+        lowerLine.includes('diferencia: 0,00') ||
+        lowerLine.includes('diferència: 0,01') ||
+        lowerLine.includes('diferencia: 0,01') ||
+        (lowerLine.includes('incoherència numèrica') && 
+         (lowerLine.includes('0,00 eur') || lowerLine.includes('0,01 eur')))) {
+      console.log(`[FILTER] ❌ Eliminando falso positivo de diferencia 0,00/0,01: ${line.substring(0, 80)}...`);
+      // Saltar las siguientes líneas que son parte del mismo error (ubicación, context, etc.)
+      skipNextLines = 4;
+      continue;
+    }
+    
+    // Filtrar campos variables inventados si no hay evidencia real
+    if ((lowerLine.includes('camps variables detectats') || 
+         lowerLine.includes('campos variables detectados')) &&
+        (lowerLine.includes('zrm_dm_mat_co2') || 
+         lowerLine.includes('zvrm_qdc_mat_lic') ||
+         lowerLine.includes('{b}') || 
+         lowerLine.includes('{/b}'))) {
+      // Verificar si es un ejemplo inventado (no hay contexto real)
+      const nextLine = lines[i + 1] || '';
+      if (!nextLine.includes('Ubicació') && !nextLine.includes('Ubicación')) {
+        console.log(`[FILTER] ❌ Eliminando campos variables posiblemente inventados: ${line.substring(0, 80)}...`);
+        continue;
+      }
+    }
+    
+    // Filtrar errores de tablas APLICA/NO APLICA con saltos de línea (8.3.3, 8.3.6)
+    if ((lowerLine.includes('taula aplica/no aplica') || 
+         lowerLine.includes('tabla aplica/no aplica')) &&
+        (lowerLine.includes('8.3.3') || lowerLine.includes('8.3.6')) &&
+        lowerLine.includes('salt')) {
+      console.log(`[FILTER] ❌ Eliminando falso positivo de tabla con salto de línea: ${line.substring(0, 80)}...`);
+      skipNextLines = 4;
+      continue;
+    }
+    
+    filteredLines.push(line);
+  }
+  
+  return filteredLines.join('\n');
 }
 
 /**
