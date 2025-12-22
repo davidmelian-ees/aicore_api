@@ -342,10 +342,10 @@ INSTRUCCIONES DE VALIDACIÓN:
 6. GENERA un informe detallado con:
    - Errores críticos (bloquean generación)
    - Advertencias (permiten continuar)
-   - Sugerencias de corrección específicas
-   - Campos variables detectados
+   - Campos variables detectats (SOLO si los ves literalmente)
    - CÁLCULOS EXPLÍCITOS para errores numéricos
    - UBICACIÓN EXACTA de cada error (sección, apartado, tabla)
+   - NOTA IMPORTANT al final (OBLIGATORIA)
 
 7. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
 ================================================================================
@@ -366,10 +366,6 @@ INSTRUCCIONES DE VALIDACIÓN:
     - 💡 Per què és una advertència: [Explicació de per què això pot ser problemàtic 
          o requereix atenció, encara que no sigui un error crític]
 
-✅ SUGGERIMENTS:
-- [Correccions específiques recomanades EN CATALÀ]
-- [Cada suggeriment en una línia separada]
-
 📋 CAMPS VARIABLES DETECTATS:
 - [Llista de variables SAP trobades]
 - [Cada variable en una línia separada]
@@ -377,7 +373,7 @@ INSTRUCCIONES DE VALIDACIÓN:
 ================================================================================
 
 IMPORTANT:
-- ⚠️ OBLIGATORI: Tot el text de l'informe HA D'ESTAR EN CATALÀ
+- OBLIGATORI: Tot el text de l'informe HA D'ESTAR EN CATALÀ
 - Usa EXACTAMENT els emojis i títols mostrats a dalt
 - NO usis símbols d'euro (€), usa "EUR" en el seu lloc
 - Cada secció ha de començar amb l'emoji corresponent
@@ -386,7 +382,13 @@ IMPORTANT:
 - Si no hi ha elements en una secció, omet-la completament
 - Mantén el format net sense símbols extra (#, *, etc.)
 - Tots els imports han d'expressar-se com "29.040.000,00 EUR" (sense símbol €)
-- ⚠️ CRÍTICO: Totes les descripcions, explicacions i suggeriments han d'estar escrites en CATALÀ
+- Totes les descripcions i explicacions han d'estar escrites en CATALÀ
+
+================================================================================
+AL FINAL DE L'INFORME, SEMPRE AFEGEIX AQUESTA NOTA (OBLIGATORI):
+================================================================================
+
+**NOTA IMPORTANT: Aquesta validació ha estat generada automàticament mitjançant intel·ligència artificial. Els resultats es basen en probabilitats matemàtiques i patrons apresos del context de plecs similars. És imprescindible revisar manualment tots els errors i advertències reportats, ja que la IA pot contenir imprecisions o falsos positius. Aquest informe és una eina d'ajuda, però la validació final sempre ha de ser realitzada per un professional qualificat.**
 
 ⚠️ EXEMPLE 1 - FORMAT AMB UBICACIÓ (TAG SENSE REEMPLAÇAR) - EN CATALÀ:
 
