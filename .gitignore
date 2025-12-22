@@ -34,3 +34,6 @@ logs/
 coverage/
 *.lcov
 .nyc_output/
+data/rag_vectors.db
+data/rag_vectors.db-shm
+*.db-wal
