@@ -265,6 +265,45 @@ export async function deleteContext(contextId) {
   }
 }
 
+/**
+ * Limpia todos los documentos de un contexto sin eliminar el contexto
+ * @param {string} contextId - ID del contexto
+ * @returns {Promise<Object>} - Resultado de la limpieza
+ */
+export async function clearContextDocuments(contextId) {
+  await initializeContexts();
+  const context = contexts.get(contextId);
+  if (!context) {
+    return { cleared: false, contextId, reason: 'Contexto no encontrado' };
+  }
+  
+  try {
+    console.log(`[RAG] 🧹 Limpiando documentos del contexto: ${contextId}`);
+    
+    // Eliminar todos los documentos del contexto
+    const store = await getVectorStore();
+    const documents = await store.getDocumentsByContext(contextId);
+    
+    console.log(`[RAG] Encontrados ${documents.length} documentos para eliminar`);
+    
+    for (const doc of documents) {
+      await store.deleteDocument(doc.documentId);
+    }
+    
+    console.log(`[RAG] ✅ Documentos eliminados del contexto: ${context.name} (${contextId})`);
+    
+    return {
+      cleared: true,
+      contextId,
+      documentsDeleted: documents.length
+    };
+    
+  } catch (error) {
+    console.error('[RAG] Error limpiando documentos del contexto:', error);
+    throw new Error(`Error limpiando documentos: ${error.message}`);
+  }
+}
+
 export async function indexDocument(filePath, mimeType, metadata = {}) {
   try {
     console.log(`[RAG] Iniciando indexación de documento: ${filePath}`);
