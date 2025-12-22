@@ -678,10 +678,14 @@ VALIDACIONES CRÍTICAS:
    - Aprende la estructura típica: ¿Qué apartados son obligatorios?
    
    PASO 2: DETECTA LA SECUENCIA DEL DOCUMENTO ACTUAL
-   - Identifica todos los apartados principales del documento
+   - Identifica todos los apartados principales del documento (busca "X.-" donde X es número)
    - Ejemplo: Si ves 1, 2, 3, 5, 6, 7 → FALTA EL 4
    - Ejemplo: Si ves 1, 2, 3, 4, 5, 6, 8, 9 → FALTA EL 7
    - La numeración debe ser consecutiva según el contexto RAG
+   
+   🚨 CASO CRÍTICO: Si ves un salto en la numeración (ej: 7 → 9), 
+   DEBES buscar el apartado faltante (8.-) en TODO el documento.
+   Si NO lo encuentras en ninguna parte → ES UN ERROR CRÍTICO
    
    PASO 3: BUSCA EXHAUSTIVAMENTE EN TODO EL DOCUMENTO
    - Antes de reportar que falta un apartado, búscalo en TODO el documento
@@ -691,14 +695,18 @@ VALIDACIONES CRÍTICAS:
    
    PASO 4: COMPARA CON EL CONTEXTO RAG
    - Si el apartado falta en el documento PERO el contexto RAG muestra que es obligatorio:
-     → Verifica 3 veces más antes de reportar
+     → Verifica que realmente no existe en ninguna parte del documento
    - Si el contexto RAG muestra que algunos pliegos NO tienen ese apartado:
      → NO ES ERROR, puede ser opcional
    
    PASO 5: CLASIFICA Y REPORTA
-   - Si estás 100% SEGURO de que falta un apartado obligatorio:
+   🚨 REGLA CLARA: Si hay un SALTO en la numeración (ejemplo: 7.- → 9.-) y NO encuentras 
+   el apartado faltante (8.-) en NINGUNA parte del documento:
+     → 🔴 ERROR CRÍTIC: Falta l'apartat 8.- en l'estructura del plec
+   
+   - Si estás seguro de que falta un apartado (hay salto de numeración):
      → 🔴 ERROR CRÍTIC: Falta l'apartat X.- en l'estructura del plec
-   - Si no estás seguro o el contexto no lo requiere:
+   - Si el contexto RAG muestra que ese apartado es opcional:
      → NO REPORTAR NADA
    
    ⚠️ REGLA DE CONSISTENCIA: Un apartado faltante es SIEMPRE crítico o NO se reporta.
@@ -779,25 +787,38 @@ aplica'ls. Si el contexto no menciona algo, probablement no és crític.
 
 🛑🛑🛑 REGLES FINALS ABSOLUTES (OBLIGATÒRIES) 🛑🛑🛑
 
-REGLA 1 - DIFERÈNCIES NUMÈRIQUES:
+REGLA 1 - DIFERÈNCIES NUMÈRIQUES (IVA):
+❌ Si veus dos imports i la diferència és <>=21% → NO ÉS ERROR (és l'IVA)
+❌ Exemple: 502.228,26 EUR (IVA inclòs) vs 415.064,68 EUR (IVA no inclòs) → CORRECTE
+❌ NO reportis "Diferència numèrica en el pressupost" si és l'IVA
+❌ NO reportis "Falta de coherència en el pressupost" si és l'IVA
+→ Si la diferència és aproximadament el 21% del import menor → IGNORA
+
+REGLA 2 - DIFERÈNCIES NUMÈRIQUES (LOTS):
 Si la diferència entre pressupost i suma de lots és ≤ 0,01 EUR:
 → NO ESCRIGUIS RES sobre això
 → NO és un error
 → SALTA aquesta validació completament
 
-REGLA 2 - CAMPS VARIABLES:
+REGLA 3 - CAMPS VARIABLES:
 Si NO veus literalment "ZRM_", "ZVRM_", "{B}", "{/B}" en el document:
 → NO ESCRIGUIS "CAMPS VARIABLES DETECTATS"
 → NO inventis exemples
 → NO mencions res sobre camps variables
 
-REGLA 3 - TAULES APLICA/NO APLICA (ABSOLUTA):
+REGLA 4 - TAULES APLICA/NO APLICA (ABSOLUTA):
 ❌ MAI reportis error en taules APLICA/NO APLICA
 ❌ Els salts de línia són NORMALS en tots els pliegos del context RAG
 ❌ Si veus "NO APLICA NO\nAPLICA" = 2 valors = CORRECTE
 → IGNORA completament aquestes taules
 
-REGLA 4 - EXPLICACIONS:
+REGLA 5 - APARTATS FALTANTS (PRIORITAT ALTA):
+✅ Si detectes un salt en la numeració (ex: 7.- → 9.-) → SEMPRE reportar com ERROR CRÍTIC
+✅ Busca l'apartat faltant en TOT el document abans de reportar
+✅ Si no el trobes → 🔴 ERROR CRÍTIC: Falta l'apartat X.- en l'estructura del plec
+❌ MAI reportis apartats faltants com a advertència
+
+REGLA 6 - EXPLICACIONS:
 Per cada error que reportis, inclou "💡 Per què és un error" amb explicació detallada.
 
 ================================================================================`;

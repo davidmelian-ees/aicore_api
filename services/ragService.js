@@ -414,18 +414,28 @@ export async function searchContext(query, options = {}) {
       results = store.search(queryEmbedding, topK * 2, minSimilarity);
     }
     
-    // Filtrar por contexto (ESTRICTO)
+    // Filtrar por contexto (CON FALLBACK A DEFAULT)
     if (contextId && contextId !== 'all') {
       console.log(`[RAG] Filtrando por contextId: ${contextId}`);
+      const originalResults = [...results];
+      
+      // Primero intentar filtrar por el contextId específico
       results = results.filter(result => {
         const resultContextId = result.metadata?.contextId || 'default';
-        const match = resultContextId === contextId;
-        if (!match) {
-          console.log(`[RAG] ❌ Chunk descartado - contextId: ${resultContextId} (esperado: ${contextId})`);
-        }
-        return match;
+        return resultContextId === contextId;
       });
-      console.log(`[RAG] ✅ Después de filtrar por contexto: ${results.length} chunks`);
+      
+      console.log(`[RAG] ✅ Resultados con contextId específico: ${results.length} chunks`);
+      
+      // Si no hay resultados con el contextId específico, usar también 'default'
+      if (results.length === 0) {
+        console.log(`[RAG] ⚠️ No hay resultados con contextId: ${contextId}, incluyendo contexto 'default'...`);
+        results = originalResults.filter(result => {
+          const resultContextId = result.metadata?.contextId || 'default';
+          return resultContextId === contextId || resultContextId === 'default';
+        });
+        console.log(`[RAG] ✅ Resultados incluyendo 'default': ${results.length} chunks`);
+      }
     }
     
     // Filtrar por documento específico si se especifica
