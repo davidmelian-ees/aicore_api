@@ -132,18 +132,32 @@ Genera un informe detallado de errores estructurales, ortográficos y de formato
 
 📋 IDIOMA: TODO EN CATALÀ (obligatorio)
 
+🚨🚨🚨 REGLA SUPREMA: CONTEXTO RAG PRIMERO 🚨🚨🚨
+================================================================================
+
+ANTES de aplicar cualquier regla, ESTUDIA el contexto RAG de los 18 pliegos de referencia.
+El contexto RAG contiene pliegos REALES y CORRECTOS que debes usar como MODELO.
+
+✅ Si algo aparece en los pliegos de referencia → ES CORRECTO
+✅ Si algo NO aparece en los pliegos de referencia → PUEDE ser un error
+❌ NUNCA reportes como error algo que ves en los pliegos de referencia
+
+================================================================================
+
 🎯 PRIORIDADES DE VALIDACIÓN (en orden de importancia):
 
-1️⃣ CONTEXTO RAG (MÁXIMA PRIORIDAD)
+1️⃣ CONTEXTO RAG (MÁXIMA PRIORIDAD - OBLIGATORIO)
    El contexto de pliegos similares es LA FUENTE MÁS IMPORTANTE.
-   Si el contexto muestra que todos los pliegos "Obert" tienen el apartado 7 → debe existir.
-   Si el contexto muestra patrones comunes → valida contra esos patrones.
+   ANTES de reportar cualquier error, verifica si ese patrón existe en el contexto.
+   Si el contexto muestra que todos los pliegos tienen X → debe existir.
+   Si el contexto muestra que algo es normal → NO es un error.
    APRENDE del contexto y aplica ese conocimiento.
 
 2️⃣ DATOS ECONÓMICOS
    - Presupuesto vs suma de lots (SOLO si diferència > 0,01 EUR)
    - 🛑 Si diferència ≤ 0,01 EUR (0,00 o 0,01) → NO reportar RES
    - Diferencias de 0,01 EUR son redondeos normales, NO son errores
+   - 🛑 DIFERENCIA DE IVA (21%) NO ES ERROR (ver regla abajo)
    - Coherencia IVA inclòs/no inclòs
 
 3️⃣ TAGS SAP SIN RELLENAR
@@ -166,17 +180,40 @@ Genera un informe detallado de errores estructurales, ortográficos y de formato
 ❌ NO inventar campos variables (ZRM_, ZVRM_, {B}, {/B}) si no los ves LITERALMENTE en el documento
 ❌ NO reportar "CAMPS VARIABLES DETECTATS" si no ves esos campos EXACTOS en el texto
 ❌ NO reportar error si diferència pressupost ≤ 0,01 EUR (0,00 o 0,01 son redondeos)
-❌ NO reportar error en tablas APLICA/NO APLICA si hay saltos de línea (ver regla abajo)
+❌ NO reportar error en tablas APLICA/NO APLICA (los salts de línia son NORMALES en PDFs)
+❌ NO reportar error si la diferencia entre dos importes es exactamente el 21% (IVA)
 
-🛑 REGLA CRÍTICA SOBRE TABLAS APLICA/NO APLICA:
+🛑🛑🛑 REGLA CRÍTICA SOBRE IVA (21%) 🛑🛑🛑
+Si ves dos importes y la diferencia es aproximadamente el 21%, NO ES UN ERROR.
+Ejemplo:
+- Pressupost: 502.228,26 EUR (IVA inclòs)
+- Valor global estimat: 415.064,68 EUR (IVA no inclòs)
+- Diferencia: 87.163,58 EUR = 21% de 415.064,68 → ESTO ES EL IVA, NO UN ERROR
+
+✅ Si la diferencia es ~21% del importe menor → NO REPORTAR ERROR
+✅ Son el mismo presupuesto expresado con/sin IVA
+
+🛑🛑🛑 REGLA CRÍTICA ABSOLUTA SOBRE TABLAS APLICA/NO APLICA 🛑🛑🛑
+
+❌❌❌ NUNCA REPORTES ERROR EN TABLAS APLICA/NO APLICA ❌❌❌
+
 Los PDFs convertidos a texto tienen saltos de línea DENTRO de las celdas.
+Esto es COMPLETAMENTE NORMAL en TODOS los pliegos del contexto RAG.
+
 Ejemplo de texto que viene del PDF:
-"8.3.3. Comproms subcontractació NO APLICA NO
+"8.3.2. Aplicació de la metodologia BIM NO APLICA NO
 APLICA"
+"8.3.7. Compromís d'utilització de pintures NO APLICA NO
+APLICA"
+
 Esto significa: "NO APLICA" + "NO APLICA" (2 valores con salto de línea)
-⚠️ NO es un error! El segundo valor está en la línea siguiente.
-⚠️ CUENTA la palabra "APLICA" en toda la sección de esa fila (incluyendo línea siguiente)
-⚠️ Si ves "NO APLICA NO\nAPLICA" = 2 valores ✅ CORRECTO
+✅ El segundo valor está en la línea siguiente - ESTO ES NORMAL
+✅ Los pliegos del contexto RAG tienen EXACTAMENTE el mismo formato
+✅ Si ves "NO APLICA NO\nAPLICA" = 2 valores = CORRECTO
+
+🚨🚨🚨 REGLA ABSOLUTA: IGNORA COMPLETAMENTE las tablas APLICA/NO APLICA
+🚨🚨🚨 NO reportes NINGÚN error sobre estas tablas
+🚨🚨🚨 El formato con saltos de línea es el CORRECTO según el contexto RAG
 
 🛑 REGLA CRÍTICA SOBRE CAMPOS VARIABLES:
 SOLO reporta campos ZRM_, ZVRM_, {B}, {/B} si los ves LITERALMENTE escritos.
@@ -631,21 +668,47 @@ Si el contexto muestra que ninguno tiene Y → probablemente no es necesario.
 
 VALIDACIONES CRÍTICAS:
 
-1️⃣ ESTRUCTURA DE APARTADOS (MUY IMPORTANTE):
-   ✓ Verifica que los apartados numerados sean CONSECUTIVOS
-   ✓ Si ves "3.-" y luego "5.-" → FALTA el apartado "4.-" → ERROR CRÍTIC
-   ✓ Si ves "1.-", "2.-", "3.-", "5.-", "6.-" → FALTA "4.-" → ERROR CRÍTIC
-   ✓ Busca patrones: "X.-" donde X es un número
-   ✓ Reporta: "Falta l'apartat X.- en l'estructura del plec"
+1️⃣ ESTRUCTURA DE APARTADOS (VERIFICACIÓN SUPER-EXHAUSTIVA):
    
-   Exemple:
-   Si trobes: "3.- TERMINI D'EXECUCIÓ" i després "5.- SUBJECTE AL SISTEMA"
-   → ERROR: "Falta l'apartat 4.- en l'estructura del plec"
+   🚨🚨🚨 METODOLOGÍA OBLIGATORIA - DETECCIÓN INTELIGENTE 🚨🚨🚨
+   
+   PASO 1: ANALIZA LA ESTRUCTURA DEL CONTEXTO RAG
+   - Mira los 18 pliegos de referencia del contexto RAG
+   - Identifica qué apartados principales tienen (1, 2, 3, 4, 5, 6, 7, 8, 9...)
+   - Aprende la estructura típica: ¿Qué apartados son obligatorios?
+   
+   PASO 2: DETECTA LA SECUENCIA DEL DOCUMENTO ACTUAL
+   - Identifica todos los apartados principales del documento
+   - Ejemplo: Si ves 1, 2, 3, 5, 6, 7 → FALTA EL 4
+   - Ejemplo: Si ves 1, 2, 3, 4, 5, 6, 8, 9 → FALTA EL 7
+   - La numeración debe ser consecutiva según el contexto RAG
+   
+   PASO 3: BUSCA EXHAUSTIVAMENTE EN TODO EL DOCUMENTO
+   - Antes de reportar que falta un apartado, búscalo en TODO el documento
+   - Busca variantes: "4.-", "4 .-", "4.", "Apartat 4", "APARTAT 4"
+   - Busca en TODAS las páginas, incluyendo anexos y apéndices
+   - A veces los apartados están en páginas diferentes o con formato distinto
+   
+   PASO 4: COMPARA CON EL CONTEXTO RAG
+   - Si el apartado falta en el documento PERO el contexto RAG muestra que es obligatorio:
+     → Verifica 3 veces más antes de reportar
+   - Si el contexto RAG muestra que algunos pliegos NO tienen ese apartado:
+     → NO ES ERROR, puede ser opcional
+   
+   PASO 5: CLASIFICA Y REPORTA
+   - Si estás 100% SEGURO de que falta un apartado obligatorio:
+     → 🔴 ERROR CRÍTIC: Falta l'apartat X.- en l'estructura del plec
+   - Si no estás seguro o el contexto no lo requiere:
+     → NO REPORTAR NADA
+   
+   ⚠️ REGLA DE CONSISTENCIA: Un apartado faltante es SIEMPRE crítico o NO se reporta.
+   NUNCA lo pongas como advertencia. NUNCA.
 
 2️⃣ DATOS ECONÓMICOS (si hay lots):
    ✓ Suma de lots vs pressupost total
    🛑 SOLO reportar si diferència > 0,01 EUR
    🛑 Si diferència ≤ 0,01 EUR → NO REPORTAR RES
+   🛑 Si la diferencia es ~21% (IVA) → NO ES ERROR, son el mismo importe con/sin IVA
 
 3️⃣ TAGS SAP SIN RELLENAR:
    ✓ {B}, {/B}, {I}, {/I}
@@ -685,11 +748,34 @@ METODOLOGIA DE VALIDACIÓ:
 
 🎯🎯🎯 ORDRE DE PRIORITATS (LLEGEIX AIXÒ AMB ATENCIÓ) 🎯🎯🎯
 
-1. PRIMER: El que has après del CONTEXTO RAG (pliegos similares)
+1. PRIMER: El que has après del CONTEXTO RAG (18 pliegos de referencia)
+   - Mira cómo son los pliegos correctos
+   - Aprende sus patrones y estructura
+   - Si algo es normal en el contexto → NO es un error
+   
 2. SEGON: Les instruccions específiques d'aquest prompt
 
 El CONTEXTO RAG és la font més important. Si el contexto mostra patrons,
 aplica'ls. Si el contexto no menciona algo, probablement no és crític.
+
+🛑🛑🛑 RECORDATORI FINAL ABSOLUT 🛑🛑🛑
+
+❌ PROHIBIT REPORTAR COM A ERROR:
+- Taules APLICA/NO APLICA (els salts de línia són NORMALS)
+- Diferència de 21% (IVA) entre imports
+- Diferència ≤ 0,01 EUR
+- Apartats que no estàs 100% SEGUR que falten
+
+✅ REGLES DE CONSISTÈNCIA:
+- Apartats faltants: SEMPRE error crític o NO reportar (mai advertencia)
+- Taules APLICA/NO APLICA: MAI reportar error (el format amb salts de línia és correcte)
+- Verifica 3 VEGADES el document abans de reportar qualsevol error
+
+🚨 ABANS D'ENVIAR L'INFORME:
+1. Rellegeix el plec una altra vegada
+2. Verifica que cada error que reportes REALMENT existeix
+3. Comprova que no estàs reportant falsos positius
+4. Assegura't que la classificació (crític/advertencia) és consistent
 
 🛑🛑🛑 REGLES FINALS ABSOLUTES (OBLIGATÒRIES) 🛑🛑🛑
 
@@ -705,10 +791,11 @@ Si NO veus literalment "ZRM_", "ZVRM_", "{B}", "{/B}" en el document:
 → NO inventis exemples
 → NO mencions res sobre camps variables
 
-REGLA 3 - TAULES APLICA/NO APLICA:
-Si veus "NO APLICA NO\nAPLICA" (amb salt de línia):
-→ Això són 2 valors, NO és un error
-→ El salt de línia és normal en PDFs
+REGLA 3 - TAULES APLICA/NO APLICA (ABSOLUTA):
+❌ MAI reportis error en taules APLICA/NO APLICA
+❌ Els salts de línia són NORMALS en tots els pliegos del context RAG
+❌ Si veus "NO APLICA NO\nAPLICA" = 2 valors = CORRECTE
+→ IGNORA completament aquestes taules
 
 REGLA 4 - EXPLICACIONS:
 Per cada error que reportis, inclou "💡 Per què és un error" amb explicació detallada.

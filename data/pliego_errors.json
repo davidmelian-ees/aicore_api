@@ -5037,5 +5037,234 @@
         "ERROR_GENERICO": 7
       }
     }
+  },
+  "PLIEGO_1766401628829": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1766401628829",
+      "fileName": "CT1080532.pdf",
+      "analyzedAt": "2025-12-22T11:07:22.695Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta l'apartat \"8.-\" en l'estructura del plec",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:07:22.692Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Entre els apartats 7.- GARANTIA DEFINITIVA i 9.- REQUISITS D'APTITUD DELS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:07:22.692Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: L'apartat 8.- no es troba en el document, deixant un buit en la numeració seqüencial",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:07:22.692Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és un error: La numeració dels apartats ha de ser seqüencial i completa per garantir la coherència i la comprensió del document. La falta d'un apartat pot indicar que s'ha omès informació important que podria afectar la interpretació del plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:07:22.692Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.2 i 8.3.7 tenen només 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:07:22.692Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:07:22.692Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACI - Files 8.3.2 (Aplicació de la metodologia BIM) i 8.3.7 (Compromís d'utilització de pintures amb etiqueta ecològica)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:07:22.692Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 7
+      }
+    }
+  },
+  "PLIEGO_1766401672583": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1766401672583",
+      "fileName": "CT1080532.pdf",
+      "analyzedAt": "2025-12-22T11:08:03.292Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Cap error crític detectat en el document.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:08:03.289Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 1,
+      "errorTypes": {
+        "ERROR_GENERICO": 1
+      }
+    }
+  },
+  "PLIEGO_1766401688123": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1766401688123",
+      "fileName": "CT1080532.pdf",
+      "analyzedAt": "2025-12-22T11:08:19.869Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula APLICA/NO APLICA incompleta. Les files 8.3.2 i 8.3.7 tenen només 1 valor quan n'haurien de tenir 2.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:08:19.864Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:08:19.864Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: QUADRE D'APARTATS D'APLICACI - Files 8.3.2 (Aplicació de la metodologia BIM) i 8.3.7 (Compromís d'utilització de pintures amb etiqueta ecològica)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:08:19.864Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és un error: El Quadre de Criteris ha de tenir dues columnes (APLICA i NO APLICA) per indicar clarament quins criteris s'apliquen a cada lot o situació. Si una fila només té un valor, no queda clar si el criteri aplica o no aplica, creant ambigüitat que pot generar reclamacions. Cada fila ha de tenir exactament 2 valors per complir amb els requisits de transparència de la licitació.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:08:19.864Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta l'apartat \"8.- REQUISITS D'APTITUD DELS LICITADORS\" en l'estructura del plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:08:19.864Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: No es troba en el document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:08:19.864Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: L'apartat hauria d'estar entre els apartats 7 i 9",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:08:19.864Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 7
+      }
+    }
+  },
+  "PLIEGO_1766403042134": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1766403042134",
+      "fileName": "CT1080532.pdf",
+      "analyzedAt": "2025-12-22T11:30:57.382Z",
+      "contextId": "09a6c72e-9c6f-4448-8ac7-d22d1c13e90b"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Clàusula duplicada: \"CLAU: OP.REB-21266\" apareix dues vegades.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:30:57.371Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:30:57.371Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Descripció del contracte",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:30:57.371Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és un error: La duplicació de la clàusula pot generar confusió sobre la identificació del projecte. Cada clàusula ha de ser única per garantir la claredat i evitar errors administratius.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:30:57.371Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Formato incorrecto de importes: \"400000.00\" en lugar de \"400.000,00 EUR\".",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:30:57.371Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:30:57.371Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Import mínim en la tipologia d'obres similars",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T11:30:57.371Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 7
+      }
+    }
   }
 }
