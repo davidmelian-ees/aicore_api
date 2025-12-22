@@ -678,39 +678,39 @@ VALIDACIONES CRÍTICAS:
    - Aprende la estructura típica: ¿Qué apartados son obligatorios?
    
    PASO 2: DETECTA LA SECUENCIA DEL DOCUMENTO ACTUAL
-   - Identifica todos los apartados principales del documento (busca "X.-" donde X es número)
-   - Ejemplo: Si ves 1, 2, 3, 5, 6, 7 → FALTA EL 4
-   - Ejemplo: Si ves 1, 2, 3, 4, 5, 6, 8, 9 → FALTA EL 7
-   - La numeración debe ser consecutiva según el contexto RAG
-   
-   🚨 CASO CRÍTICO: Si ves un salto en la numeración (ej: 7 → 9), 
-   DEBES buscar el apartado faltante (8.-) en TODO el documento.
-   Si NO lo encuentras en ninguna parte → ES UN ERROR CRÍTICO
+   - Identifica TODOS los apartados principales del documento (busca patrones "X.-" donde X es número)
+   - Crea una lista ordenada de los apartados que encuentras
+   - Compara con la secuencia esperada según el contexto RAG
+   - Si hay un salto en la numeración → INVESTIGA
    
    PASO 3: BUSCA EXHAUSTIVAMENTE EN TODO EL DOCUMENTO
-   - Antes de reportar que falta un apartado, búscalo en TODO el documento
-   - Busca variantes: "4.-", "4 .-", "4.", "Apartat 4", "APARTAT 4"
-   - Busca en TODAS las páginas, incluyendo anexos y apéndices
+   🚨🚨🚨 ANTES DE REPORTAR CUALQUIER APARTADO FALTANTE:
+   - Busca el apartado en ABSOLUTAMENTE TODO el documento
+   - Busca variantes: "N.-", "N .-", "N.", "Apartat N", "APARTAT N" (donde N es el número)
+   - Busca en TODAS las páginas, incluyendo anexos, apéndices y tablas
    - A veces los apartados están en páginas diferentes o con formato distinto
+   - Si lo encuentras en CUALQUIER parte → NO ES ERROR
    
    PASO 4: COMPARA CON EL CONTEXTO RAG
-   - Si el apartado falta en el documento PERO el contexto RAG muestra que es obligatorio:
-     → Verifica que realmente no existe en ninguna parte del documento
+   - Mira los 18 pliegos de referencia: ¿Todos tienen ese apartado?
    - Si el contexto RAG muestra que algunos pliegos NO tienen ese apartado:
-     → NO ES ERROR, puede ser opcional
+     → NO ES ERROR, puede ser opcional para este tipo de pliego
+   - Si TODOS los pliegos del contexto tienen ese apartado Y no lo encuentras:
+     → Verifica UNA VEZ MÁS antes de reportar
    
    PASO 5: CLASIFICA Y REPORTA
-   🚨 REGLA CLARA: Si hay un SALTO en la numeración (ejemplo: 7.- → 9.-) y NO encuentras 
-   el apartado faltante (8.-) en NINGUNA parte del documento:
-     → 🔴 ERROR CRÍTIC: Falta l'apartat 8.- en l'estructura del plec
+   🚨 SOLO reporta un apartado faltante si:
+   1. Has verificado que NO existe en NINGUNA parte del documento
+   2. El contexto RAG confirma que es obligatorio
+   3. Hay un salto claro en la numeración
    
-   - Si estás seguro de que falta un apartado (hay salto de numeración):
-     → 🔴 ERROR CRÍTIC: Falta l'apartat X.- en l'estructura del plec
-   - Si el contexto RAG muestra que ese apartado es opcional:
-     → NO REPORTAR NADA
+   → Si cumple las 3 condiciones: 🔴 ERROR CRÍTIC: Falta l'apartat [NÚMERO].- en l'estructura del plec
+   → Si NO cumple alguna condición: NO REPORTAR NADA
    
-   ⚠️ REGLA DE CONSISTENCIA: Un apartado faltante es SIEMPRE crítico o NO se reporta.
-   NUNCA lo pongas como advertencia. NUNCA.
+   ⚠️ REGLA ANTI-FALSOS POSITIVOS:
+   - NO inventes apartados faltantes
+   - NO reportes un apartado como faltante si lo encuentras en cualquier parte del documento
+   - SOLO reporta el número EXACTO que falta (no uses ejemplos genéricos)
 
 2️⃣ DATOS ECONÓMICOS (si hay lots):
    ✓ Suma de lots vs pressupost total
@@ -812,10 +812,23 @@ REGLA 4 - TAULES APLICA/NO APLICA (ABSOLUTA):
 ❌ Si veus "NO APLICA NO\nAPLICA" = 2 valors = CORRECTE
 → IGNORA completament aquestes taules
 
-REGLA 5 - APARTATS FALTANTS (PRIORITAT ALTA):
-✅ Si detectes un salt en la numeració (ex: 7.- → 9.-) → SEMPRE reportar com ERROR CRÍTIC
-✅ Busca l'apartat faltant en TOT el document abans de reportar
-✅ Si no el trobes → 🔴 ERROR CRÍTIC: Falta l'apartat X.- en l'estructura del plec
+REGLA 5 - APARTATS FALTANTS (MÀXIMA PRECISIÓ):
+🚨 ABANS DE REPORTAR UN APARTAT FALTANT:
+1. Busca l'apartat en ABSOLUTAMENT TOT el document (totes les pàgines, annexos, taules)
+2. Busca variants: "N.-", "N .-", "N.", "Apartat N", "APARTAT N"
+3. Si el trobes en QUALSEVOL part → NO ÉS ERROR
+4. Comprova el context RAG: és obligatori aquest apartat?
+
+✅ NOMÉS reporta si:
+   - NO existeix en CAP part del document
+   - El context RAG confirma que és obligatori
+   - Hi ha un salt clar en la numeració
+
+→ Si compleix les 3 condicions: 🔴 ERROR CRÍTIC: Falta l'apartat [NÚMERO EXACTE].- en l'estructura del plec
+→ Si NO compleix alguna condició: NO REPORTAR RES
+
+❌ NO inventis apartats faltants
+❌ NO reportis apartats que SÍ existeixen al document
 ❌ MAI reportis apartats faltants com a advertència
 
 REGLA 6 - EXPLICACIONS:
