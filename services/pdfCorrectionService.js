@@ -379,10 +379,13 @@ INSTRUCCIONES DE VALIDACIÓN:
 6. GENERA un informe detallado con:
    - Errores críticos (bloquean generación)
    - Advertencias (permiten continuar)
-   - Campos variables detectats (SOLO si los ves literalmente)
    - CÁLCULOS EXPLÍCITOS para errores numéricos
-   - UBICACIÓN EXACTA de cada error (sección, apartado, tabla)
+   - UBICACIÓN EXACTA de cada error (sección, apartado)
+   - Texto EXACTO del error encontrado
    - NOTA IMPORTANT al final (OBLIGATORIA)
+   - NO incloure "💡 Per què és un error"
+   - NO incloure "Context:"
+   - NO incloure secció "📋 CAMPS VARIABLES DETECTATS"
 
 7. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
 ================================================================================
@@ -390,27 +393,20 @@ INSTRUCCIONES DE VALIDACIÓN:
 ⚠️ ⚠️ ⚠️ OBLIGATORIO: TODO EL INFORME DEBE ESTAR EN IDIOMA CATALÁN ⚠️ ⚠️ ⚠️
 
 🔴 ERRORS CRÍTICS:
-- [Descripció de l'error EN CATALÀ]
+- [Descripció de l'error EN CATALÀ - llenguatge clar i entenedor]
+    - Text erroni: [Cita EXACTA del text incorrecte trobat al document]
     - Ubicació: [Secció/Apartat exacte on es troba]
-    - Context: [Taula, quadre o paràgraf específic]
-    - 💡 Per què és un error: [Explicació detallada de per què això és problemàtic, 
-         quina norma incompleix, quin impacte té, i com hauria de ser correctament]
 
 🟡 ADVERTÈNCIES:
-- [Descripció de l'advertència EN CATALÀ]
+- [Descripció de l'advertència EN CATALÀ - llenguatge clar i entenedor]
+    - Text a revisar: [Cita EXACTA del text que cal revisar]
     - Ubicació: [Secció/Apartat exacte on es troba]
-    - Context: [Taula, quadre o paràgraf específic]
-    - 💡 Per què és una advertència: [Explicació de per què això pot ser problemàtic 
-         o requereix atenció, encara que no sigui un error crític]
-
-📋 CAMPS VARIABLES DETECTATS:
-- [Llista de variables SAP trobades]
-- [Cada variable en una línia separada]
 
 ================================================================================
 
 IMPORTANT:
 - OBLIGATORI: Tot el text de l'informe HA D'ESTAR EN CATALÀ
+- Usa un llenguatge CLAR I ENTENEDOR per a tothom (evita tecnicismes)
 - Usa EXACTAMENT els emojis i títols mostrats a dalt
 - NO usis símbols d'euro (€), usa "EUR" en el seu lloc
 - Cada secció ha de començar amb l'emoji corresponent
@@ -420,6 +416,9 @@ IMPORTANT:
 - Mantén el format net sense símbols extra (#, *, etc.)
 - Tots els imports han d'expressar-se com "29.040.000,00 EUR" (sense símbol €)
 - Totes les descripcions i explicacions han d'estar escrites en CATALÀ
+- NO incloguis la secció "📋 CAMPS VARIABLES DETECTATS"
+- NO incloguis "💡 Per què és un error" ni "💡 Per què és una advertència"
+- NO incloguis "Context:" - només "Text erroni:" i "Ubicació:"
 
 ================================================================================
 AL FINAL DE L'INFORME, SEMPRE AFEGEIX AQUESTA NOTA (OBLIGATORI):
@@ -436,15 +435,9 @@ Si trobes en el text:
 
 HAS DE REPORTAR EN CATALÀ:
 🔴 ERRORS CRÍTICS:
-- Tag SAP sense reemplaçar: {B}CRITERIS{/B}
+- Codi de format sense processar que apareix visible al document
+    - Text erroni: {B}CRITERIS{/B}
     - Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
-    - Context: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
-    - 💡 Per què és un error: Els tags SAP com {B} i {/B} són codis de format que 
-         s'utilitzen en el sistema SAP per indicar negreta. Aquests tags s'haurien 
-         d'haver reemplaçat automàticament durant la generació del plec. La seva 
-         presència indica que el document no s'ha processat correctament i pot 
-         causar confusió als licitadors que veuran text com "{B}CRITERIS{/B}" en 
-         lloc de "CRITERIS" en negreta
 
 ⚠️ EXEMPLE 2A - VALIDACIÓ NUMÈRICA AMB ERROR (diferència > 0,01 EUR) - EN CATALÀ:
 
@@ -466,14 +459,9 @@ HAS DE FER:
 6. DIFERÈNCIA: 153,00 euros (MAJOR QUE 0,01 EUR)
 7. REPORTAR EN CATALÀ (perquè diferència > 0,01):
 🔴 ERRORS CRÍTICS:
-- Incoherència numèrica: Pressupost declarat (243.936,00 EUR) no coincideix amb la suma de lots (243.783,00 EUR). Diferència: 153,00 EUR
+- Els números del pressupost no quadren: el total declarat (243.936,00 EUR) no coincideix amb la suma dels lots (243.783,00 EUR). Hi ha una diferència de 153,00 EUR
+    - Text erroni: Pressupost total: 243.936,00 EUR vs Suma de lots: 243.783,00 EUR
     - Ubicació: Apartat 2.- DADES ECONÒMIQUES
-    - Context: PRESSUPOST DE LICITACIÓ - Taula de lots
-    - 💡 Per què és un error: El pressupost total declarat ha de ser exactament igual 
-         a la suma dels imports de tots els lots. Una diferència de 153,00 EUR indica 
-         un error de càlcul o transcripció que pot invalidar la licitació. Segons la 
-         LCSP, els imports han de ser coherents i verificables. Aquest error pot 
-         generar reclamacions dels licitadors i obligar a rectificar el plec
 
 ⚠️ EXEMPLE 2B - VALIDACIÓ NUMÈRICA SENSE ERROR (diferència = 0) - EN CATALÀ:
 
@@ -578,15 +566,9 @@ HAS DE FER:
    - Fila 1.06: 1 valor ❌ (falta columna NO APLICA)
 3. REPORTAR EN CATALÀ:
 🔴 ERRORS CRÍTICS:
-- Taula APLICA/NO APLICA incompleta. Les files 1.04 i 1.06 tenen només 1 valor quan n'haurien de tenir 2
+- Taula incompleta: falten valors a les files 1.04 i 1.06 del quadre de criteris
+    - Text erroni: Files 1.04 (emissions CO2eq) i 1.06 (fusta certificada) només tenen 1 valor quan n'haurien de tenir 2
     - Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ
-    - Context: QUADRE RESUM DE CRITERIS - Files 1.04 (emissions CO2eq) i 1.06 (fusta certificada)
-    - 💡 Per què és un error: El Quadre de Criteris ha de tenir dues columnes (APLICA 
-         i NO APLICA) per indicar clarament quins criteris s'apliquen a cada lot o 
-         situació. Si una fila només té un valor, no queda clar si el criteri aplica 
-         o no aplica, creant ambigüitat que pot generar reclamacions. Cada fila ha 
-         de tenir exactament 2 valors per complir amb els requisits de transparència 
-         de la licitació
 
 NO assumeixis que les taules estan completes. SEMPRE compta els valors per fila.
 
@@ -632,7 +614,12 @@ BUSCA patrons com:
 - "Escollir"
 - "TODO:"
 
-SI TROBES aquests patrons LITERALMENT en el document → REPORTA ERROR
+SI TROBES aquests patrons LITERALMENT en el document → REPORTA ERROR amb aquest format:
+🔴 ERRORS CRÍTICS:
+- Comentari intern que no hauria d'aparèixer al document final
+    - Text erroni: Oriol: Aquí només em treu una fila quan poden haver més
+    - Ubicació: Apartat 24.- ALTRES ESPECIFICITATS I CONDICIONS DEL CONTRACTE
+
 SI NO els trobes → NO reportis res sobre comentaris
 
 ⚠️ EXEMPLE 5 - TAGS SAP SENSE REEMPLAÇAR - EN CATALÀ:
@@ -642,14 +629,18 @@ BUSCA patrons com:
 - Tags {B}, {/B}, {I}, {/I}
 - &INCLUDE
 
-🚨🚨🚨 REGLA CRÍTICA ANTI-ALUCINACIÓ 🚨🚨🚨
-❌ NO escriguis "CAMPS VARIABLES DETECTATS: ZRM_..." si NO veus aquests camps en el document
-❌ NO inventis exemples de camps variables
-❌ NO assumeixis que existeixen camps perquè són "comuns"
-✅ NOMÉS reporta camps SI els veus LITERALMENT escrits en el text del document
-✅ Si NO veus camps variables → NO mencions res sobre camps variables
+SI TROBES aquests patrons → REPORTA amb aquest format:
+🔴 ERRORS CRÍTICS:
+- Codi de format sense processar que apareix visible al document
+    - Text erroni: {B}annex 11{/B}
+    - Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
 
-BUSCA ACTIVAMENT aquests patrons en TOT el document.
+🚨🚨🚨 REGLA CRÍTICA ANTI-ALUCINACIÓ 🚨🚨🚨
+❌ NO reportis camps variables si NO els veus LITERALMENT en el document
+❌ NO inventis exemples
+❌ NO assumeixis que existeixen
+✅ NOMÉS reporta SI els veus EXACTAMENT escrits en el text
+✅ Si NO veus caps → NO mencions res sobre camps variables
 
 ================================================================================
 TEXT DEL PLEC A VALIDAR:
