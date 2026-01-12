@@ -187,7 +187,7 @@ Generado: 23/10/2025 16:19:32
 ✅ SUGERENCIAS:
 - Corregir formato fechas a DD/MM/YYYY
 - Usar formato 123.456,78 € para todos los importes
-- Revisar ortografía: "contratacion" → "contratación"
+- Revisar ortografía: "contractacio" → "contractació"
 
 📋 CAMPOS VARIABLES DETECTADOS:
 - {{PRESUPUESTO_BASE}} (línea 45)

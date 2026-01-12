@@ -393,14 +393,14 @@ INSTRUCCIONES DE VALIDACIÓN:
 ⚠️ ⚠️ ⚠️ OBLIGATORIO: TODO EL INFORME DEBE ESTAR EN IDIOMA CATALÁN ⚠️ ⚠️ ⚠️
 
 🔴 ERRORS CRÍTICS:
-- [Descripció de l'error EN CATALÀ - llenguatge clar i entenedor]
+- Ubicació: [Secció/Apartat exacte on es troba]
+    - [Descripció de l'error EN CATALÀ - llenguatge clar i entenedor]
     - Text erroni: [Cita EXACTA del text incorrecte trobat al document]
-    - Ubicació: [Secció/Apartat exacte on es troba]
 
 🟡 ADVERTÈNCIES:
-- [Descripció de l'advertència EN CATALÀ - llenguatge clar i entenedor]
+- Ubicació: [Secció/Apartat exacte on es troba]
+    - [Descripció de l'advertència EN CATALÀ - llenguatge clar i entenedor]
     - Text a revisar: [Cita EXACTA del text que cal revisar]
-    - Ubicació: [Secció/Apartat exacte on es troba]
 
 ================================================================================
 
@@ -630,10 +630,14 @@ BUSCA patrons com:
 - &INCLUDE
 
 SI TROBES aquests patrons → REPORTA amb aquest format:
-🔴 ERRORS CRÍTICS:
-- Codi de format sense processar que apareix visible al document
+⚠️ SUGGERIMENTS:
+- Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
+    - Text amb format incorrecte. No ha aplicat negreta.
     - Text erroni: {B}annex 11{/B}
-    - Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
+
+- Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
+    - Text amb format incorrecte. No ha aplicat cursiva.
+    - Text erroni: {I}annex 11{/I}
 
 🚨🚨🚨 REGLA CRÍTICA ANTI-ALUCINACIÓ 🚨🚨🚨
 ❌ NO reportis camps variables si NO els veus LITERALMENT en el document
@@ -669,7 +673,7 @@ VALIDACIONES CRÍTICAS:
    - Aprende la estructura típica: ¿Qué apartados son obligatorios?
    
    PASO 2: DETECTA LA SECUENCIA DEL DOCUMENTO ACTUAL
-   - Identifica TODOS los apartados principales del documento (busca patrones "X.-" donde X es número)
+   - Identifica TODOS los apartados principales del documento (busca patrones "N.-" donde N es número)
    - Crea una lista ordenada de los apartados que encuentras
    - Compara con la secuencia esperada según el contexto RAG
    - Si hay un salto en la numeración → INVESTIGA
@@ -1670,42 +1674,42 @@ function processLineFormatting(line) {
   const textLower = text.toLowerCase();
 
   // Detectar títulos y secciones con múltiples patrones
-  if (text.startsWith('🔴') || text.startsWith('[ERROR CRITICO]') ||
-      text.startsWith('ERRORES CRÍTICOS') || textLower.includes('errores críticos') ||
-      text.startsWith('# ERRORES CRÍTICOS') || text.startsWith('### ERRORES CRÍTICOS')) {
+  if (text.startsWith('🔴') || text.startsWith('[ERROR CRITIC]') ||
+      text.startsWith('ERRORS CRÍTICS') || textLower.includes('errors crítics') ||
+      text.startsWith('# ERRORS CRÍTICS') || text.startsWith('### ERRORS CRÍTICS')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0.8, 0, 0); // Rojo
     // Limpiar marcadores adicionales
-    text = text.replace(/^🔴\s*|^\[ERROR CRITICO\]\s*|^ERRORES CRÍTICOS\s*|^#+\s*ERRORES CRÍTICOS\s*/i, '').trim();
-    if (!text) text = 'ERRORES CRÍTICOS:';
+    text = text.replace(/^🔴\s*|^\[ERROR CRITIC\]\s*|^ERRORS CRÍTICS\s*|^#+\s*ERRORS CRÍTICS\s*/i, '').trim();
+    if (!text) text = 'ERRORS CRÍTICS:';
   } else if (text.startsWith('🟡') || text.startsWith('[ADVERTENCIA]') ||
-             text.startsWith('ADVERTENCIAS') || textLower.includes('advertencias') ||
-             text.startsWith('# ADVERTENCIAS') || text.startsWith('### ADVERTENCIAS')) {
+             text.startsWith('ADVERTENCIES') || textLower.includes('advertencies') ||
+             text.startsWith('# ADVERTENCIES') || text.startsWith('### ADVERTENCIES')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0.8, 0.6, 0); // Naranja
     // Limpiar marcadores adicionales
-    text = text.replace(/^🟡\s*|^\[ADVERTENCIA\]\s*|^ADVERTENCIAS\s*|^#+\s*ADVERTENCIAS\s*/i, '').trim();
-    if (!text) text = 'ADVERTENCIAS:';
-  } else if (text.startsWith('✅') || text.startsWith('[SUGERENCIA]') ||
-             text.startsWith('SUGERENCIAS') || textLower.includes('sugerencias') ||
-             text.startsWith('# SUGERENCIAS') || text.startsWith('### SUGERENCIAS')) {
+    text = text.replace(/^🟡\s*|^\[ADVERTENCIA\]\s*|^ADVERTENCIES\s*|^#+\s*ADVERTENCIES\s*/i, '').trim();
+    if (!text) text = 'ADVERTENCIES:';
+  } else if (text.startsWith('✅') || text.startsWith('[SUGGERENCIA]') ||
+             text.startsWith('SUGGERENCIA') || textLower.includes('suggerencia') ||
+             text.startsWith('# SUGGERENCIA') || text.startsWith('### SUGGERENCIES')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0, 0.6, 0); // Verde
     // Limpiar marcadores adicionales
-    text = text.replace(/^✅\s*|^\[SUGERENCIA\]\s*|^SUGERENCIAS\s*|^#+\s*SUGERENCIAS\s*/i, '').trim();
+    text = text.replace(/^✅\s*|^\[SUGERENCIA\]\s*|^SUGERENCIES\s*|^#+\s*SUGERENCIES\s*/i, '').trim();
     if (!text) text = 'SUGERENCIAS:';
-  } else if (text.startsWith('📋') || text.startsWith('[CAMPOS VARIABLES]') ||
-             text.startsWith('CAMPOS VARIABLES') || textLower.includes('campos variables') ||
-             text.startsWith('# CAMPOS VARIABLES') || text.startsWith('### CAMPOS VARIABLES')) {
+  } else if (text.startsWith('📋') || text.startsWith('[CAMPS VARIABLES]') ||
+             text.startsWith('CAMPS VARIABLES') || textLower.includes('camps variables') ||
+             text.startsWith('# CAMPS VARIABLES') || text.startsWith('### CAMPS VARIABLES')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0, 0, 0.8); // Azul
     // Limpiar marcadores adicionales
-    text = text.replace(/^📋\s*|^\[CAMPOS VARIABLES\]\s*|^CAMPOS VARIABLES\s*|^#+\s*CAMPOS VARIABLES\s*/i, '').trim();
-    if (!text) text = 'CAMPOS VARIABLES DETECTADOS:';
+    text = text.replace(/^📋\s*|^\[CAMPS VARIABLES\]\s*|^CAMPS VARIABLES\s*|^#+\s*CAMPS VARIABLES\s*/i, '').trim();
+    if (!text) text = 'CAMPS VARIABLES DETECTATS:';
   } else if (text.startsWith('===') || text.includes('================') ||
              text.startsWith('---') || text.includes('----------')) {
     // Separadores - hacer más pequeños
@@ -1718,7 +1722,7 @@ function processLineFormatting(line) {
     fontSize = 13;
     color = rgb(0.7, 0, 0); // Rojo más claro
   } else if (textLower.startsWith('advertencia') || textLower.includes('cuidado') ||
-             textLower.includes('revisar')) {
+             textLower.includes('compte')) {
     // Detectar líneas que mencionan advertencias
     fontSize = 13;
     color = rgb(0.7, 0.5, 0); // Naranja más claro
@@ -1730,30 +1734,30 @@ function processLineFormatting(line) {
   }
 
   // Detectar "Ubicación:" y "Contexto:" con formato especial
-  if (text.includes('- Ubicación:') || text.includes('- Ubicacion:')) {
-    indent = 40;
+  if (text.includes('- Ubicació:') || text.includes('- Ubicacio:')) {
+    indent = 20;
     fontSize = 11;
     color = rgb(0, 0, 0); // Negro normal
-    isBold = false;
-  } else if (text.includes('- Contexto:')) {
-    indent = 40;
+    isBold = true;
+  } else if (text.includes('- Context:')) {
+    indent = 60;
     fontSize = 11;
     color = rgb(0.4, 0.4, 0.4); // Gris oscuro
-    isBold = false;
+    isBold = true;
   }
   // Detectar elementos de lista (errores principales) - NEGRITA
-  else if (text.startsWith('- ') && !text.includes('Ubicación:') && !text.includes('Contexto:')) {
-    indent = 20;
-    isBold = true; // Errores en negrita
+  else if (text.startsWith('- ') && !text.includes('Ubicació:') && !text.includes('Context:')) {
+    indent = 40;
+    isBold = false; // Errores en negrita
     fontSize = 12;
   } else if (text.startsWith('• ') || text.startsWith('· ') ||
       /^\d+\.\s/.test(text) || /^[a-zA-Z]\.\s/.test(text)) {
-    indent = 20;
+    indent = 40;
   } else if (text.startsWith('  - ') || text.startsWith('  • ') || text.startsWith('  · ') ||
              /^  \d+\.\s/.test(text) || /^  [a-zA-Z]\.\s/.test(text)) {
     indent = 40;
   } else if (text.startsWith('    - ') || text.startsWith('    • ') || text.startsWith('    · ')) {
-    indent = 60;
+    indent = 40;
   }
 
   return { text, isBold, fontSize, color, indent };
@@ -1811,10 +1815,10 @@ function filterFalsePositives(text) {
     }
     
     // Filtrar errores de diferencia 0,00 o 0,01 EUR
-    if (lowerLine.includes('diferència: 0,00') || 
-        lowerLine.includes('diferencia: 0,00') ||
-        lowerLine.includes('diferència: 0,01') ||
-        lowerLine.includes('diferencia: 0,01') ||
+    if (lowerLine.includes('diferència de 0,00') || 
+        lowerLine.includes('diferencia de 0,00') ||
+        lowerLine.includes('diferència de 0,01') ||
+        lowerLine.includes('diferencia de 0,01') ||
         (lowerLine.includes('incoherència numèrica') && 
          (lowerLine.includes('0,00 eur') || lowerLine.includes('0,01 eur')))) {
       console.log(`[FILTER] ❌ Eliminando falso positivo de diferencia 0,00/0,01: ${line.substring(0, 80)}...`);
