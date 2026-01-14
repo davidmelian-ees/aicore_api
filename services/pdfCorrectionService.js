@@ -1740,8 +1740,7 @@ function processLineFormatting(line) {
     isBold = true;
     fontSize = 13;
     color = rgb(0.7, 0, 0); // Rojo más claro
-  } else if (textLower.startsWith('advertencia') || textLower.includes('cuidado') ||
-             textLower.includes('compte')) {
+  } else if (textLower.startsWith('advertencia') || textLower.includes('cuidado')) {
     // Detectar líneas que mencionan advertencias
     fontSize = 13;
     color = rgb(0.7, 0.5, 0); // Naranja más claro
