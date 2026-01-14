@@ -1153,7 +1153,7 @@ RELEVANCIA: ${result.similarity}
     let correctionsList;
     try {
       const client = getAiCoreClient('gpt-4o', { 
-        temperature: 0.2,  // Temperatura muy baja para validación consistente y precisa
+        temperature: 0.1,  // Temperatura muy baja para validación consistente y precisa
         maxTokens: 4000 
       });
       
@@ -1162,7 +1162,7 @@ RELEVANCIA: ${result.similarity}
       
       const response = await client.run({
         messages: [{ role: 'user', content: correctionPrompt }],
-        temperature: 0.2,  // Temperatura baja = respuestas más deterministas y precisas
+        temperature: 0.1,  // Temperatura baja = respuestas más deterministas y precisas
         max_tokens: 4000
       });
       
@@ -1745,6 +1745,15 @@ function processLineFormatting(line) {
     color = rgb(0.4, 0.4, 0.4); // Gris oscuro
     isBold = true;
   }
+
+    // Detectar "NOTA IMPORTANT" con formato especial
+  if (text.includes('NOTA IMPORTANT: ')) {
+    indent = 0;
+    fontSize = 9;
+    color = rgb(0.4, 0.4, 0.4); // Gris oscuro
+    isBold = true;
+  }
+
   // Detectar elementos de lista (errores principales) - NEGRITA
   else if (text.startsWith('- ') && !text.includes('Ubicació:') && !text.includes('Context:')) {
     indent = 40;
@@ -2283,6 +2292,7 @@ async function createPDFFromText(text, originalPdfPath) {
       font: font,
       color: rgb(0, 0, 0)
     });
+
     
     yPosition -= lineHeight;
     lineCount++;
