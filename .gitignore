@@ -18,6 +18,7 @@ default-env.json
 *.docx
 *.xlsx
 *.xls
+*.env
 
 # Entorno virtual Python
 venv_upload/

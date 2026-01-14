@@ -1063,14 +1063,16 @@ Para análisis completo, verificar conexión con SAP AI Core.`;
     throw new Error(`Error generando análisis de contexto: ${error.message}`);
   }
 }
-export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null, visualErrors = null) {
+export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null, visualErrors = null, fileName = null) {
   const startTime = Date.now();
   try {
     loggerService.info('PDF-CORRECTION', 'Iniciando generación de PDF con lista de correcciones', { 
       path: originalPdfPath, 
-      contextId 
+      contextId,
+      fileName 
     });
     console.log(`[PDF-CORRECTION] Generando PDF con lista de correcciones...`);
+    console.log(`[PDF-CORRECTION] 📄 fileName recibido en service: "${fileName}"`);
     
     // 1. Extraer texto del PDF original
     const documentData = await processDocument(originalPdfPath, 'application/pdf');
@@ -1213,7 +1215,12 @@ RELEVANCIA: ${result.similarity}
     const newPdf = await PDFDocument.create();
     
     // 4. Añadir páginas del informe de validación
-    await addValidationReportPages(newPdf, correctionsList);
+    // Usar fileName recibido como parámetro, o extraerlo del path si no se proporcionó
+    let displayFileName = fileName || path.basename(originalPdfPath);
+    // Quitar extensión si la tiene
+    displayFileName = displayFileName.replace(/\.(pdf|docx?|PDF|DOCX?)$/i, '');
+    console.log(`[PDF-CORRECTION] 📄 Nombre de archivo para PDF: "${displayFileName}"`);
+    await addValidationReportPages(newPdf, correctionsList, displayFileName);
     
     // 6. Generar PDF final
     const finalPdfBytes = await newPdf.save();
@@ -1547,7 +1554,7 @@ async function addContextAnalysisReportPages(pdf, analysisReport, contextId, doc
     }
   }
 }
-async function addValidationReportPages(pdf, validationReport) {
+async function addValidationReportPages(pdf, validationReport, fileName = 'document.pdf') {
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
   
@@ -1573,6 +1580,18 @@ async function addValidationReportPages(pdf, validationReport) {
   
   yPosition -= 30;
   
+  // Nombre del archivo
+  const cleanFileName = cleanTextForPDF(fileName);
+  currentPage.drawText(`Arxiu: ${cleanFileName}`, {
+    x: margin,
+    y: yPosition,
+    size: 10,
+    font: font,
+    color: rgb(0.3, 0.3, 0.3)
+  });
+  
+  yPosition -= 20;
+  
   // Fecha y hora (zona horaria Europe/Madrid - UTC+1/UTC+2)
   const now = new Date();
   const dateStr = now.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' ' + 
@@ -1586,7 +1605,7 @@ async function addValidationReportPages(pdf, validationReport) {
   });
   
   yPosition -= 40;
-  lineCount += 4;
+  lineCount += 5;
   
   // Procesar el contenido línea por línea
   const lines = validationReport.split('\n');

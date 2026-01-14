@@ -1,1 +1,1064 @@
-{}
+{
+  "PLIEGO_1766416823807": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1766416823807",
+      "fileName": "CT1080529 1.pdf",
+      "analyzedAt": "2025-12-22T15:20:35.310Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,00 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 1,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:20:35.308Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:20:35.308Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:20:35.308Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 1,00 EUR indica un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:20:35.308Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de coherència en la numeració dels apartats",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:20:35.308Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Estructura general del document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:20:35.308Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Salt de numeració entre apartats",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:20:35.308Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 5
+      }
+    }
+  },
+  "PLIEGO_1766416860188": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1766416860188",
+      "fileName": "CT1080529.pdf",
+      "analyzedAt": "2025-12-22T15:21:09.174Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Incoherència numèrica: Pressupost declarat (2.126.315,00 EUR) no coincideix amb la suma de lots (2.126.316,00 EUR). Diferència: 1,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:09.173Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:09.173Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: PRESSUPOST DE LICITACIÓ - Taula de lots",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:09.173Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "💡 Per què és un error: El pressupost total declarat ha de ser exactament igual a la suma dels imports de tots els lots. Una diferència de 1,00 EUR pot indicar un error de càlcul o transcripció que pot invalidar la licitació. Segons la LCSP, els imports han de ser coherents i verificables. Aquest error pot generar reclamacions dels licitadors i obligar a rectificar el plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:09.173Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 1,
+      "errorTypes": {
+        "ERROR_NUMERICO": 2,
+        "ERROR_GENERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1766416884115": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1766416884115",
+      "fileName": "CT1080507.pdf",
+      "analyzedAt": "2025-12-22T15:21:36.777Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Tag SAP sense reemplaçar: {B}annex 11{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Document d'altres especificitats tècniques particulars",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "💡 Per què és un error: Els tags SAP com {B} i {/B} són codis de format que s'utilitzen en el sistema SAP per indicar negreta. Aquests tags s'haurien d'haver reemplaçat automàticament durant la generació del plec. La seva presència indica que el document no s'ha processat correctament i pot causar confusió als licitadors que veuran text com \"{B}annex 11{/B}\" en lloc de \"annex 11\" en negreta.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: Aqu noms em treu una fila quan poden haver ms\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 24.- ALTRES ESPECIFICITATS I CONDICIONS DEL CONTRACTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Despesa Import",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "💡 Per què és un error: Els comentaris de desenvolupador com \"Oriol:\" seguit d'instruccions tècniques no haurien d'aparèixer en el document final. Indiquen que el plec no ha estat completament revisat i pot contenir errors o informació no pertinent per als licitadors. Aquests comentaris han de ser eliminats abans de la publicació del plec.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta de coherència en la codificació CPV: \"Error! Argumento de modificador desconocido.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Codi CPV",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-22T15:21:36.776Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 7,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "TAG_SIN_REEMPLAZAR": 2,
+        "ERROR_GENERICO": 7,
+        "COMENTARIO_DESARROLLADOR": 2
+      }
+    }
+  },
+  "PLIEGO_1766575480820": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1766575480820",
+      "fileName": "CT1080507.pdf",
+      "analyzedAt": "2025-12-24T11:24:55.446Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Error en el codi CPV: \"Error! Argumento de modificador desconocido.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Codi CPV",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és un error: El codi CPV és essencial per a la identificació del tipus de contracte. Un error en aquest codi pot causar confusió i dificultar la classificació correcta del contracte.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Comentari de desenvolupador detectat: \"Oriol: Aqu noms em treu una fila quan poden haver ms (suposo que s all de les vistes, que estar configurada per validar en comptes de :\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 24.- ALTRES ESPECIFICITATS I CONDICIONS DEL CONTRACTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Despeses a càrrec del contractista",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és un error: Els comentaris de desenvolupador no haurien d'aparèixer en el document final, ja que poden contenir informació interna o instruccions que no són rellevants per als licitadors. La seva presència indica que el document no s'ha processat correctament.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Error en el format de data: \"11/12/2025\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Data d'aprovació pel Departament de Territori",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és una advertència: El format de data correcte en català és \"DD/MM/AAAA\". L'ús incorrecte del format pot causar confusió en la interpretació de les dates.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Error en el format de data: \"04/11/2025\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 12.- PRESENTACIÓ DE PROPOSTES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Context: Data de presentació",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "💡 Per què és una advertència: El format de data correcte en català és \"DD/MM/AAAA\". L'ús incorrecte del format pot causar confusió en la interpretació de les dates.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:24:55.443Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 7,
+      "totalWarnings": 9,
+      "errorTypes": {
+        "ERROR_GENERICO": 15,
+        "COMENTARIO_DESARROLLADOR": 1
+      }
+    }
+  },
+  "PLIEGO_1766576330918": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1766576330918",
+      "fileName": "CT1080507.pdf",
+      "analyzedAt": "2025-12-24T11:39:01.171Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Codi de format sense processar que apareix visible al document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.169Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text erroni: {B}annex 11{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.169Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.169Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (84.700,00 EUR) no coincideix amb la suma dels lots (91.960,00 EUR). Hi ha una diferència de 7.260,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.169Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 84.700,00 EUR vs Suma de lots: 91.960,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.169Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.169Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Comentari intern que no hauria d'aparèixer al document final",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.169Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Text erroni: Oriol: Aquí només em treu una fila quan poden haver més",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.169Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 24.- ALTRES ESPECIFICITATS I CONDICIONS DEL CONTRACTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.170Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Error en la codificació del CPV",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.170Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: Codi CPV: Error! Argumento de modificador desconocido.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.170Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2025-12-24T11:39:01.170Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 8,
+        "TAG_SIN_REEMPLAZAR": 1,
+        "ERROR_NUMERICO": 2,
+        "COMENTARIO_DESARROLLADOR": 1
+      }
+    }
+  },
+  "PLIEGO_1768385670606": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768385670606",
+      "fileName": "test",
+      "analyzedAt": "2026-01-14T10:14:47.709Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.705Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (243.936,00 EUR) no coincideix amb la suma dels lots (243.783,00 EUR). Hi ha una diferència de 153,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.705Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 243.936,00 EUR vs Suma de lots: 243.783,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.705Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.705Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text amb format incorrecte. No ha aplicat negreta.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.705Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text erroni: {B}CRITERIS{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.705Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.705Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text amb format incorrecte. No ha aplicat cursiva.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.705Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {I}annex 11{/I}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "El codi CPV mostra un error: \"Error! Argument de modificador desconegut.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.706Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: Codi CPV: Error! Argument de modificador desconegut.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:14:47.706Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 9,
+        "ERROR_NUMERICO": 2,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768386194432": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768386194432",
+      "fileName": "test",
+      "analyzedAt": "2026-01-14T10:23:25.410Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (243.936,00 EUR) no coincideix amb la suma dels lots (243.783,00 EUR). Hi ha una diferència de 153,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 243.936,00 EUR vs Suma de lots: 243.783,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text amb format incorrecte. No ha aplicat negreta.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text erroni: {B}CRITERIS{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text amb format incorrecte. No ha aplicat cursiva.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {I}annex 11{/I}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La codificació CPV presenta un error que impedeix la seva correcta visualització.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: Error! Argument de modificador desconegut.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:23:25.409Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 9,
+        "ERROR_NUMERICO": 2,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768386237422": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768386237422",
+      "fileName": "test",
+      "analyzedAt": "2026-01-14T10:24:07.039Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:24:07.036Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (243.936,00 EUR) no coincideix amb la suma dels lots (243.783,00 EUR). Hi ha una diferència de 153,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:24:07.036Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 243.936,00 EUR vs Suma de lots: 243.783,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:24:07.036Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:24:07.036Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Codi de format sense processar que apareix visible al document",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:24:07.036Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text erroni: {B}CRITERIS{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:24:07.036Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:24:07.036Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "El codi CPV presenta un error de referència que impedeix la seva correcta identificació.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:24:07.036Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: Error! Argument de modificador desconegut.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:24:07.036Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 5,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 6,
+        "ERROR_NUMERICO": 2,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768386639091": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768386639091",
+      "fileName": "test",
+      "analyzedAt": "2026-01-14T10:30:50.996Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.993Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (243.936,00 EUR) no coincideix amb la suma dels lots (243.783,00 EUR). Hi ha una diferència de 153,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.993Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 243.936,00 EUR vs Suma de lots: 243.783,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.993Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.993Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text amb format incorrecte. No ha aplicat negreta.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.993Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text erroni: {B}CRITERIS{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.993Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.993Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Codi CPV incorrecte: \"Error! Argument de modificador desconegut.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.993Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: Codi CPV: Error! Argument de modificador desconegut.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.994Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 9.- REQUISITS D'APTITUD DELS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.994Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La classificació amb categories indicades en lletres no és acceptada des del 1 de gener de 2022.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.994Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: (Des del dia 1 de gener de 2022, per haver perdut la seva vigència, no s'admeten les classificacions amb categories indicades en lletres...)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:30:50.994Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 9,
+        "ERROR_NUMERICO": 2,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768386675707": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768386675707",
+      "fileName": "documento-1768386674870-283792378.pdf",
+      "analyzedAt": "2026-01-14T10:31:24.570Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (243.936,00 EUR) no coincideix amb la suma dels lots (243.783,00 EUR). Hi ha una diferència de 153,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 243.936,00 EUR vs Suma de lots: 243.783,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text amb format incorrecte. No ha aplicat negreta.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text erroni: {B}CRITERIS{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text amb format incorrecte. No ha aplicat cursiva.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {I}annex 11{/I}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "El codi CPV presenta un error de format.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: Error! Argument de modificador desconegut.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:31:24.568Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 9,
+        "ERROR_NUMERICO": 2,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768386772186": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768386772186",
+      "fileName": "test",
+      "analyzedAt": "2026-01-14T10:33:03.619Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (243.936,00 EUR) no coincideix amb la suma dels lots (243.783,00 EUR). Hi ha una diferència de 153,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 243.936,00 EUR vs Suma de lots: 243.783,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text amb format incorrecte. No ha aplicat negreta.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text erroni: {B}CRITERIS{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Codi CPV incorrecte: \"Error! Argument de modificador desconegut.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: Codi CPV: Error! Argument de modificador desconegut.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text a revisar: {B}AFB-25026 (Lot 1){/B} {B}AFB-25026 (Lot 2){/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text a revisar: {B}CRITERIS{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-14T10:33:03.617Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 8,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 7,
+        "ERROR_NUMERICO": 2,
+        "TAG_SIN_REEMPLAZAR": 3
+      }
+    }
+  }
+}
