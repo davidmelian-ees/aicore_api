@@ -228,8 +228,8 @@ TEXTO DEL PLIEGO:
 
 REPORTE OBLIGATORIO EN CATALÀ:
 🔴 ERRORS CRÍTICS:
-- Apartats faltants en l'estructura del plec: 14, 15 i 16
-    - Ubicació: Entre l'apartat 13 (APERTURA DE SOBRES) i l'apartat 17 (DOCUMENTACIÓ FACILITADA)
+- Ubicació: Entre l'apartat 13 (APERTURA DE SOBRES) i l'apartat 17 (DOCUMENTACIÓ FACILITADA)
+    - Apartats faltants en l'estructura del plec: 14, 15 i 16
     - Context: Falten els apartats obligatoris:
       * 14) MESA DE CONTRACTACIÓ I COMISSIÓ TÈCNICA
       * 15) CRITERIS D'ADJUDICACIÓ

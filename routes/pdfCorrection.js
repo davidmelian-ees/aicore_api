@@ -219,11 +219,13 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
     
     // 2. Ejecutar análisis de IA con contexto visual (si existe)
     console.log(`[PDF-CORRECTION] 🤖 Ejecutando análisis de IA...`);
+    console.log(`[PDF-CORRECTION] 📄 fileName recibido: "${fileName}"`);
     const aiResult = await generatePDFWithCorrectionsList(
       pdfPath,
       customPrompt,
       contextId,
-      visualReport // Pasar errores visuales a la IA (puede ser null)
+      visualReport, // Pasar errores visuales a la IA (puede ser null)
+      fileName // Pasar el nombre del archivo original
     );
 
     console.log(`[PDF-CORRECTION] 📊 Resultado del análisis:`);

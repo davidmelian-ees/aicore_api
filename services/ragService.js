@@ -265,6 +265,45 @@ export async function deleteContext(contextId) {
   }
 }
 
+/**
+ * Limpia todos los documentos de un contexto sin eliminar el contexto
+ * @param {string} contextId - ID del contexto
+ * @returns {Promise<Object>} - Resultado de la limpieza
+ */
+export async function clearContextDocuments(contextId) {
+  await initializeContexts();
+  const context = contexts.get(contextId);
+  if (!context) {
+    return { cleared: false, contextId, reason: 'Contexto no encontrado' };
+  }
+  
+  try {
+    console.log(`[RAG] 🧹 Limpiando documentos del contexto: ${contextId}`);
+    
+    // Eliminar todos los documentos del contexto
+    const store = await getVectorStore();
+    const documents = await store.getDocumentsByContext(contextId);
+    
+    console.log(`[RAG] Encontrados ${documents.length} documentos para eliminar`);
+    
+    for (const doc of documents) {
+      await store.deleteDocument(doc.documentId);
+    }
+    
+    console.log(`[RAG] ✅ Documentos eliminados del contexto: ${context.name} (${contextId})`);
+    
+    return {
+      cleared: true,
+      contextId,
+      documentsDeleted: documents.length
+    };
+    
+  } catch (error) {
+    console.error('[RAG] Error limpiando documentos del contexto:', error);
+    throw new Error(`Error limpiando documentos: ${error.message}`);
+  }
+}
+
 export async function indexDocument(filePath, mimeType, metadata = {}) {
   try {
     console.log(`[RAG] Iniciando indexación de documento: ${filePath}`);
@@ -414,18 +453,28 @@ export async function searchContext(query, options = {}) {
       results = store.search(queryEmbedding, topK * 2, minSimilarity);
     }
     
-    // Filtrar por contexto (ESTRICTO)
+    // Filtrar por contexto (CON FALLBACK A DEFAULT)
     if (contextId && contextId !== 'all') {
       console.log(`[RAG] Filtrando por contextId: ${contextId}`);
+      const originalResults = [...results];
+      
+      // Primero intentar filtrar por el contextId específico
       results = results.filter(result => {
         const resultContextId = result.metadata?.contextId || 'default';
-        const match = resultContextId === contextId;
-        if (!match) {
-          console.log(`[RAG] ❌ Chunk descartado - contextId: ${resultContextId} (esperado: ${contextId})`);
-        }
-        return match;
+        return resultContextId === contextId;
       });
-      console.log(`[RAG] ✅ Después de filtrar por contexto: ${results.length} chunks`);
+      
+      console.log(`[RAG] ✅ Resultados con contextId específico: ${results.length} chunks`);
+      
+      // Si no hay resultados con el contextId específico, usar también 'default'
+      if (results.length === 0) {
+        console.log(`[RAG] ⚠️ No hay resultados con contextId: ${contextId}, incluyendo contexto 'default'...`);
+        results = originalResults.filter(result => {
+          const resultContextId = result.metadata?.contextId || 'default';
+          return resultContextId === contextId || resultContextId === 'default';
+        });
+        console.log(`[RAG] ✅ Resultados incluyendo 'default': ${results.length} chunks`);
+      }
     }
     
     // Filtrar por documento específico si se especifica

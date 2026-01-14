@@ -1,0 +1,30 @@
+{
+  "correctionsList": "**INFORME DE VALIDACIÓ DEL PLEC**\n\n🔴 ERRORS CRÍTICS:\n- Tag SAP sense reemplaçar: {B}annex 11{/B}\n - Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS\n - Context: Document d'altres especificitats tècniques particulars\n - 💡 Per què és un error: Els tags SAP com {B} i {/B} són codis de format que s'utilitzen en el sistema SAP per indicar negreta. Aquests tags s'haurien d'haver reemplaçat automàticament durant la generació del plec. La seva presència indica que el document no s'ha processat correctament i pot causar confusió als licitadors que veuran text com \"{B}annex 11{/B}\" en lloc de \"annex 11\" en negreta.\n\n- Comentari de desenvolupador detectat: \"Oriol: Aqu noms em treu una fila quan poden haver ms\"\n - Ubicació: Apartat 24.- ALTRES ESPECIFICITATS I CONDICIONS DEL CONTRACTE\n - Context: Despesa Import\n - 💡 Per què és un error: Els comentaris de desenvolupador com \"Oriol:\" seguit d'instruccions tècniques no haurien d'aparèixer en el document final. Indiquen que el plec no ha estat completament revisat i pot contenir errors o informació no pertinent per als licitadors. Aquests comentaris han de ser eliminats abans de la publicació del plec.\n\n🟡 ADVERTÈNCIES:\n- Falta de coherència en la codificació CPV: \"Error! Argumento de modificador desconocido.\"\n - Ubicació: Apartat 1.- OBJECTE\n - Context: Codi CPV\n - 💡 Per què és una advertència: La codificació CPV és essencial per identificar el tipus de contracte i assegurar la seva correcta classificació. Un error en aquest codi pot dificultar la identificació del contracte i generar confusió entre els licitadors. És important verificar i corregir aquest codi per garantir la transparència i la correcta adjudicació del contracte.\n\n📋 CAMPS VARIABLES DETECTATS:\n- {B}annex 11{/B}\n\n**NOTA IMPORTANT: Aquesta validació ha estat generada automàticament mitjançant intel·ligència artificial. Els resultats es basen en probabilitats matemàtiques i patrons apresos del context de plecs similars. És imprescindible revisar manualment tots els errors i advertències reportats, ja que la IA pot contenir imprecisions o falsos positius. Aquest informe és una eina d'ajuda, però la validació final sempre ha de ser realitzada per un professional qualificat.**",
+  "criticalErrors": 7,
+  "warnings": 4,
+  "visualAnalysis": {
+    "lineSpacing": {
+      "inconsistencies": [],
+      "standardSpacing": "1.15",
+      "totalInconsistencies": 0
+    },
+    "tableHeaders": {
+      "tablesWithoutBold": [],
+      "totalTables": 0,
+      "totalWithoutBold": 0
+    },
+    "tableWidths": {
+      "narrowTables": [],
+      "pageWidth": 595,
+      "usableWidth": 451,
+      "totalNarrowTables": 0
+    }
+  },
+  "metadata": {
+    "pliegoId": "PLIEGO_1766416884115",
+    "fileName": "CT1080507.pdf",
+    "fileSize": 2223104,
+    "processingTime": 13270,
+    "timestamp": "2025-12-22T15:21:36.779Z"
+  }
+}

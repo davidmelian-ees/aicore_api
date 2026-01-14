@@ -1,0 +1,19 @@
+version: '3'
+services:
+  docker-node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: docker-node
+    container_name: docker-node
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - docker-node-network
+networks:
+  docker-node-network:
