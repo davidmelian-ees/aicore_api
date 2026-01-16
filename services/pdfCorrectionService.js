@@ -26,7 +26,7 @@ function filterProhibitedErrors(validationReport) {
   const apartado18Pattern = /🟡\s*ADVERTÈNCIES:[\s\S]*?-\s*Ubicació:\s*Apartat\s*18\..*?DOCUMENTACIÓ.*?[\s\S]*?-\s*.*?(informació|documentació).*?(incompleta|poc clara|facilitarà als licitadors)[\s\S]*?-\s*Text a revisar:[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
   filteredReport = filteredReport.replace(apartado18Pattern, '');
   
-  // FILTRO 2: Eliminar errores de presupuesto que son diferencias de IVA (21%)
+  // FILTRO 2A: Eliminar errores críticos de presupuesto que son diferencias de IVA (21%)
   // Buscar patrones como "502.228,26 EUR" vs "415.064,68 EUR" y verificar si es ~21%
   const budgetErrorPattern = /🔴\s*ERRORS CRÍTICS:[\s\S]*?-\s*Ubicació:\s*Apartat\s*2\..*?DADES ECONÒMIQUES[\s\S]*?-\s*.*?números del pressupost no quadren[\s\S]*?-\s*Text erroni:.*?(\d{1,3}(?:\.\d{3})*,\d{2})\s*EUR.*?(\d{1,3}(?:\.\d{3})*,\d{2})\s*EUR[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
   
@@ -44,11 +44,29 @@ function filterProhibitedErrors(validationReport) {
     
     // Si la diferencia está entre 20% y 22% (aproximadamente 21% = IVA), eliminar el error
     if (percentage >= 0.20 && percentage <= 0.22) {
-      console.log(`[FILTRO] Eliminando error de IVA: ${num1} vs ${num2} (diferencia ${(percentage * 100).toFixed(2)}%)`);
+      console.log(`[FILTRO] Eliminando error crítico de IVA: ${num1} vs ${num2} (diferencia ${(percentage * 100).toFixed(2)}%)`);
       return '';
     }
     
     return match; // Mantener el error si no es IVA
+  });
+  
+  // FILTRO 2B: Eliminar advertencias sobre diferencias de IVA del 21% en Apartado 2
+  // Patrón: advertencias que mencionan "Diferència" + "IVA" + "21%" en Apartado 2
+  const budgetWarningPattern = /🟡\s*ADVERTÈNCIES:[\s\S]*?-\s*Ubicació:\s*Apartat\s*2\..*?DADES ECONÒMIQUES[\s\S]*?-\s*.*?(Diferència|diferència).*?(IVA|pressupost).*?(21%|vint-i-un per cent)[\s\S]*?-\s*Text a revisar:[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
+  
+  filteredReport = filteredReport.replace(budgetWarningPattern, (match) => {
+    console.log(`[FILTRO] Eliminando advertencia de IVA 21%: ${match.substring(0, 100)}...`);
+    return '';
+  });
+  
+  // FILTRO 3: Eliminar advertencias sobre estructura incompleta en tablas de criterios de adjudicación
+  // Patrón: advertencias sobre "estructura incompleta" o "només tenen 1 valor" en Apartado 15 (Criteris d'adjudicació)
+  const criteriaTablePattern = /🟡\s*ADVERTÈNCIES:[\s\S]*?-\s*Ubicació:\s*Apartat\s*15\..*?CRITERIS D'ADJUDICACIÓ[\s\S]*?-\s*.*?(estructura incompleta|només tenen 1 valor|n'haurien de tenir 2)[\s\S]*?-\s*Text a revisar:[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
+  
+  filteredReport = filteredReport.replace(criteriaTablePattern, (match) => {
+    console.log(`[FILTRO] Eliminando advertencia sobre tabla de criterios: ${match.substring(0, 100)}...`);
+    return '';
   });
   
   // Limpiar secciones vacías
@@ -192,10 +210,13 @@ Genera un informe detallado de errores estructurales, ortográficos y de formato
 
 2. ❌ PROHIBIDO REPORTAR: Diferencias de presupuesto que son IVA (21%)
    - NO reportes "Els números del pressupost no quadren" si la diferencia es el 21% de IVA
-   - ANTES de reportar cualquier error de presupuesto, CALCULA: diferencia ÷ importe_menor
-   - Si el resultado está entre 0.20 y 0.22 (es decir, ~21%) → OMITE COMPLETAMENTE este error
+   - NO reportes advertencias sobre "Diferència entre el pressupost amb IVA i sense IVA que correspon al 21%"
+   - NO reportes NADA sobre diferencias de IVA del 21% (ni errores críticos NI advertencias)
+   - ANTES de reportar cualquier error/advertencia de presupuesto, CALCULA: diferencia ÷ importe_menor
+   - Si el resultado está entre 0.20 y 0.22 (es decir, ~21%) → OMITE COMPLETAMENTE (no reportes ni error ni advertencia)
    - Ejemplo PROHIBIDO: "502.228,26 EUR vs 415.064,68 EUR, diferència 87.163,58 EUR" → 87.163,58 ÷ 415.064,68 = 0.21 = 21% → NO REPORTAR
    - Si detectas que la diferencia es IVA → SALTA esta validación por completo
+   - El IVA del 21% es CORRECTO y NORMAL, no es un error ni una advertencia
 
 ⚠️ ESTAS EXCLUSIONES SON OBLIGATORIAS Y NO NEGOCIABLES ⚠️
 Si encuentras estos casos, IGNÓRALOS COMPLETAMENTE como si no existieran.
@@ -947,11 +968,34 @@ Si NO veus literalment "ZRM_", "ZVRM_", "{B}", "{/B}" en el document:
 → NO inventis exemples
 → NO mencions res sobre camps variables
 
-REGLA 4 - TAULES APLICA/NO APLICA (ABSOLUTA):
-❌ MAI reportis error en taules APLICA/NO APLICA
-❌ Els salts de línia són NORMALS en tots els pliegos del context RAG
-❌ Si veus "NO APLICA NO\nAPLICA" = 2 valors = CORRECTE
-→ IGNORA completament aquestes taules
+REGLA 4 - TAULES APLICA/NO APLICA (VALIDACIÓ CONTEXTUAL):
+🚨 METODOLOGIA OBLIGATÒRIA:
+
+PASO 1 - ANALIZA EL PATRÓN DE LA TABLA:
+- Cuenta cuántas filas tienen 1 valor (ej: solo "APLICA" o solo "NO APLICA")
+- Cuenta cuántas filas tienen 2 valores (ej: "APLICA NO APLICA")
+
+PASO 2 - DETERMINA EL FORMATO CORRECTO:
+- Si la MAYORÍA de filas (>70%) tienen 1 valor → El formato correcto es 1 valor por fila
+- Si la MAYORÍA de filas (>70%) tienen 2 valores → El formato correcto es 2 valores por fila
+
+PASO 3 - REPORTA SOLO SI HAY INCONSISTENCIA:
+✅ Ejemplo 1 - NO ES ERROR:
+   Fila 8.3.1: APLICA (1 valor)
+   Fila 8.3.2: NO APLICA (1 valor)
+   Fila 8.3.3: APLICA (1 valor)
+   Fila 8.3.4: APLICA (1 valor)
+   → TODAS tienen 1 valor → FORMATO CORRECTO → NO REPORTAR
+
+✅ Ejemplo 2 - SÍ ES ERROR:
+   Fila 8.3.1: APLICA NO APLICA (2 valores)
+   Fila 8.3.2: APLICA NO APLICA (2 valores)
+   Fila 8.3.3: APLICA (1 valor) ← INCONSISTENTE
+   Fila 8.3.4: APLICA NO APLICA (2 valores)
+   → La mayoría tienen 2 valores, pero 8.3.3 solo tiene 1 → ERROR
+
+❌ NO reportis error si TODAS las filas tienen el mismo formato (1 o 2 valores)
+✅ SÍ reporta error si hay INCONSISTENCIA entre filas (unas tienen 1 y otras tienen 2)
 
 REGLA 5 - APARTATS FALTANTS (MÀXIMA PRECISIÓ):
 🚨 ABANS DE REPORTAR UN APARTAT FALTANT:
