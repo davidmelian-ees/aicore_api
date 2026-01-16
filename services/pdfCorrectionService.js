@@ -760,14 +760,22 @@ BUSCA patrons com:
 - &INCLUDE
 
 SI TROBES aquests patrons → REPORTA amb aquest format:
+
+Per a camps ZRM_ o ZVRM_:
+🔴 ERRORS CRÍTICS:
+- Ubicació: Apartat 6.- GARANTIA PROVISIONAL
+    - Text erroni en el camp. Aquest camp ha de contenir la informació específica corresponent.
+    - Text a revisar: {Z_GAR_PROV}
+
+Per a tags de format {B}, {/B}, {I}, {/I}:
 ⚠️ SUGGERIMENTS:
 - Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
-    - Text amb format incorrecte. No ha aplicat negreta. Ha de reemplaçar "{B}" i "{/B}" i aplicar negreta al text que hi ha entre aquestes etiquetes.
-    - Text erroni: {B}annex 11{/B}
+    - Text amb format incorrecte. No ha aplicat negreta. Ha d'eliminar "{B}" i "{/B}" i aplicar negreta al text que hi ha entre aquestes etiquetes.
+    - Text a revisar: {B}annex 11{/B}
 
 - Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
-    - Text amb format incorrecte. No ha aplicat cursiva. Ha de reemplaçar "{I}" i "{/I}" i aplicar cursiva al text que hi ha entre aquestes etiquetes.
-    - Text erroni: {I}annex 11{/I}
+    - Text amb format incorrecte. No ha aplicat cursiva. Ha d'eliminar "{I}" i "{/I}" i aplicar cursiva al text que hi ha entre aquestes etiquetes.
+    - Text a revisar: {I}annex 11{/I}
 
 🚨🚨🚨 REGLA CRÍTICA ANTI-ALUCINACIÓ 🚨🚨🚨
 ❌ NO reportis camps variables si NO els veus LITERALMENT en el document

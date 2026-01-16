@@ -2859,5 +2859,129 @@
         "TAG_SIN_REEMPLAZAR": 1
       }
     }
+  },
+  "PLIEGO_1768562846664": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768562846664",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T11:27:36.912Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:27:36.910Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni en el camp. Aquest camp ha de contenir la informació específica corresponent.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:27:36.910Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:27:36.910Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:27:36.910Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (13.748.439,43 EUR) coincideix amb la suma dels lots (13.748.439,43 EUR), però cal verificar que els imports individuals dels lots estan correctament detallats.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:27:36.910Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text a revisar: Pressupost total: 13.748.439,43 EUR vs Suma de lots: 13.748.439,43 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:27:36.910Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 4,
+        "ERROR_NUMERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1768562873645": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768562873645",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T11:28:02.872Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:28:02.870Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni en el camp. Aquest camp ha de contenir la informació específica corresponent.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:28:02.870Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:28:02.870Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:28:02.870Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (13.748.439,43 EUR) coincideix amb la suma dels lots (13.748.439,43 EUR), però cal verificar que els imports individuals dels lots estan correctament detallats.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:28:02.870Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text a revisar: Pressupost total: 13.748.439,43 EUR vs Suma de lots: 13.748.439,43 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:28:02.870Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 4,
+        "ERROR_NUMERICO": 2
+      }
+    }
   }
 }
