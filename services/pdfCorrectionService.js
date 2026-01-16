@@ -14,6 +14,71 @@ import path from 'path';
  * 2. Aplicar correcciones directamente por replace
  */
 
+// Función para filtrar errores/advertencias prohibidos del informe de validación
+function filterProhibitedErrors(validationReport) {
+  if (!validationReport) return validationReport;
+  
+  let filteredReport = validationReport;
+  
+  // FILTRO 1: Eliminar advertencias sobre Apartado 18 - Documentación
+  // Patrón: cualquier advertencia que mencione "Apartat 18" o "DOCUMENTACIÓ A PRESENTAR" 
+  // y contenga "informació" + "documentació" + "incompleta" o "poc clara"
+  const apartado18Pattern = /🟡\s*ADVERTÈNCIES:[\s\S]*?-\s*Ubicació:\s*Apartat\s*18\..*?DOCUMENTACIÓ.*?[\s\S]*?-\s*.*?(informació|documentació).*?(incompleta|poc clara|facilitarà als licitadors)[\s\S]*?-\s*Text a revisar:[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
+  filteredReport = filteredReport.replace(apartado18Pattern, '');
+  
+  // FILTRO 2A: Eliminar errores críticos de presupuesto que son diferencias de IVA (21%)
+  // Buscar patrones como "502.228,26 EUR" vs "415.064,68 EUR" y verificar si es ~21%
+  const budgetErrorPattern = /🔴\s*ERRORS CRÍTICS:[\s\S]*?-\s*Ubicació:\s*Apartat\s*2\..*?DADES ECONÒMIQUES[\s\S]*?-\s*.*?números del pressupost no quadren[\s\S]*?-\s*Text erroni:.*?(\d{1,3}(?:\.\d{3})*,\d{2})\s*EUR.*?(\d{1,3}(?:\.\d{3})*,\d{2})\s*EUR[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
+  
+  filteredReport = filteredReport.replace(budgetErrorPattern, (match, amount1, amount2) => {
+    // Convertir importes de formato europeo (1.234,56) a número
+    const parseAmount = (str) => parseFloat(str.replace(/\./g, '').replace(',', '.'));
+    const num1 = parseAmount(amount1);
+    const num2 = parseAmount(amount2);
+    
+    if (!num1 || !num2) return match; // Si no se pueden parsear, mantener el error
+    
+    const diff = Math.abs(num1 - num2);
+    const smaller = Math.min(num1, num2);
+    const percentage = diff / smaller;
+    
+    // Si la diferencia está entre 20% y 22% (aproximadamente 21% = IVA), eliminar el error
+    if (percentage >= 0.20 && percentage <= 0.22) {
+      console.log(`[FILTRO] Eliminando error crítico de IVA: ${num1} vs ${num2} (diferencia ${(percentage * 100).toFixed(2)}%)`);
+      return '';
+    }
+    
+    return match; // Mantener el error si no es IVA
+  });
+  
+  // FILTRO 2B: Eliminar advertencias sobre diferencias de IVA del 21% en Apartado 2
+  // Patrón: advertencias que mencionan "Diferència" + "IVA" + "21%" en Apartado 2
+  const budgetWarningPattern = /🟡\s*ADVERTÈNCIES:[\s\S]*?-\s*Ubicació:\s*Apartat\s*2\..*?DADES ECONÒMIQUES[\s\S]*?-\s*.*?(Diferència|diferència).*?(IVA|pressupost).*?(21%|vint-i-un per cent)[\s\S]*?-\s*Text a revisar:[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
+  
+  filteredReport = filteredReport.replace(budgetWarningPattern, (match) => {
+    console.log(`[FILTRO] Eliminando advertencia de IVA 21%: ${match.substring(0, 100)}...`);
+    return '';
+  });
+  
+  // FILTRO 3: Eliminar advertencias sobre estructura incompleta en tablas de criterios de adjudicación
+  // Patrón: advertencias sobre "estructura incompleta" o "només tenen 1 valor" en Apartado 15 (Criteris d'adjudicació)
+  const criteriaTablePattern = /🟡\s*ADVERTÈNCIES:[\s\S]*?-\s*Ubicació:\s*Apartat\s*15\..*?CRITERIS D'ADJUDICACIÓ[\s\S]*?-\s*.*?(estructura incompleta|només tenen 1 valor|n'haurien de tenir 2)[\s\S]*?-\s*Text a revisar:[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
+  
+  filteredReport = filteredReport.replace(criteriaTablePattern, (match) => {
+    console.log(`[FILTRO] Eliminando advertencia sobre tabla de criterios: ${match.substring(0, 100)}...`);
+    return '';
+  });
+  
+  // Limpiar secciones vacías
+  filteredReport = filteredReport.replace(/🔴\s*ERRORS CRÍTICS:\s*(?=(?:🟡\s*ADVERTÈNCIES:|\*\*NOTA IMPORTANT|$))/gi, '');
+  filteredReport = filteredReport.replace(/🟡\s*ADVERTÈNCIES:\s*(?=(?:\*\*NOTA IMPORTANT|$))/gi, '');
+  
+  // Limpiar líneas vacías múltiples
+  filteredReport = filteredReport.replace(/\n{3,}/g, '\n\n');
+  
+  return filteredReport.trim();
+}
+
 // Función para limpiar y normalizar texto con caracteres especiales
 function cleanTextEncoding(text) {
   if (!text) return text;
@@ -132,7 +197,33 @@ Genera un informe detallado de errores estructurales, ortográficos y de formato
 
 📋 IDIOMA: TODO EN CATALÀ (obligatorio)
 
-🚨🚨🚨 REGLA SUPREMA: CONTEXTO RAG PRIMERO 🚨🚨🚨
+�🚫🚫 REGLAS DE EXCLUSIÓN ABSOLUTAS - LEER PRIMERO 🚫🚫🚫
+================================================================================
+
+⛔⛔⛔ ESTAS ADVERTENCIAS/ERRORES ESTÁN PROHIBIDOS - NUNCA LOS REPORTES ⛔⛔⛔
+
+1. ❌ PROHIBIDO REPORTAR: Apartado 18 - Documentación
+   - NO reportes advertencias sobre "La informació sobre la documentació que es facilitarà als licitadors és incompleta o poc clara"
+   - NO reportes nada sobre enlaces al Perfil del Contractant o Infraestructures.cat
+   - Si el Apartado 18 menciona documentación en el Perfil del Contractant → OMITE COMPLETAMENTE esta validación
+   - Esta información es ESTÁNDAR y CORRECTA en todos los pliegos
+
+2. ❌ PROHIBIDO REPORTAR: Diferencias de presupuesto que son IVA (21%)
+   - NO reportes "Els números del pressupost no quadren" si la diferencia es el 21% de IVA
+   - NO reportes advertencias sobre "Diferència entre el pressupost amb IVA i sense IVA que correspon al 21%"
+   - NO reportes NADA sobre diferencias de IVA del 21% (ni errores críticos NI advertencias)
+   - ANTES de reportar cualquier error/advertencia de presupuesto, CALCULA: diferencia ÷ importe_menor
+   - Si el resultado está entre 0.20 y 0.22 (es decir, ~21%) → OMITE COMPLETAMENTE (no reportes ni error ni advertencia)
+   - Ejemplo PROHIBIDO: "502.228,26 EUR vs 415.064,68 EUR, diferència 87.163,58 EUR" → 87.163,58 ÷ 415.064,68 = 0.21 = 21% → NO REPORTAR
+   - Si detectas que la diferencia es IVA → SALTA esta validación por completo
+   - El IVA del 21% es CORRECTO y NORMAL, no es un error ni una advertencia
+
+⚠️ ESTAS EXCLUSIONES SON OBLIGATORIAS Y NO NEGOCIABLES ⚠️
+Si encuentras estos casos, IGNÓRALOS COMPLETAMENTE como si no existieran.
+
+================================================================================
+
+�🚨🚨 REGLA SUPREMA: CONTEXTO RAG PRIMERO 🚨🚨🚨
 ================================================================================
 
 ANTES de aplicar cualquier regla, ESTUDIA el contexto RAG de los 18 pliegos de referencia.
@@ -192,6 +283,23 @@ Ejemplo:
 
 ✅ Si la diferencia es ~21% del importe menor → NO REPORTAR ERROR
 ✅ Son el mismo presupuesto expresado con/sin IVA
+✅ NUNCA reportes como error crítico una diferencia que corresponde al 21% de IVA
+
+🛑🛑🛑 REGLAS DE EXCLUSIÓN ESPECÍFICAS 🛑🛑🛑
+
+❌❌❌ NUNCA REPORTAR ESTAS ADVERTENCIAS/ERRORES ❌❌❌
+
+1. APARTADO 18 - DOCUMENTACIÓN:
+   ❌ NO reportar advertencia sobre documentación incompleta o poco clara en el Apartado 18
+   ❌ NO reportar: "La informació sobre la documentació que es facilitarà als licitadors és incompleta o poc clara"
+   ✅ Si el Apartado 18 menciona enlaces a documentación externa (Perfil del Contractant, etc.) → ES CORRECTO
+   ✅ Esta información es estándar y válida en todos los pliegos
+
+2. DIFERENCIAS DE PRESUPUESTO QUE SON IVA (21%):
+   ❌ NO reportar como error crítico si la diferencia entre dos importes es exactamente el 21%
+   ❌ NO reportar: "Els números del pressupost no quadren" cuando la diferencia es el IVA
+   ✅ Si diferencia = 21% del importe menor → Son el mismo presupuesto con/sin IVA
+   ✅ Ejemplo: 502.228,26 EUR vs 415.064,68 EUR → diferencia 87.163,58 EUR = 21% → NO ES ERROR
 
 🛑🛑🛑 REGLA CRÍTICA ABSOLUTA SOBRE TABLAS APLICA/NO APLICA 🛑🛑🛑
 
@@ -318,13 +426,20 @@ INSTRUCCIONES DE VALIDACIÓN:
       - COMPARA: ¿TOTAL calculado == TOTAL declarado?
       - CALCULA LA DIFERENCIA: |TOTAL calculado - TOTAL declarado|
    
-   D) REPORTE DE ERRORES:
+   D) VERIFICAR SI LA DIFERENCIA ES IVA (21%):
+      - ANTES de reportar cualquier error, calcula: diferencia / importe_menor
+      - Si el resultado está entre 0.20 y 0.22 (aprox. 21%) → ES IVA, NO ES ERROR
+      - Ejemplo: diferencia 87.163,58 / importe 415.064,68 = 0.21 = 21% → NO REPORTAR
+      - ⚠️ CRÍTICO: NUNCA reportes como error una diferencia que corresponde al IVA
+   
+   E) REPORTE DE ERRORES:
       - ⚠️ CRÍTICO: Si la diferencia es CERO (0,00 EUR) → NO reportes NINGÚN error
       - ⚠️ CRÍTICO: Si la diferencia es 0,01 EUR o menos → NO reportes error (redondeo)
-      - ⚠️ CRÍTICO: SOLO si la diferencia es MAYOR que 0,01 EUR → REPORTA como ERROR CRÍTICO
+      - ⚠️ CRÍTICO: Si la diferencia es ~21% del importe menor → NO reportes error (es IVA)
+      - ⚠️ CRÍTICO: SOLO si la diferencia es MAYOR que 0,01 EUR Y NO es IVA → REPORTA como ERROR CRÍTICO
       - Si coinciden exactamente (diferencia = 0) → NO reportes nada, está correcto
    
-   E) SI NO HAY LOTES:
+   F) SI NO HAY LOTES:
       - NO busques tabla de lotes
       - NO hagas ninguna suma
       - NO reportes ningún error numérico
@@ -376,7 +491,22 @@ INSTRUCCIONES DE VALIDACIÓN:
       - Cita el texto EXACTO encontrado
       - NO reportes falsos positivos
 
-6. GENERA un informe detallado con:
+6. EXCLUSIONES OBLIGATORIAS - NO REPORTAR:
+   
+   ⚠️⚠️⚠️ APARTADO 18 - DOCUMENTACIÓN ⚠️⚠️⚠️
+   ❌ NUNCA reportar advertencias sobre el Apartado 18.- DOCUMENTACIÓ A PRESENTAR
+   ❌ NO reportar: "La informació sobre la documentació que es facilitarà als licitadors és incompleta o poc clara"
+   ❌ NO reportar advertencias sobre enlaces a documentación externa (Perfil del Contractant, Infraestructures.cat, etc.)
+   ✅ Si el Apartado 18 menciona que los documentos están en el Perfil del Contractant → ES CORRECTO Y VÁLIDO
+   ✅ Esta es la forma estándar de proporcionar documentación en todos los pliegos
+   
+   ⚠️⚠️⚠️ DIFERENCIAS DE IVA (21%) ⚠️⚠️⚠️
+   ❌ NUNCA reportar como error crítico diferencias que corresponden al 21% de IVA
+   ❌ NO reportar: "Els números del pressupost no quadren" si la diferencia es exactamente el IVA
+   ✅ Calcula siempre: diferencia / importe_menor
+   ✅ Si el resultado es ~0.21 (21%) → NO ES ERROR, es IVA
+
+7. GENERA un informe detallado con:
    - Errores críticos (bloquean generación)
    - Advertencias (permiten continuar)
    - CÁLCULOS EXPLÍCITOS para errores numéricos
@@ -630,14 +760,22 @@ BUSCA patrons com:
 - &INCLUDE
 
 SI TROBES aquests patrons → REPORTA amb aquest format:
+
+Per a camps ZRM_ o ZVRM_:
+🔴 ERRORS CRÍTICS:
+- Ubicació: Apartat 6.- GARANTIA PROVISIONAL
+    - Text erroni en el camp. Aquest camp ha de contenir la informació específica corresponent.
+    - Text a revisar: {Z_GAR_PROV}
+
+Per a tags de format {B}, {/B}, {I}, {/I}:
 ⚠️ SUGGERIMENTS:
 - Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
-    - Text amb format incorrecte. No ha aplicat negreta.
-    - Text erroni: {B}annex 11{/B}
+    - Text amb format incorrecte. No ha aplicat negreta. Ha d'eliminar "{B}" i "{/B}" i aplicar negreta al text que hi ha entre aquestes etiquetes.
+    - Text a revisar: {B}annex 11{/B}
 
 - Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
-    - Text amb format incorrecte. No ha aplicat cursiva.
-    - Text erroni: {I}annex 11{/I}
+    - Text amb format incorrecte. No ha aplicat cursiva. Ha d'eliminar "{I}" i "{/I}" i aplicar cursiva al text que hi ha entre aquestes etiquetes.
+    - Text a revisar: {I}annex 11{/I}
 
 🚨🚨🚨 REGLA CRÍTICA ANTI-ALUCINACIÓ 🚨🚨🚨
 ❌ NO reportis camps variables si NO els veus LITERALMENT en el document
@@ -656,6 +794,22 @@ ${textForAnalysis}
 GENERA L'INFORME SEGUINT EL FORMAT EXACTE EN CATALÀ:
 
 ⚠️⚠️⚠️ CHECKLIST DE VALIDACIÓ (PRIORIZADO) ⚠️⚠️⚠️
+
+🛑🛑🛑 PASO 0: VERIFICAR EXCLUSIONES OBLIGATORIAS (ANTES DE TODO) 🛑🛑🛑
+
+ANTES de generar el informe, REVISA si has detectado alguno de estos casos:
+
+✋ EXCLUSIÓN 1: ¿Has encontrado advertencias sobre el Apartado 18 (documentación)?
+   → Si SÍ: ELIMINA esa advertencia del informe. NO la incluyas.
+   → Razón: Es información estándar y correcta en todos los pliegos.
+
+✋ EXCLUSIÓN 2: ¿Has encontrado diferencias de presupuesto?
+   → CALCULA: diferencia ÷ importe_menor
+   → Si el resultado es ~0.21 (entre 0.20 y 0.22): ELIMINA ese error del informe. NO lo incluyas.
+   → Razón: Es el IVA (21%), no es un error.
+   → Ejemplo: 87.163,58 ÷ 415.064,68 = 0.21 → ELIMINAR este error
+
+⚠️ SI DETECTAS ESTOS CASOS, NO LOS INCLUYAS EN EL INFORME FINAL ⚠️
 
 🎯 USA EL CONTEXTO RAG COMO REFERENCIA PRINCIPAL
 Si el contexto muestra que todos los pliegos similares tienen X → debe existir.
@@ -733,12 +887,33 @@ VALIDACIÓ NUMÈRICA (SIMPLIFICADA):
 
 Si hi ha lots, calcula: |Pressupost - Suma de lots|
 
-🛑 REGLA ÚNICA: NOMÉS reporta error si diferència > 0,01 EUR
+🛑 REGLA ÚNICA: NOMÉS reporta error si diferència > 0,01 EUR Y NO es IVA (21%)
 
 Exemples:
 - Diferència 0,00 EUR → NO reportar res
 - Diferència 0,01 EUR → NO reportar res (redondeo)
-- Diferència 153,00 EUR → SÍ reportar error
+- Diferència 87.163,58 EUR (21% de 415.064,68) → NO reportar res (es IVA)
+- Diferència 153,00 EUR (no es 21%) → SÍ reportar error
+
+================================================================================
+🚨🚨🚨 FILTRO FINAL OBLIGATORIO - ANTES DE GENERAR EL INFORME 🚨🚨🚨
+================================================================================
+
+ANTES de escribir el informe final, APLICA ESTE FILTRO:
+
+1. ¿Tienes algún error/advertencia sobre el Apartado 18 y documentación?
+   → ELIMÍNALO del informe. NO lo escribas.
+
+2. ¿Tienes algún error sobre diferencias de presupuesto?
+   → CALCULA: diferencia ÷ importe_menor
+   → Si resultado ≈ 0.21 (entre 0.20 y 0.22): ELIMÍNALO del informe. NO lo escribas.
+   → Ejemplo: 87.163,58 ÷ 415.064,68 = 0.21 → ELIMINAR
+
+3. Si después de aplicar el filtro NO tienes errores ni advertencias:
+   → Genera un informe vacío con solo la nota final
+   → NO inventes otros errores para rellenar
+
+⚠️ ESTE FILTRO ES OBLIGATORIO - NO LO OMITAS ⚠️
 
 ⚠️ NOTA CRÍTICA SOBRE TAULES APLICA/NO APLICA:
 METODOLOGIA DE VALIDACIÓ:
@@ -801,11 +976,34 @@ Si NO veus literalment "ZRM_", "ZVRM_", "{B}", "{/B}" en el document:
 → NO inventis exemples
 → NO mencions res sobre camps variables
 
-REGLA 4 - TAULES APLICA/NO APLICA (ABSOLUTA):
-❌ MAI reportis error en taules APLICA/NO APLICA
-❌ Els salts de línia són NORMALS en tots els pliegos del context RAG
-❌ Si veus "NO APLICA NO\nAPLICA" = 2 valors = CORRECTE
-→ IGNORA completament aquestes taules
+REGLA 4 - TAULES APLICA/NO APLICA (VALIDACIÓ CONTEXTUAL):
+🚨 METODOLOGIA OBLIGATÒRIA:
+
+PASO 1 - ANALIZA EL PATRÓN DE LA TABLA:
+- Cuenta cuántas filas tienen 1 valor (ej: solo "APLICA" o solo "NO APLICA")
+- Cuenta cuántas filas tienen 2 valores (ej: "APLICA NO APLICA")
+
+PASO 2 - DETERMINA EL FORMATO CORRECTO:
+- Si la MAYORÍA de filas (>70%) tienen 1 valor → El formato correcto es 1 valor por fila
+- Si la MAYORÍA de filas (>70%) tienen 2 valores → El formato correcto es 2 valores por fila
+
+PASO 3 - REPORTA SOLO SI HAY INCONSISTENCIA:
+✅ Ejemplo 1 - NO ES ERROR:
+   Fila 8.3.1: APLICA (1 valor)
+   Fila 8.3.2: NO APLICA (1 valor)
+   Fila 8.3.3: APLICA (1 valor)
+   Fila 8.3.4: APLICA (1 valor)
+   → TODAS tienen 1 valor → FORMATO CORRECTO → NO REPORTAR
+
+✅ Ejemplo 2 - SÍ ES ERROR:
+   Fila 8.3.1: APLICA NO APLICA (2 valores)
+   Fila 8.3.2: APLICA NO APLICA (2 valores)
+   Fila 8.3.3: APLICA (1 valor) ← INCONSISTENTE
+   Fila 8.3.4: APLICA NO APLICA (2 valores)
+   → La mayoría tienen 2 valores, pero 8.3.3 solo tiene 1 → ERROR
+
+❌ NO reportis error si TODAS las filas tienen el mismo formato (1 o 2 valores)
+✅ SÍ reporta error si hay INCONSISTENCIA entre filas (unas tienen 1 y otras tienen 2)
 
 REGLA 5 - APARTATS FALTANTS (MÀXIMA PRECISIÓ):
 🚨 ABANS DE REPORTAR UN APARTAT FALTANT:
@@ -825,9 +1023,6 @@ REGLA 5 - APARTATS FALTANTS (MÀXIMA PRECISIÓ):
 ❌ NO inventis apartats faltants
 ❌ NO reportis apartats que SÍ existeixen al document
 ❌ MAI reportis apartats faltants com a advertència
-
-REGLA 6 - EXPLICACIONS:
-Per cada error que reportis, inclou "💡 Per què és un error" amb explicació detallada.
 
 ================================================================================`;
 }
@@ -1188,6 +1383,9 @@ RELEVANCIA: ${result.similarity}
       
       // Filtrar falsos positivos de la IA
       correctionsList = filterFalsePositives(correctionsList);
+      
+      // Filtrar errores/advertencias prohibidos (Apartado 18, IVA 21%)
+      correctionsList = filterProhibitedErrors(correctionsList);
       
       loggerService.success('PDF-CORRECTION', 'Correcciones generadas por IA', { 
         length: correctionsList.length 
