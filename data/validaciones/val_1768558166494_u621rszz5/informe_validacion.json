@@ -1,0 +1,30 @@
+{
+  "correctionsList": "**NOTA IMPORTANT: Aquesta validació ha estat generada automàticament mitjançant intel·ligència artificial. Els resultats es basen en probabilitats matemàtiques i patrons apresos del context de plecs similars. És imprescindible revisar manualment tots els errors i advertències reportats, ja que la IA pot contenir imprecisions o falsos positius. Aquest informe és una eina d'ajuda, però la validació final sempre ha de ser realitzada per un professional qualificat.**",
+  "criticalErrors": 0,
+  "warnings": 0,
+  "visualAnalysis": {
+    "lineSpacing": {
+      "inconsistencies": [],
+      "standardSpacing": "1.15",
+      "totalInconsistencies": 0
+    },
+    "tableHeaders": {
+      "tablesWithoutBold": [],
+      "totalTables": 0,
+      "totalWithoutBold": 0
+    },
+    "tableWidths": {
+      "narrowTables": [],
+      "pageWidth": 595,
+      "usableWidth": 451,
+      "totalNarrowTables": 0
+    }
+  },
+  "metadata": {
+    "pliegoId": "PLIEGO_1768558154696",
+    "fileName": "GISCT1080532.pdf",
+    "fileSize": 1692160,
+    "processingTime": 12571,
+    "timestamp": "2026-01-16T10:09:26.494Z"
+  }
+}

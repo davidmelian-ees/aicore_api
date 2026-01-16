@@ -1060,5 +1060,1804 @@
         "TAG_SIN_REEMPLAZAR": 3
       }
     }
+  },
+  "PLIEGO_1768557689244": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768557689244",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:01:40.654Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:01:40.652Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (502.228,26 EUR) no coincideix amb la suma dels lots (415.064,68 EUR). Hi ha una diferència de 87.163,58 EUR, que correspon al 21% de l'import menor, indicant que és l'IVA.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:01:40.652Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: Pressupost total: 502.228,26 EUR vs Valor global estimat: 415.064,68 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:01:40.652Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:01:40.652Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"[Els Manuals, Guies i Plecs de Prescripcions Tcniques es trobaran publicats de manera permanent a l'Apartat d'\"Altra documentaci\" del Perfil del Contractant d'Infraestructures.cat accessible a travs del segent enlla: https://contractaciopublica.cat/ca/perfils-contractant/detall/203633?categoria=0)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:01:40.652Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La informació sobre la documentació que es facilitar als licitadors és incompleta o poc clara.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:01:40.652Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "ERROR_NUMERICO": 1
+      }
+    }
+  },
+  "PLIEGO_1768557900733": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768557900733",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:05:10.599Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:05:10.597Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (502.228,26 EUR) no coincideix amb la suma dels lots (415.064,68 EUR). Hi ha una diferència de 87.163,58 EUR que correspon al 21% de l'IVA.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:05:10.597Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 502.228,26 EUR vs Suma de lots: 415.064,68 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:05:10.597Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:05:10.597Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La informació sobre la documentació que es facilitarà als licitadors és incompleta o poc clara. Es menciona que els documents estan disponibles al Perfil del Contractant, però no es detallen específicament.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:05:10.597Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"[Els Manuals, Guies i Plecs de Prescripcions Tcniques es trobaran publicats de manera permanent a l'Apartat d'\"Altra documentaci\" del Perfil del Contractant d'Infraestructures.cat accessible a travs del segent enllaç: https://contractaciopublica.cat/ca/perfils-contractant/detall/203633?categoria=0)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:05:10.597Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 4,
+        "ERROR_NUMERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1768558154696": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768558154696",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:09:26.492Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1768558234054": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768558234054",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T10:10:45.785Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:10:45.784Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:10:45.784Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'error: El camp variable {Z_GAR_PROV} no ha estat reemplaçat amb el valor corresponent.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:10:45.784Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:10:45.784Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"Lot Descripci Pressupost euros (IVA incls) TOTAL euros (IVA no incls)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:10:45.784Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: La descripció dels lots és massa genèrica i podria requerir més detall per a una millor comprensió.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:10:45.784Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 6
+      }
+    }
+  },
+  "PLIEGO_1768558415440": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768558415440",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:13:47.636Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1768558564158": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768558564158",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:16:13.760Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:16:13.751Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La descripció del contracte sembla repetida i pot generar confusió.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:16:13.751Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"CONTRACTE D'EXECUCI DE LES OBRES DE EXECUCI DE LES OBRES DEL PROJECTE CONSTRUCTIU.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:16:13.751Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_GENERICO": 3
+      }
+    }
+  },
+  "PLIEGO_1768558589236": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768558589236",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:16:39.258Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:16:39.257Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "El text presenta errors tipogràfics i de format que podrien dificultar la comprensió del document.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:16:39.257Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"CONTRACTE D'EXECUCI DE LES OBRES DE EXECUCI DE LES OBRES DEL PROJECTE CONSTRUCTIU.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:16:39.257Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_GENERICO": 3
+      }
+    }
+  },
+  "PLIEGO_1768558721469": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768558721469",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:18:52.779Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1768558747225": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768558747225",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T10:19:15.814Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:19:15.811Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:19:15.811Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Descripció de l'error: S'ha detectat un tag SAP sense reemplaçar en el document. Aquest tag hauria de contenir informació específica sobre la garantia provisional.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:19:15.811Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:19:15.811Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"Lot 1: 13.254.887,37 euros (IVA inclòs), Lot 2: 493.552,07 euros (IVA inclòs)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:19:15.811Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: Tot i que els imports dels lots sumen correctament el pressupost total declarat de 13.748.439,43 euros (IVA inclòs), és important verificar que els detalls dels lots estan correctament especificats i que no hi ha errors en la descripció o altres detalls.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:19:15.811Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768558986441": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768558986441",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:23:16.553Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:23:16.550Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "El text presenta errors tipogràfics i de format, com ara \"execuci\" en lloc de \"execució\" i \"ecolgica\" en lloc de \"ecològica\".",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:23:16.550Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"Execuci de les obres del Projecte constructiu. Recuperaci ecolgica i ambiental de la Bassa dels necs a la Roca del Valls.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:23:16.550Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_GENERICO": 3
+      }
+    }
+  },
+  "PLIEGO_1768559046140": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768559046140",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T10:24:16.879Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- (falta en l'estructura del plec)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:24:16.877Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Falta l'apartat 6.- en l'estructura del plec. La seqüència numèrica dels apartats presenta un salt entre el 5 i el 7, indicant que l'apartat 6 no està present.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:24:16.877Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: No es troba cap referència a l'apartat 6 en el document.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:24:16.877Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:24:16.877Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:24:16.877Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Codi de format sense processar que apareix visible al document.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:24:16.877Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:24:16.877Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (13.748.439,43 EUR) coincideix amb la suma dels lots (13.748.439,43 EUR), però cal verificar manualment que no hi hagi errors de transcripció.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:24:16.877Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text a revisar: Pressupost total: 13.748.439,43 EUR vs Suma de lots: 13.748.439,43 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:24:16.877Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 5,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 7,
+        "ERROR_NUMERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1768559233492": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768559233492",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T10:27:25.972Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:27:25.971Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'error: Camp variable sense reemplaçar. El text mostra un marcador de posició que no ha estat substituït pel valor correcte.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:27:25.971Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:27:25.971Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 9.- REQUISITS D'APTITUD DELS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:27:25.971Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: La informació sobre la classificació del contractista sembla repetida i pot causar confusió.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:27:25.971Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"Lot 1 G 5 4 Lot 1 G 5 4\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:27:25.971Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 6
+      }
+    }
+  },
+  "PLIEGO_1768559272455": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768559272455",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T10:28:00.556Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:00.554Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:00.554Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "VARIABLE_SAP_SIN_REEMPLAZAR",
+        "description": "Descripció de l'error: Camp variable SAP sense reemplaçar. El text mostra un marcador de posició que no ha estat substituït pel valor corresponent.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:00.554Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:00.554Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"PRESSUPOST DE LICITACI: 13.748.439,43 euros (IVA inclòs), 11.362.346,64 euros (IVA no inclòs)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:00.554Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: Els imports amb i sense IVA estan correctament indicats, però és important assegurar-se que els valors són consistents amb els detalls del projecte.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:00.554Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "VARIABLE_SAP_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768559285038": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768559285038",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T10:28:15.624Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:15.622Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:15.622Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'error: El camp de la garantia provisional no ha estat reemplaçat amb el valor correcte.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:15.622Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 9.- REQUISITS D'APTITUD DELS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:15.622Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: (Des del dia 1 de gener de 2022, per haver perdut la seva vigència, no s'admeten les classificacions amb categories indicades en lletres...)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:15.622Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'error: El text sembla incomplet o fora de context, ja que no es proporciona informació clara sobre les classificacions actuals acceptades.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:15.622Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:15.622Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: PRESSUPOST DE LICITACIÓ: 13.748.439,43 euros (IVA inclòs), 11.362.346,64 euros (IVA no inclòs)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:15.623Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: Els imports amb i sense IVA estan correctament indicats, però cal assegurar-se que els licitadors entenguin que són el mateix pressupost expressat de dues maneres diferents.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:15.623Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 5,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 9
+      }
+    }
+  },
+  "PLIEGO_1768559302455": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768559302455",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T10:28:31.685Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:31.682Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:31.682Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'error: El camp de garantia provisional no ha estat reemplaçat amb el valor corresponent.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:31.682Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 9.- REQUISITS D'APTITUD DELS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:31.682Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: (Des del dia 1 de gener de 2022, per haver perdut la seva vigència, no s'admeten les classificacions amb categories indicades en lletres...)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:31.682Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'error: El text sembla incomplet o fora de context, ja que no proporciona informació clara sobre els requisits actuals.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:31.682Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:31.682Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: PRESSUPOST DE LICITACIÓ: 13.748.439,43 euros (IVA inclòs), 11.362.346,64 euros (IVA no inclòs)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:31.682Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: Els imports amb i sense IVA estan correctament indicats, però és important assegurar-se que els licitadors entenguin que són el mateix pressupost expressat de dues maneres diferents.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:28:31.682Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 5,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 9
+      }
+    }
+  },
+  "PLIEGO_1768559340707": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768559340707",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:29:10.925Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 1.- OBJECTE",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:29:10.923Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Error tipogràfic de codificació de caràcters especials catalans, com \"execuci\" en lloc de \"execució\" i \"ecolgica\" en lloc de \"ecològica\".",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:29:10.923Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"Execuci de les obres del Projecte constructiu. Recuperaci ecolgica i ambiental de la Bassa dels necs a la Roca del Valls.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:29:10.923Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 3,
+      "errorTypes": {
+        "ERROR_GENERICO": 3
+      }
+    }
+  },
+  "PLIEGO_1768559372778": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768559372778",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:29:42.358Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1768559527500": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768559527500",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:32:17.562Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 0,
+      "totalWarnings": 0,
+      "errorTypes": {}
+    }
+  },
+  "PLIEGO_1768559684652": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768559684652",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:34:55.776Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:34:55.773Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:34:55.773Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Descripció de l'error: S'ha detectat un tag SAP sense reemplaçar en el document. Aquest tag hauria de contenir informació específica sobre la garantia provisional.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:34:55.773Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:34:55.773Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"Lot Descripció Pressupost euros (IVA inclòs) TOTAL euros (IVA no inclòs)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:34:55.773Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Descripció de l'advertència: La taula de pressupostos per lots està correctament sumada, però és important assegurar-se que els imports amb IVA i sense IVA estan clarament diferenciats i que no hi ha confusió entre ells.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:34:55.773Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 4,
+        "TAG_SIN_REEMPLAZAR": 1,
+        "ERROR_NUMERICO": 1
+      }
+    }
+  },
+  "PLIEGO_1768559817841": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768559817841",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:37:07.889Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:37:07.887Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Comentari intern que no hauria d'aparèixer al document final",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:37:07.887Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Text erroni: Oriol: Revisar la part del BIM",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:37:07.887Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:37:07.887Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Diferència entre el pressupost amb IVA i sense IVA que correspon al 21%, que és l'IVA, no un error.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:37:07.887Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: PRESSUPOST DE LICITACI: 502.228,26 euros (IVA inclòs), 415.064,68 euros (IVA no inclòs)",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:37:07.887Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "COMENTARIO_DESARROLLADOR": 1
+      }
+    }
+  },
+  "PLIEGO_1768560047197": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768560047197",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:40:59.204Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:40:59.200Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Comentari intern que no hauria d'aparèixer al document final",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:40:59.200Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Text erroni: Oriol: Revisar la part del BIM",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:40:59.200Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:40:59.200Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La taula de criteris d'adjudicació presenta una estructura incompleta en algunes files.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:40:59.200Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: Files 8.3.4 i 8.3.6 només tenen 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:40:59.200Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "COMENTARIO_DESARROLLADOR": 1
+      }
+    }
+  },
+  "PLIEGO_1768560296915": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768560296915",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T10:45:07.660Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:07.657Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Comentari intern que no hauria d'aparèixer al document final",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:07.657Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Text erroni: \"Oriol: Revisar la part del BIM\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:07.657Z"
+      }
+    ],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 0,
+      "errorTypes": {
+        "ERROR_GENERICO": 2,
+        "COMENTARIO_DESARROLLADOR": 1
+      }
+    }
+  },
+  "PLIEGO_1768560323095": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768560323095",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T10:45:34.076Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:34.074Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:34.074Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Descripció de l'error: S'ha detectat un tag SAP sense reemplaçar, el qual hauria de contenir informació específica sobre la garantia provisional.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:34.075Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:34.075Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"PRESSUPOST DE LICITACI: 13.748.439,43 euros (IVA inclòs), 11.362.346,64 euros (IVA no inclòs)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:34.075Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: Els imports amb i sense IVA estan correctament indicats, però és important assegurar-se que els valors són consistents amb la documentació de suport.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:34.075Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768560341183": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768560341183",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T10:45:49.282Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:49.281Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:49.281Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Descripció de l'error: S'ha detectat un tag SAP sense reemplaçar. Aquest camp hauria de contenir informació específica sobre la garantia provisional.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:49.281Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:49.281Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"PRESSUPOST DE LICITACI: 13.748.439,43 euros (IVA inclòs), 11.362.346,64 euros (IVA no inclòs)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:49.281Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: Els imports amb i sense IVA estan correctament indicats, però és important assegurar-se que els valors són consistents amb els documents de suport.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:45:49.281Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768560510271": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768560510271",
+      "fileName": "GISCT1080529.pdf",
+      "analyzedAt": "2026-01-16T10:48:41.991Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:48:41.989Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (2.126.416,00 EUR) no coincideix amb la suma dels lots (2.126.316,00 EUR). Hi ha una diferència de 100,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:48:41.989Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 2.126.416,00 EUR vs Suma de lots: 2.126.316,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:48:41.989Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 9.- REQUISITS D'APTITUD DELS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:48:41.989Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La classificació per als lots no està clara, ja que es menciona que no s'admeten classificacions amb categories indicades en lletres, però no es proporciona una alternativa clara.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:48:41.989Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"Per aquells Lots amb valor estimat igual o superior a 500.000 (IVA no inclòs), la classificació que consta al quadre següent és de caràcter obligatori.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:48:41.989Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 4,
+        "ERROR_NUMERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1768560683834": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768560683834",
+      "fileName": "GISCT1080529.pdf",
+      "analyzedAt": "2026-01-16T10:51:35.174Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:35.171Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (2.126.416,00 EUR) no coincideix amb la suma dels lots (2.126.316,00 EUR). Hi ha una diferència de 100,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:35.171Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 2.126.416,00 EUR vs Suma de lots: 2.126.316,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:35.171Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:35.171Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La informació sobre la documentació que es facilitarà als licitadors és incompleta o poc clara.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:35.171Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"[Els Manuals, Guies i Plecs de Prescripcions Tcniques es trobaran publicats de manera permanent a l'Apartat d'\"Altra documentaci\" del Perfil del Contractant d'Infraestructures.cat accessible a travs del segent enlla: https://contractaciopublica.cat/ca/perfils-contractant/detall/203633?categoria=0)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:35.171Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 4,
+        "ERROR_NUMERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1768560707195": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768560707195",
+      "fileName": "GISCT1080529.pdf",
+      "analyzedAt": "2026-01-16T10:51:56.855Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:56.853Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (2.126.416,00 EUR) no coincideix amb la suma dels lots (2.126.316,00 EUR). Hi ha una diferència de 100,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:56.853Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 2.126.416,00 EUR vs Suma de lots: 2.126.316,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:56.853Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 9.- REQUISITS D'APTITUD DELS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:56.853Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "La classificació per als lots no està clarament especificada, ja que es menciona que les categories indicades en lletres no són acceptades, però no es detalla quines són les categories correctes.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:56.853Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"Per aquells Lots amb valor estimat igual o superior a 500.000 (IVA no inclòs), la classificació que consta al quadre següent és de caràcter obligatori.\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:51:56.853Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 4,
+        "ERROR_NUMERICO": 2
+      }
+    }
+  },
+  "PLIEGO_1768560850784": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768560850784",
+      "fileName": "GISCT1080529.pdf",
+      "analyzedAt": "2026-01-16T10:54:21.638Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:54:21.635Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (2.126.416,00 EUR) no coincideix amb la suma dels lots (2.126.316,00 EUR). Hi ha una diferència de 100,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:54:21.635Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 2.126.416,00 EUR vs Suma de lots: 2.126.316,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:54:21.635Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:54:21.635Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text amb format incorrecte. No ha aplicat negreta. Ha de reemplaçar \"{B}\" i \"{/B}\" i aplicar negreta al text que hi ha entre aquestes etiquetes.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:54:21.635Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text a revisar: {B}Lot 1{/B} {B}Lot 2{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T10:54:21.635Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 2,
+        "ERROR_NUMERICO": 2,
+        "TAG_SIN_REEMPLAZAR": 2
+      }
+    }
+  },
+  "PLIEGO_1768561810230": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768561810230",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T11:10:21.944Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:10:21.941Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Comentari intern que no hauria d'aparèixer al document final",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:10:21.941Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Text erroni: Oriol: Revisar la part delBIM",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:10:21.941Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 8.3.1.- QUADRE D'APARTATS D'APLICACIÓ",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:10:21.941Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Taula incompleta: falten valors a les files 8.3.2 i 8.3.7 del quadre d'apartats d'aplicació",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:10:21.941Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: Fila 8.3.2 (Aplicació de la metodologia BIM) i Fila 8.3.7 (Compromís d'utilització de pintures amb etiqueta ecològica) només tenen 1 valor quan n'haurien de tenir 2",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:10:21.941Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "COMENTARIO_DESARROLLADOR": 1
+      }
+    }
+  },
+  "PLIEGO_1768561909328": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768561909328",
+      "fileName": "GISCT1080532.pdf",
+      "analyzedAt": "2026-01-16T11:11:58.700Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:11:58.698Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Comentari intern que no hauria d'aparèixer al document final",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:11:58.698Z"
+      },
+      {
+        "type": "COMENTARIO_DESARROLLADOR",
+        "description": "Text erroni: Oriol: Revisar la part del BIM",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:11:58.698Z"
+      }
+    ],
+    "warnings": [],
+    "summary": {
+      "totalCriticalErrors": 3,
+      "totalWarnings": 0,
+      "errorTypes": {
+        "ERROR_GENERICO": 2,
+        "COMENTARIO_DESARROLLADOR": 1
+      }
+    }
+  },
+  "PLIEGO_1768561992839": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768561992839",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T11:13:23.756Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:13:23.753Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:13:23.753Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Descripció de l'error: S'ha detectat un tag SAP sense reemplaçar. Aquest camp ha de ser substituït pel valor correcte de la garantia provisional.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:13:23.753Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:13:23.753Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"PRESSUPOST DE LICITACI: 13.748.439,43 euros (IVA inclòs), 11.362.346,64 euros (IVA no inclòs)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:13:23.753Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: Els imports amb i sense IVA estan correctament indicats, però és important assegurar-se que els valors són consistents amb els documents de suport.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:13:23.753Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768562031562": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768562031562",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T11:14:01.799Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:14:01.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:14:01.796Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Descripció de l'error: S'ha detectat un tag SAP sense reemplaçar. Aquest camp ha de ser substituït pel valor correcte de la garantia provisional.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:14:01.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:14:01.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"PRESSUPOST DE LICITACI: 13.748.439,43 euros (IVA inclòs), 11.362.346,64 euros (IVA no inclòs)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:14:01.796Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: Els imports amb IVA i sense IVA estan correctament indicats, però és important assegurar-se que els valors són consistents amb els documents de suport.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:14:01.796Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
+  },
+  "PLIEGO_1768562135106": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768562135106",
+      "fileName": "GISCT1080529.pdf",
+      "analyzedAt": "2026-01-16T11:15:44.770Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:15:44.768Z"
+      },
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Els números del pressupost no quadren: el total declarat (2.126.416,00 EUR) no coincideix amb la suma dels lots (2.126.316,00 EUR). Hi ha una diferència de 100,00 EUR.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:15:44.768Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "ERROR_NUMERICO",
+        "description": "Text erroni: Pressupost total: 2.126.416,00 EUR vs Suma de lots: 2.126.316,00 EUR",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:15:44.768Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:15:44.768Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text amb format incorrecte. No ha aplicat negreta. Ha de reemplaçar \"{B}\" i \"{/B}\" i aplicar negreta al text que hi ha entre aquestes etiquetes.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:15:44.768Z"
+      },
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Text a revisar: {B}Lot 1{/B} {B}Lot 2{/B}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:15:44.768Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 2,
+        "ERROR_NUMERICO": 2,
+        "TAG_SIN_REEMPLAZAR": 2
+      }
+    }
+  },
+  "PLIEGO_1768562607995": {
+    "metadata": {
+      "pliegoId": "PLIEGO_1768562607995",
+      "fileName": "GISCT1080406.pdf",
+      "analyzedAt": "2026-01-16T11:23:38.025Z",
+      "contextId": "default"
+    },
+    "criticalErrors": [
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 6.- GARANTIA PROVISIONAL",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:23:38.021Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text erroni: {Z_GAR_PROV}",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:23:38.021Z"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "TAG_SIN_REEMPLAZAR",
+        "description": "Descripció de l'error: S'ha detectat un tag SAP sense reemplaçar. Aquest camp ha de contenir la informació específica sobre la garantia provisional.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:23:38.021Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Ubicació: Apartat 2.- DADES ECONÒMIQUES",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:23:38.021Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Text a revisar: \"PRESSUPOST DE LICITACI: 13.748.439,43 euros (IVA inclòs), 11.362.346,64 euros (IVA no inclòs)\"",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:23:38.021Z"
+      },
+      {
+        "type": "ERROR_GENERICO",
+        "description": "Descripció de l'advertència: Els imports amb IVA i sense IVA estan correctament indicats, però és important assegurar-se que els valors són coherents amb els documents de suport.",
+        "location": "",
+        "context": "",
+        "detectedAt": "2026-01-16T11:23:38.021Z"
+      }
+    ],
+    "summary": {
+      "totalCriticalErrors": 2,
+      "totalWarnings": 4,
+      "errorTypes": {
+        "ERROR_GENERICO": 5,
+        "TAG_SIN_REEMPLAZAR": 1
+      }
+    }
   }
 }

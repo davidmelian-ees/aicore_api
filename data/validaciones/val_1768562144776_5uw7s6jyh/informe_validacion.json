@@ -1,0 +1,30 @@
+{
+  "correctionsList": "🔴 ERRORS CRÍTICS:\n- Ubicació: Apartat 2.- DADES ECONÒMIQUES\n - Els números del pressupost no quadren: el total declarat (2.126.416,00 EUR) no coincideix amb la suma dels lots (2.126.316,00 EUR). Hi ha una diferència de 100,00 EUR.\n - Text erroni: Pressupost total: 2.126.416,00 EUR vs Suma de lots: 2.126.316,00 EUR\n\n🟡 ADVERTÈNCIES:\n- Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES\n - Text amb format incorrecte. No ha aplicat negreta. Ha de reemplaçar \"{B}\" i \"{/B}\" i aplicar negreta al text que hi ha entre aquestes etiquetes.\n - Text a revisar: {B}Lot 1{/B} {B}Lot 2{/B}\n\n**NOTA IMPORTANT: Aquesta validació ha estat generada automàticament mitjançant intel·ligència artificial. Els resultats es basen en probabilitats matemàtiques i patrons apresos del context de plecs similars. És imprescindible revisar manualment tots els errors i advertències reportats, ja que la IA pot contenir imprecisions o falsos positius. Aquest informe és una eina d'ajuda, però la validació final sempre ha de ser realitzada per un professional qualificat.**",
+  "criticalErrors": 2,
+  "warnings": 4,
+  "visualAnalysis": {
+    "lineSpacing": {
+      "inconsistencies": [],
+      "standardSpacing": "1.15",
+      "totalInconsistencies": 0
+    },
+    "tableHeaders": {
+      "tablesWithoutBold": [],
+      "totalTables": 0,
+      "totalWithoutBold": 0
+    },
+    "tableWidths": {
+      "narrowTables": [],
+      "pageWidth": 595,
+      "usableWidth": 451,
+      "totalNarrowTables": 0
+    }
+  },
+  "metadata": {
+    "pliegoId": "PLIEGO_1768562135106",
+    "fileName": "GISCT1080529.pdf",
+    "fileSize": 2346496,
+    "processingTime": 10507,
+    "timestamp": "2026-01-16T11:15:44.776Z"
+  }
+}

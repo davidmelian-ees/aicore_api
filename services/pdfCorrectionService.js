@@ -762,11 +762,11 @@ BUSCA patrons com:
 SI TROBES aquests patrons → REPORTA amb aquest format:
 ⚠️ SUGGERIMENTS:
 - Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
-    - Text amb format incorrecte. No ha aplicat negreta.
+    - Text amb format incorrecte. No ha aplicat negreta. Ha de reemplaçar "{B}" i "{/B}" i aplicar negreta al text que hi ha entre aquestes etiquetes.
     - Text erroni: {B}annex 11{/B}
 
 - Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
-    - Text amb format incorrecte. No ha aplicat cursiva.
+    - Text amb format incorrecte. No ha aplicat cursiva. Ha de reemplaçar "{I}" i "{/I}" i aplicar cursiva al text que hi ha entre aquestes etiquetes.
     - Text erroni: {I}annex 11{/I}
 
 🚨🚨🚨 REGLA CRÍTICA ANTI-ALUCINACIÓ 🚨🚨🚨

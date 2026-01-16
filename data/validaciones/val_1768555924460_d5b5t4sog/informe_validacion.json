@@ -1,0 +1,30 @@
+{
+  "correctionsList": "🔴 ERRORS CRÍTICS:\n- Ubicació: Apartat 1.- OBJECTE\n - Text incorrecte o informació incompleta detectada\n - Text erroni: \"contracte d'execuci de les obres de execuci de les obres\"\n\n- Ubicació: Apartat 2.- DADES ECONÒMIQUES\n - Els números del pressupost no quadren: el total declarat (502.228,26 EUR) no coincideix amb la suma dels lots (415.064,68 EUR). Hi ha una diferència de 87.163,58 EUR\n - Text erroni: Pressupost total: 502.228,26 EUR vs Suma de lots: 415.064,68 EUR\n\n- Ubicació: Apartat 1.- OBJECTE\n - El Codi CPV ha de començar amb un número (exemple: 45233140-2)\n - Text erroni: Codi CPV: 2648153-9 #INICI_AJUST_TAULES#\n\n🟡 ADVERTÈNCIES:\n- Ubicació: Apartat 2.- DADES ECONÒMIQUES\n - Possible text en castellà detectat\n - Text a revisar: \"presupuesto de licitación\"\n\n**NOTA IMPORTANT: Aquesta validació ha estat generada automàticament mitjançant intel·ligència artificial. Els resultats es basen en probabilitats matemàtiques i patrons apresos del context de plecs similars. És imprescindible revisar manualment tots els errors i advertències reportats, ja que la IA pot contenir imprecisions o falsos positius. Aquest informe és una eina d'ajuda, però la validació final sempre ha de ser realitzada per un professional qualificat.**",
+  "criticalErrors": 8,
+  "warnings": 4,
+  "visualAnalysis": {
+    "lineSpacing": {
+      "inconsistencies": [],
+      "standardSpacing": "1.15",
+      "totalInconsistencies": 0
+    },
+    "tableHeaders": {
+      "tablesWithoutBold": [],
+      "totalTables": 0,
+      "totalWithoutBold": 0
+    },
+    "tableWidths": {
+      "narrowTables": [],
+      "pageWidth": 595,
+      "usableWidth": 451,
+      "totalNarrowTables": 0
+    }
+  },
+  "metadata": {
+    "pliegoId": "PLIEGO_1768555915692",
+    "fileName": "CT0098875",
+    "fileSize": 1692160,
+    "processingTime": 9564,
+    "timestamp": "2026-01-16T09:32:04.460Z"
+  }
+}
