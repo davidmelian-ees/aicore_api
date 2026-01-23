@@ -8,9 +8,12 @@ import analyticsRoutes from "./routes/analytics.js";
 import authRoutes from "./routes/auth.js";
 import pliegoErrorsRoutes from "./routes/pliegoErrors.js";
 import logsRoutes from "./routes/logs.js";
+import chatHistoryRoutes from "./routes/chatHistory.js";
+import aiCoreHealthRoutes from "./routes/aiCoreHealth.js";
 import { requestLogger, extractUsername } from "./middleware/requestLogger.js";
 import { initializeSampleData } from "./scripts/init-sample-data.js";
 import { persistenceManager } from "./services/persistenceManager.js";
+import validacionService from "./services/validacionService.js";
 
 const app = express();
 
@@ -164,11 +167,13 @@ if (isProduction) {
 // Configurar rutas de la API
 app.use('/api/chat', chatRoutes);
 app.use('/api/rag', ragRoutes);
+app.use('/api/chat-history', chatHistoryRoutes);
 // IMPORTANTE: Registrar rutas específicas ANTES de las rutas con parámetros dinámicos
 app.use('/api/pdf-correction/errors', pliegoErrorsRoutes);
 app.use('/api/pdf-correction', pdfCorrectionRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/logs', logsRoutes);
+app.use('/api/ai-core', aiCoreHealthRoutes);
 
 // Rutas de autenticación SIEMPRE disponibles (incluso en desarrollo)
 app.use('/oauth', authRoutes);
@@ -234,6 +239,11 @@ async function startServer() {
   try {
     // Inicializar sistema de persistencia
     await persistenceManager.initialize();
+    
+    // Inicializar servicio de validaciones
+    console.log('💾 Inicializando servicio de validaciones...');
+    await validacionService.initialize();
+    console.log('✅ Servicio de validaciones listo');
     
     if (isProduction) {
       console.log('📄 Inicializando datos de ejemplo para Cloud Foundry...');

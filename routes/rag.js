@@ -51,7 +51,9 @@ const upload = multer({
     // Tipos de archivo permitidos
     const allowedTypes = [
       'text/plain',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+      'application/msword', // .doc
+      'application/vnd.ms-word', // .doc (alternativo)
       'text/markdown',
       'application/json',
       'text/csv',
@@ -60,14 +62,14 @@ const upload = multer({
       'application/vnd.ms-excel' // .xls
     ];
     
-    const allowedExtensions = ['.txt', '.docx', '.md', '.json', '.csv', '.pdf', '.xlsx', '.xls'];
+    const allowedExtensions = ['.txt', '.doc', '.docx', '.md', '.json', '.csv', '.pdf', '.xlsx', '.xls'];
     
     const fileExtension = path.extname(file.originalname).toLowerCase();
     
     if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(fileExtension)) {
       cb(null, true);
     } else {
-      cb(new Error(`Tipo de archivo no soportado: ${file.mimetype}. Permitidos: txt, docx, md, json, csv, pdf, xlsx, xls`));
+      cb(new Error(`Tipo de archivo no soportado: ${file.mimetype}. Permitidos: txt, doc, docx, md, json, csv, pdf, xlsx, xls`));
     }
   }
 });
@@ -231,6 +233,39 @@ router.delete("/contexts/:contextId", async (req, res) => {
     res.status(500).json({ 
       success: false,
       error: "Error eliminando contexto",
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * DELETE /api/rag/contexts/:contextId/documents
+ * Limpia todos los documentos de un contexto sin eliminar el contexto
+ */
+router.delete("/contexts/:contextId/documents", async (req, res) => {
+  try {
+    const { contextId } = req.params;
+    const { clearContextDocuments } = await import('../services/ragService.js');
+    const result = await clearContextDocuments(contextId);
+
+    if (!result.cleared) {
+      return res.status(404).json({
+        success: false,
+        error: result.reason || "No se pudieron limpiar los documentos"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Documentos eliminados del contexto: ${result.documentsDeleted} documentos`,
+      result
+    });
+
+  } catch (error) {
+    console.error("[RAG API] Error limpiando documentos del contexto:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Error limpiando documentos del contexto",
       details: error.message 
     });
   }
@@ -1316,6 +1351,143 @@ router.get('/backup/stats', async (req, res) => {
       success: false,
       error: 'Error obteniendo estadísticas de backups',
       details: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/rag/diagnose-embeddings
+ * Diagnostica embeddings corruptos en la base de datos
+ * Query params:
+ *   - contextId: ID del contexto a diagnosticar (opcional)
+ */
+router.get('/diagnose-embeddings', async (req, res) => {
+  try {
+    console.log('[RAG API] 🔍 Diagnosticando embeddings...');
+    
+    const { contextId } = req.query;
+    const { sqliteVectorStore } = await import('../services/sqliteVectorStore.js');
+    
+    // Inicializar si no está inicializado
+    if (!sqliteVectorStore.isInitialized) {
+      console.log('[RAG API] Inicializando SQLite Vector Store...');
+      try {
+        await sqliteVectorStore.initialize();
+      } catch (initError) {
+        console.error('[RAG API] ❌ Error inicializando SQLite:', initError);
+        return res.status(503).json({
+          success: false,
+          error: 'No se pudo inicializar SQLite Vector Store',
+          details: initError.message
+        });
+      }
+    }
+    
+    const report = sqliteVectorStore.diagnoseEmbeddings(contextId || null);
+    
+    res.json({
+      success: true,
+      message: 'Diagnóstico completado',
+      report,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('[RAG API] ❌ Error diagnosticando embeddings:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error diagnosticando embeddings',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/rag/repair-embeddings
+ * Repara embeddings corruptos regenerándolos
+ * Body params:
+ *   - documentIds: Array de IDs de documentos a reparar (opcional, si no se proporciona repara todos los corruptos)
+ */
+router.post('/repair-embeddings', async (req, res) => {
+  try {
+    console.log('[RAG API] 🔧 Reparando embeddings...');
+    
+    const { documentIds } = req.body;
+    const { sqliteVectorStore } = await import('../services/sqliteVectorStore.js');
+    
+    if (!sqliteVectorStore.isInitialized) {
+      return res.status(503).json({
+        success: false,
+        error: 'SQLite Vector Store no está inicializado'
+      });
+    }
+    
+    const result = await sqliteVectorStore.repairEmbeddings(documentIds || null);
+    
+    res.json({
+      success: true,
+      message: `Reparación completada: ${result.repaired} embeddings reparados, ${result.failed} fallidos`,
+      result,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('[RAG API] ❌ Error reparando embeddings:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error reparando embeddings',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/rag/normalize-embeddings
+ * Normaliza todos los embeddings a la misma dimensión (SAP AI Core 1536D)
+ * Body params:
+ *   - targetDimension: Dimensión objetivo (opcional, por defecto 1536)
+ */
+router.post('/normalize-embeddings', async (req, res) => {
+  try {
+    console.log('[RAG API] 🔄 Normalizando embeddings...');
+    
+    const targetDimension = req.body?.targetDimension || 1536;
+    const { sqliteVectorStore } = await import('../services/sqliteVectorStore.js');
+    
+    // Inicializar si no está inicializado
+    if (!sqliteVectorStore.isInitialized) {
+      console.log('[RAG API] Inicializando SQLite Vector Store...');
+      try {
+        await sqliteVectorStore.initialize();
+      } catch (initError) {
+        console.error('[RAG API] ❌ Error inicializando SQLite:', initError);
+        return res.status(503).json({
+          success: false,
+          error: 'No se pudo inicializar SQLite Vector Store',
+          details: initError.message
+        });
+      }
+    }
+    
+    console.log(`[RAG API] Normalizando a dimensión: ${targetDimension}`);
+    const result = await sqliteVectorStore.normalizeEmbeddings(targetDimension);
+    
+    res.json({
+      success: true,
+      message: result.message || `Normalización completada: ${result.normalized} embeddings normalizados, ${result.failed} fallidos`,
+      result,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('[RAG API] ❌ Error normalizando embeddings:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error normalizando embeddings',
+      details: error.message,
+      timestamp: new Date().toISOString()
     });
   }
 });

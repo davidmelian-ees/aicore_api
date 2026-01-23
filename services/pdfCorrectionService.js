@@ -14,6 +14,71 @@ import path from 'path';
  * 2. Aplicar correcciones directamente por replace
  */
 
+// Función para filtrar errores/advertencias prohibidos del informe de validación
+function filterProhibitedErrors(validationReport) {
+  if (!validationReport) return validationReport;
+  
+  let filteredReport = validationReport;
+  
+  // FILTRO 1: Eliminar advertencias sobre Apartado 18 - Documentación
+  // Patrón: cualquier advertencia que mencione "Apartat 18" o "DOCUMENTACIÓ A PRESENTAR" 
+  // y contenga "informació" + "documentació" + "incompleta" o "poc clara"
+  const apartado18Pattern = /🟡\s*ADVERTÈNCIES:[\s\S]*?-\s*Ubicació:\s*Apartat\s*18\..*?DOCUMENTACIÓ.*?[\s\S]*?-\s*.*?(informació|documentació).*?(incompleta|poc clara|facilitarà als licitadors)[\s\S]*?-\s*Text a revisar:[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
+  filteredReport = filteredReport.replace(apartado18Pattern, '');
+  
+  // FILTRO 2A: Eliminar errores críticos de presupuesto que son diferencias de IVA (21%)
+  // Buscar patrones como "502.228,26 EUR" vs "415.064,68 EUR" y verificar si es ~21%
+  const budgetErrorPattern = /🔴\s*ERRORS CRÍTICS:[\s\S]*?-\s*Ubicació:\s*Apartat\s*2\..*?DADES ECONÒMIQUES[\s\S]*?-\s*.*?números del pressupost no quadren[\s\S]*?-\s*Text erroni:.*?(\d{1,3}(?:\.\d{3})*,\d{2})\s*EUR.*?(\d{1,3}(?:\.\d{3})*,\d{2})\s*EUR[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
+  
+  filteredReport = filteredReport.replace(budgetErrorPattern, (match, amount1, amount2) => {
+    // Convertir importes de formato europeo (1.234,56) a número
+    const parseAmount = (str) => parseFloat(str.replace(/\./g, '').replace(',', '.'));
+    const num1 = parseAmount(amount1);
+    const num2 = parseAmount(amount2);
+    
+    if (!num1 || !num2) return match; // Si no se pueden parsear, mantener el error
+    
+    const diff = Math.abs(num1 - num2);
+    const smaller = Math.min(num1, num2);
+    const percentage = diff / smaller;
+    
+    // Si la diferencia está entre 20% y 22% (aproximadamente 21% = IVA), eliminar el error
+    if (percentage >= 0.20 && percentage <= 0.22) {
+      console.log(`[FILTRO] Eliminando error crítico de IVA: ${num1} vs ${num2} (diferencia ${(percentage * 100).toFixed(2)}%)`);
+      return '';
+    }
+    
+    return match; // Mantener el error si no es IVA
+  });
+  
+  // FILTRO 2B: Eliminar advertencias sobre diferencias de IVA del 21% en Apartado 2
+  // Patrón: advertencias que mencionan "Diferència" + "IVA" + "21%" en Apartado 2
+  const budgetWarningPattern = /🟡\s*ADVERTÈNCIES:[\s\S]*?-\s*Ubicació:\s*Apartat\s*2\..*?DADES ECONÒMIQUES[\s\S]*?-\s*.*?(Diferència|diferència).*?(IVA|pressupost).*?(21%|vint-i-un per cent)[\s\S]*?-\s*Text a revisar:[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
+  
+  filteredReport = filteredReport.replace(budgetWarningPattern, (match) => {
+    console.log(`[FILTRO] Eliminando advertencia de IVA 21%: ${match.substring(0, 100)}...`);
+    return '';
+  });
+  
+  // FILTRO 3: Eliminar advertencias sobre estructura incompleta en tablas de criterios de adjudicación
+  // Patrón: advertencias sobre "estructura incompleta" o "només tenen 1 valor" en Apartado 15 (Criteris d'adjudicació)
+  const criteriaTablePattern = /🟡\s*ADVERTÈNCIES:[\s\S]*?-\s*Ubicació:\s*Apartat\s*15\..*?CRITERIS D'ADJUDICACIÓ[\s\S]*?-\s*.*?(estructura incompleta|només tenen 1 valor|n'haurien de tenir 2)[\s\S]*?-\s*Text a revisar:[\s\S]*?(?=(?:🟡\s*ADVERTÈNCIES:|🔴\s*ERRORS CRÍTICS:|\*\*NOTA IMPORTANT|$))/gi;
+  
+  filteredReport = filteredReport.replace(criteriaTablePattern, (match) => {
+    console.log(`[FILTRO] Eliminando advertencia sobre tabla de criterios: ${match.substring(0, 100)}...`);
+    return '';
+  });
+  
+  // Limpiar secciones vacías
+  filteredReport = filteredReport.replace(/🔴\s*ERRORS CRÍTICS:\s*(?=(?:🟡\s*ADVERTÈNCIES:|\*\*NOTA IMPORTANT|$))/gi, '');
+  filteredReport = filteredReport.replace(/🟡\s*ADVERTÈNCIES:\s*(?=(?:\*\*NOTA IMPORTANT|$))/gi, '');
+  
+  // Limpiar líneas vacías múltiples
+  filteredReport = filteredReport.replace(/\n{3,}/g, '\n\n');
+  
+  return filteredReport.trim();
+}
+
 // Función para limpiar y normalizar texto con caracteres especiales
 function cleanTextEncoding(text) {
   if (!text) return text;
@@ -81,13 +146,19 @@ async function loadValidationPrompts() {
       erroresComunes,
       validationSystem,
       analisisPliegos,
-      ejemplosErrores
+      ejemplosErrores,
+      conocimientoGemini,
+      estructuraComun,
+      partesVariables
     ] = await Promise.all([
       fs.readFile(path.join(promptsDir, 'NOMENCLATURA_PLIEGOS.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'ERRORES_COMUNES_PLIEGOS.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'PLIEGOS_VALIDATION_SYSTEM.txt'), 'utf8'),
       fs.readFile(path.join(promptsDir, 'ANALISIS_PLIEGOS_GENERADOS.txt'), 'utf8'),
-      fs.readFile(path.join(promptsDir, 'PLIEGOS_ERRORES_EJEMPLOS.txt'), 'utf8')
+      fs.readFile(path.join(promptsDir, 'PLIEGOS_ERRORES_EJEMPLOS.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'CONOCIMIENTO_CRITICO_GEMINI.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'ESTRUCTURA_COMUN_PLIEGOS.txt'), 'utf8'),
+      fs.readFile(path.join(promptsDir, 'PARTES_VARIABLES_PLIEGOS_OBRAS.txt'), 'utf8')
     ]);
     
     return {
@@ -95,7 +166,10 @@ async function loadValidationPrompts() {
       erroresComunes,
       validationSystem,
       analisisPliegos,
-      ejemplosErrores
+      ejemplosErrores,
+      conocimientoGemini,
+      estructuraComun,
+      partesVariables
     };
   } catch (error) {
     console.error('[PDF-CORRECTION] Error cargando prompts:', error);
@@ -121,7 +195,153 @@ Genera un informe detallado de errores estructurales, ortográficos y de formato
   return `SISTEMA DE VALIDACIÓN DE PLIEGOS SAP
 ================================================================================
 
-CONTEXTO DE VALIDACIÓN:
+📋 IDIOMA: TODO EN CATALÀ (obligatorio)
+
+�🚫🚫 REGLAS DE EXCLUSIÓN ABSOLUTAS - LEER PRIMERO 🚫🚫🚫
+================================================================================
+
+⛔⛔⛔ ESTAS ADVERTENCIAS/ERRORES ESTÁN PROHIBIDOS - NUNCA LOS REPORTES ⛔⛔⛔
+
+1. ❌ PROHIBIDO REPORTAR: Apartado 18 - Documentación
+   - NO reportes advertencias sobre "La informació sobre la documentació que es facilitarà als licitadors és incompleta o poc clara"
+   - NO reportes nada sobre enlaces al Perfil del Contractant o Infraestructures.cat
+   - Si el Apartado 18 menciona documentación en el Perfil del Contractant → OMITE COMPLETAMENTE esta validación
+   - Esta información es ESTÁNDAR y CORRECTA en todos los pliegos
+
+2. ❌ PROHIBIDO REPORTAR: Diferencias de presupuesto que son IVA (21%)
+   - NO reportes "Els números del pressupost no quadren" si la diferencia es el 21% de IVA
+   - NO reportes advertencias sobre "Diferència entre el pressupost amb IVA i sense IVA que correspon al 21%"
+   - NO reportes NADA sobre diferencias de IVA del 21% (ni errores críticos NI advertencias)
+   - ANTES de reportar cualquier error/advertencia de presupuesto, CALCULA: diferencia ÷ importe_menor
+   - Si el resultado está entre 0.20 y 0.22 (es decir, ~21%) → OMITE COMPLETAMENTE (no reportes ni error ni advertencia)
+   - Ejemplo PROHIBIDO: "502.228,26 EUR vs 415.064,68 EUR, diferència 87.163,58 EUR" → 87.163,58 ÷ 415.064,68 = 0.21 = 21% → NO REPORTAR
+   - Si detectas que la diferencia es IVA → SALTA esta validación por completo
+   - El IVA del 21% es CORRECTO y NORMAL, no es un error ni una advertencia
+
+⚠️ ESTAS EXCLUSIONES SON OBLIGATORIAS Y NO NEGOCIABLES ⚠️
+Si encuentras estos casos, IGNÓRALOS COMPLETAMENTE como si no existieran.
+
+================================================================================
+
+�🚨🚨 REGLA SUPREMA: CONTEXTO RAG PRIMERO 🚨🚨🚨
+================================================================================
+
+ANTES de aplicar cualquier regla, ESTUDIA el contexto RAG de los 18 pliegos de referencia.
+El contexto RAG contiene pliegos REALES y CORRECTOS que debes usar como MODELO.
+
+✅ Si algo aparece en los pliegos de referencia → ES CORRECTO
+✅ Si algo NO aparece en los pliegos de referencia → PUEDE ser un error
+❌ NUNCA reportes como error algo que ves en los pliegos de referencia
+
+================================================================================
+
+🎯 PRIORIDADES DE VALIDACIÓN (en orden de importancia):
+
+1️⃣ CONTEXTO RAG (MÁXIMA PRIORIDAD - OBLIGATORIO)
+   El contexto de pliegos similares es LA FUENTE MÁS IMPORTANTE.
+   ANTES de reportar cualquier error, verifica si ese patrón existe en el contexto.
+   Si el contexto muestra que todos los pliegos tienen X → debe existir.
+   Si el contexto muestra que algo es normal → NO es un error.
+   APRENDE del contexto y aplica ese conocimiento.
+
+2️⃣ DATOS ECONÓMICOS
+   - Presupuesto vs suma de lots (SOLO si diferència > 0,01 EUR)
+   - 🛑 Si diferència ≤ 0,01 EUR (0,00 o 0,01) → NO reportar RES
+   - Diferencias de 0,01 EUR son redondeos normales, NO son errores
+   - 🛑 DIFERENCIA DE IVA (21%) NO ES ERROR (ver regla abajo)
+   - Coherencia IVA inclòs/no inclòs
+
+3️⃣ TAGS SAP SIN RELLENAR
+   - {B}, {/B}, {I}, {/I}
+   - ZRM_, ZVRM_, &INCLUDE
+   - <variables> sin reemplazar
+
+4️⃣ COMENTARIOS DE DESARROLLADOR
+   - "Oriol:", "David:", "Maria:" seguido de instrucciones
+   - "S'haurà de treure", "Escollir", "TODO:", "Pendiente"
+
+5️⃣ LOGOS Y ELEMENTOS VISUALES
+   - Logo Generalitat en portada
+   - Elementos gráficos en posiciones correctas
+
+================================================================================
+🚨🚨🚨 REGLAS CRÍTICAS ABSOLUTAS 🚨🚨🚨
+================================================================================
+
+❌ NO inventar campos variables (ZRM_, ZVRM_, {B}, {/B}) si no los ves LITERALMENTE en el documento
+❌ NO reportar "CAMPS VARIABLES DETECTATS" si no ves esos campos EXACTOS en el texto
+❌ NO reportar error si diferència pressupost ≤ 0,01 EUR (0,00 o 0,01 son redondeos)
+❌ NO reportar error en tablas APLICA/NO APLICA (los salts de línia son NORMALES en PDFs)
+❌ NO reportar error si la diferencia entre dos importes es exactamente el 21% (IVA)
+
+🛑🛑🛑 REGLA CRÍTICA SOBRE IVA (21%) 🛑🛑🛑
+Si ves dos importes y la diferencia es aproximadamente el 21%, NO ES UN ERROR.
+Ejemplo:
+- Pressupost: 502.228,26 EUR (IVA inclòs)
+- Valor global estimat: 415.064,68 EUR (IVA no inclòs)
+- Diferencia: 87.163,58 EUR = 21% de 415.064,68 → ESTO ES EL IVA, NO UN ERROR
+
+✅ Si la diferencia es ~21% del importe menor → NO REPORTAR ERROR
+✅ Son el mismo presupuesto expresado con/sin IVA
+✅ NUNCA reportes como error crítico una diferencia que corresponde al 21% de IVA
+
+🛑🛑🛑 REGLAS DE EXCLUSIÓN ESPECÍFICAS 🛑🛑🛑
+
+❌❌❌ NUNCA REPORTAR ESTAS ADVERTENCIAS/ERRORES ❌❌❌
+
+1. APARTADO 18 - DOCUMENTACIÓN:
+   ❌ NO reportar advertencia sobre documentación incompleta o poco clara en el Apartado 18
+   ❌ NO reportar: "La informació sobre la documentació que es facilitarà als licitadors és incompleta o poc clara"
+   ✅ Si el Apartado 18 menciona enlaces a documentación externa (Perfil del Contractant, etc.) → ES CORRECTO
+   ✅ Esta información es estándar y válida en todos los pliegos
+
+2. DIFERENCIAS DE PRESUPUESTO QUE SON IVA (21%):
+   ❌ NO reportar como error crítico si la diferencia entre dos importes es exactamente el 21%
+   ❌ NO reportar: "Els números del pressupost no quadren" cuando la diferencia es el IVA
+   ✅ Si diferencia = 21% del importe menor → Son el mismo presupuesto con/sin IVA
+   ✅ Ejemplo: 502.228,26 EUR vs 415.064,68 EUR → diferencia 87.163,58 EUR = 21% → NO ES ERROR
+
+🛑🛑🛑 REGLA CRÍTICA ABSOLUTA SOBRE TABLAS APLICA/NO APLICA 🛑🛑🛑
+
+❌❌❌ NUNCA REPORTES ERROR EN TABLAS APLICA/NO APLICA ❌❌❌
+
+Los PDFs convertidos a texto tienen saltos de línea DENTRO de las celdas.
+Esto es COMPLETAMENTE NORMAL en TODOS los pliegos del contexto RAG.
+
+Ejemplo de texto que viene del PDF:
+"8.3.2. Aplicació de la metodologia BIM NO APLICA NO
+APLICA"
+"8.3.7. Compromís d'utilització de pintures NO APLICA NO
+APLICA"
+
+Esto significa: "NO APLICA" + "NO APLICA" (2 valores con salto de línea)
+✅ El segundo valor está en la línea siguiente - ESTO ES NORMAL
+✅ Los pliegos del contexto RAG tienen EXACTAMENTE el mismo formato
+✅ Si ves "NO APLICA NO\nAPLICA" = 2 valores = CORRECTO
+
+🚨🚨🚨 REGLA ABSOLUTA: IGNORA COMPLETAMENTE las tablas APLICA/NO APLICA
+🚨🚨🚨 NO reportes NINGÚN error sobre estas tablas
+🚨🚨🚨 El formato con saltos de línea es el CORRECTO según el contexto RAG
+
+🛑 REGLA CRÍTICA SOBRE CAMPOS VARIABLES:
+SOLO reporta campos ZRM_, ZVRM_, {B}, {/B} si los ves LITERALMENTE escritos.
+❌ NO escribas "CAMPS VARIABLES DETECTATS: ZRM_DM_MAT_CO2" si no ves ese texto exacto
+❌ NO inventes ejemplos de campos
+✅ Si no ves campos variables → NO menciones nada sobre campos variables
+
+✅ SOLO reportar lo que VES en el documento
+✅ Usar el contexto RAG como referencia principal
+
+================================================================================
+⚠️⚠️⚠️ CONOCIMIENTO CRÍTICO (GEMINI) ⚠️⚠️⚠️
+================================================================================
+
+${prompts.conocimientoGemini}
+
+================================================================================
+CONTEXTO RAG - PLIEGOS SIMILARES (PRIORIDAD MÁXIMA)
+================================================================================
+
 ${prompts.validationSystem}
 
 ERRORES COMUNES A DETECTAR:
@@ -180,14 +400,50 @@ INSTRUCCIONES DE VALIDACIÓN:
    
    NUNCA reportes un error sin indicar su ubicación exacta en el documento.
 
-3. REALIZA CÁLCULOS MATEMÁTICOS EXPLÍCITOS:
-   - Si encuentras "PRESSUPOST DE LICITACIÓ" o "PRESUPUESTO DE LICITACIÓN"
-   - EXTRAE el importe total declarado
-   - BUSCA la tabla de lotes inmediatamente después
-   - EXTRAE todos los importes de cada lote
-   - SUMA manualmente: Lot1 + Lot2 + Lot3 + ... = TOTAL
-   - COMPARA: ¿TOTAL calculado == TOTAL declarado?
-   - Si NO coinciden: REPORTA como ERROR CRÍTICO con cálculos explícitos
+3. REALIZA CÁLCULOS MATEMÁTICOS EXPLÍCITOS (SOLO SI HAY LOTES):
+   
+   ⚠️⚠️⚠️ REGLAS CRÍTICAS PARA VALIDACIÓN NUMÉRICA ⚠️⚠️⚠️
+   
+   A) IDENTIFICAR SI HAY LOTES:
+      - Busca en el texto: "Lot 1", "Lot 2", "Lote 1", "Lote 2", etc.
+      - Busca apartado "LOTITZACIÓ" y verifica si dice "SÍ" o "NO"
+      - Si NO encuentras lotes → SALTA ESTA VALIDACIÓN COMPLETAMENTE
+      - Si encuentras lotes → Continúa con validación numérica
+   
+   B) IVA INCLUIDO VS IVA NO INCLUIDO (NO ES UN ERROR):
+      - Si ves: "5.720.043,51 euros (IVA inclòs), 4.727.308,69 euros (IVA no inclòs)"
+      - Esto NO es un error - Son dos formas de expresar el mismo presupuesto
+      - NUNCA compares el importe con IVA vs el importe sin IVA
+      - SOLO compara importes de la MISMA categoría (ambos con IVA o ambos sin IVA)
+   
+   C) VALIDACIÓN NUMÉRICA (SOLO SI HAY LOTES):
+      - Identifica si el presupuesto está con IVA o sin IVA
+      - EXTRAE el importe total declarado (con IVA o sin IVA, según corresponda)
+      - BUSCA la tabla de lotes inmediatamente después
+      - VERIFICA que los lotes estén en la MISMA categoría (con IVA o sin IVA)
+      - EXTRAE todos los importes de cada lote
+      - SUMA manualmente: Lot1 + Lot2 + Lot3 + ... = TOTAL
+      - COMPARA: ¿TOTAL calculado == TOTAL declarado?
+      - CALCULA LA DIFERENCIA: |TOTAL calculado - TOTAL declarado|
+   
+   D) VERIFICAR SI LA DIFERENCIA ES IVA (21%):
+      - ANTES de reportar cualquier error, calcula: diferencia / importe_menor
+      - Si el resultado está entre 0.20 y 0.22 (aprox. 21%) → ES IVA, NO ES ERROR
+      - Ejemplo: diferencia 87.163,58 / importe 415.064,68 = 0.21 = 21% → NO REPORTAR
+      - ⚠️ CRÍTICO: NUNCA reportes como error una diferencia que corresponde al IVA
+   
+   E) REPORTE DE ERRORES:
+      - ⚠️ CRÍTICO: Si la diferencia es CERO (0,00 EUR) → NO reportes NINGÚN error
+      - ⚠️ CRÍTICO: Si la diferencia es 0,01 EUR o menos → NO reportes error (redondeo)
+      - ⚠️ CRÍTICO: Si la diferencia es ~21% del importe menor → NO reportes error (es IVA)
+      - ⚠️ CRÍTICO: SOLO si la diferencia es MAYOR que 0,01 EUR Y NO es IVA → REPORTA como ERROR CRÍTICO
+      - Si coinciden exactamente (diferencia = 0) → NO reportes nada, está correcto
+   
+   F) SI NO HAY LOTES:
+      - NO busques tabla de lotes
+      - NO hagas ninguna suma
+      - NO reportes ningún error numérico
+      - Simplemente verifica que existe el presupuesto declarado
 
 4. VALIDA TABLAS APLICA/NO APLICA COLUMNA POR COLUMNA:
    - Si encuentras tabla con columnas "APLICA" y "NO APLICA"
@@ -198,90 +454,232 @@ INSTRUCCIONES DE VALIDACIÓN:
    - REPORTA con número de fila y nombre del criterio
 
 5. DETECTA COMENTARIOS DE DESARROLLADORES Y TAGS SAP:
-   - BUSCA texto con nombre + dos puntos: "Oriol:", "David:", "Maria:"
-   - BUSCA instrucciones técnicas: "S'haurà de treure", "no treure", "Escollir"
-   - BUSCA variables SAP sin reemplazar que empiecen con Z: ZRM_, ZVRM_, ZVRM_QDC_
-   - BUSCA referencias a tablas SAP: "si hi ha valors a la taula ZRM_"
-   - BUSCA condiciones técnicas: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000"
-   - Si encuentras CUALQUIERA de estos: ERROR CRÍTICO
+   
+   ⚠️⚠️⚠️ IMPORTANTE: SÉ EXTREMADAMENTE PRECISO ⚠️⚠️⚠️
+   SOLO reporta comentarios de desarrollador si REALMENTE existen en el texto.
+   NO inventes ni asumas que hay comentarios si no los ves explícitamente.
+   
+   A) COMENTARIOS DE DESARROLLADORES (SOLO SI EXISTEN):
+      Patrones EXACTOS a buscar:
+      - "Oriol:" seguido de texto (ej: "Oriol: revisar este apartado")
+      - "David:" seguido de texto (ej: "David: pendiente de actualizar")
+      - "Maria:" seguido de texto
+      - "Nombre:" seguido de instrucciones técnicas
+      
+      Instrucciones técnicas EXACTAS:
+      - "S'haurà de treure" (literal)
+      - "Escollir" (literal)
+      - "Revisar" (literal)
+      - "Pendiente" (literal)
+      - "TODO:" (literal)
+      
+      ⚠️ SI NO ENCUENTRAS ESTOS PATRONES EXACTOS → NO REPORTES NADA
+   
+   B) TAGS SAP SIN REEMPLAZAR (SOLO SI EXISTEN):
+      Patrones EXACTOS a buscar:
+      - ZRM_ (ej: ZRM_VARIABLE)
+      - ZVRM_ (ej: ZVRM_CAMPO)
+      - {B} o {/B} (tags de negrita)
+      - {I} o {/I} (tags de cursiva)
+      - &INCLUDE (código ABAP)
+      - <variable> sin reemplazar
+      
+      ⚠️ SI NO ENCUENTRAS ESTOS PATRONES EXACTOS → NO REPORTES NADA
+   
+   C) REPORTE (SOLO SI ENCUENTRAS ALGO):
+      - REPORTA cada ocurrencia con ubicación exacta
+      - Cita el texto EXACTO encontrado
+      - NO reportes falsos positivos
 
-6. GENERA un informe detallado con:
+6. EXCLUSIONES OBLIGATORIAS - NO REPORTAR:
+   
+   ⚠️⚠️⚠️ APARTADO 18 - DOCUMENTACIÓN ⚠️⚠️⚠️
+   ❌ NUNCA reportar advertencias sobre el Apartado 18.- DOCUMENTACIÓ A PRESENTAR
+   ❌ NO reportar: "La informació sobre la documentació que es facilitarà als licitadors és incompleta o poc clara"
+   ❌ NO reportar advertencias sobre enlaces a documentación externa (Perfil del Contractant, Infraestructures.cat, etc.)
+   ✅ Si el Apartado 18 menciona que los documentos están en el Perfil del Contractant → ES CORRECTO Y VÁLIDO
+   ✅ Esta es la forma estándar de proporcionar documentación en todos los pliegos
+   
+   ⚠️⚠️⚠️ DIFERENCIAS DE IVA (21%) ⚠️⚠️⚠️
+   ❌ NUNCA reportar como error crítico diferencias que corresponden al 21% de IVA
+   ❌ NO reportar: "Els números del pressupost no quadren" si la diferencia es exactamente el IVA
+   ✅ Calcula siempre: diferencia / importe_menor
+   ✅ Si el resultado es ~0.21 (21%) → NO ES ERROR, es IVA
+
+7. GENERA un informe detallado con:
    - Errores críticos (bloquean generación)
    - Advertencias (permiten continuar)
-   - Sugerencias de corrección específicas
-   - Campos variables detectados
    - CÁLCULOS EXPLÍCITOS para errores numéricos
-   - UBICACIÓN EXACTA de cada error (sección, apartado, tabla)
+   - UBICACIÓN EXACTA de cada error (sección, apartado)
+   - Texto EXACTO del error encontrado
+   - NOTA IMPORTANT al final (OBLIGATORIA)
+   - NO incloure "💡 Per què és un error"
+   - NO incloure "Context:"
+   - NO incloure secció "📋 CAMPS VARIABLES DETECTATS"
 
 7. FORMATO DE RESPUESTA EXACTO (COPIA ESTE FORMATO PRECISAMENTE):
 ================================================================================
 
-🔴 ERRORES CRÍTICOS:
-- [Descripción del error]
-    - Ubicación: [Sección/Apartado exacto donde se encuentra]
-    - Contexto: [Tabla, cuadro o párrafo específico]
+⚠️ ⚠️ ⚠️ OBLIGATORIO: TODO EL INFORME DEBE ESTAR EN IDIOMA CATALÁN ⚠️ ⚠️ ⚠️
 
-🟡 ADVERTENCIAS:
-- [Descripción de la advertencia]
-    - Ubicación: [Sección/Apartado exacto donde se encuentra]
-    - Contexto: [Tabla, cuadro o párrafo específico]
+🔴 ERRORS CRÍTICS:
+- Ubicació: [Secció/Apartat exacte on es troba]
+    - [Descripció de l'error EN CATALÀ - llenguatge clar i entenedor]
+    - Text erroni: [Cita EXACTA del text incorrecte trobat al document]
 
-✅ SUGERENCIAS:
-- [Correcciones específicas recomendadas]
-- [Cada sugerencia en una línea separada]
-
-📋 CAMPOS VARIABLES DETECTADOS:
-- [Lista de variables SAP encontradas]
-- [Cada variable en una línea separada]
+🟡 ADVERTÈNCIES:
+- Ubicació: [Secció/Apartat exacte on es troba]
+    - [Descripció de l'advertència EN CATALÀ - llenguatge clar i entenedor]
+    - Text a revisar: [Cita EXACTA del text que cal revisar]
 
 ================================================================================
 
-IMPORTANTE:
-- Usa EXACTAMENTE los emojis y títulos mostrados arriba
-- NO uses símbolos de euro (€), usa "EUR" en su lugar
-- Cada sección debe empezar con el emoji correspondiente
-- Usa guiones (-) para listas
-- No uses números ni letras para listas
-- Si no hay elementos en una sección, omítela completamente
-- Mantén el formato limpio sin símbolos extra (#, *, etc.)
-- Todos los importes deben expresarse como "29.040.000,00 EUR" (sin símbolo €)
+IMPORTANT:
+- OBLIGATORI: Tot el text de l'informe HA D'ESTAR EN CATALÀ
+- Usa un llenguatge CLAR I ENTENEDOR per a tothom (evita tecnicismes)
+- Usa EXACTAMENT els emojis i títols mostrats a dalt
+- NO usis símbols d'euro (€), usa "EUR" en el seu lloc
+- Cada secció ha de començar amb l'emoji corresponent
+- Usa guions (-) per a llistes
+- No usis números ni lletres per a llistes
+- Si no hi ha elements en una secció, omet-la completament
+- Mantén el format net sense símbols extra (#, *, etc.)
+- Tots els imports han d'expressar-se com "29.040.000,00 EUR" (sense símbol €)
+- Totes les descripcions i explicacions han d'estar escrites en CATALÀ
+- NO incloguis la secció "📋 CAMPS VARIABLES DETECTATS"
+- NO incloguis "💡 Per què és un error" ni "💡 Per què és una advertència"
+- NO incloguis "Context:" - només "Text erroni:" i "Ubicació:"
 
-⚠️ EJEMPLO 1 - FORMATO CON UBICACIÓN (TAG SIN REEMPLAZAR):
+================================================================================
+AL FINAL DE L'INFORME, SEMPRE AFEGEIX AQUESTA NOTA (OBLIGATORI):
+================================================================================
 
-Si encuentras en el texto:
+**NOTA IMPORTANT: Aquesta validació ha estat generada automàticament mitjançant intel·ligència artificial. Els resultats es basen en probabilitats matemàtiques i patrons apresos del context de plecs similars. És imprescindible revisar manualment tots els errors i advertències reportats, ja que la IA pot contenir imprecisions o falsos positius. Aquest informe és una eina d'ajuda, però la validació final sempre ha de ser realitzada per un professional qualificat.**
+
+⚠️ EXEMPLE 1 - FORMAT AMB UBICACIÓ (TAG SENSE REEMPLAÇAR) - EN CATALÀ:
+
+Si trobes en el text:
 "18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
  QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
  {B}CRITERIS{/B}    APLICA    NO APLICA"
 
-DEBES REPORTAR:
-🔴 ERRORES CRÍTICOS:
-- Tag SAP sin reemplazar: {B}CRITERIS{/B}
-    - Ubicación: Apartado 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
-    - Contexto: QUADRE D'APARTATS/SUBAPARTATS D'APLICACIÓ
+HAS DE REPORTAR EN CATALÀ:
+🔴 ERRORS CRÍTICS:
+- Codi de format sense processar que apareix visible al document
+    - Text erroni: {B}CRITERIS{/B}
+    - Ubicació: Apartat 18.- DOCUMENTACIÓ A PRESENTAR PER LES EMPRESES LICITADORES
 
-⚠️ EJEMPLO 2 - VALIDACIÓN NUMÉRICA CON UBICACIÓN:
+⚠️ EXEMPLE 2A - VALIDACIÓ NUMÈRICA AMB ERROR (diferència > 0,01 EUR) - EN CATALÀ:
 
-Si encuentras en el texto:
+Si trobes en el text:
 "2.- DADES ECONÒMIQUES
  PRESSUPOST DE LICITACIÓ: 243.936,00 euros (IVA inclòs)
- Lot 1: 241.840,28 euros
- Lot 2: 1.942,72 euros"
+ LOTITZACIÓ: Sí
+ Lot 1: 241.840,28 euros (IVA inclòs)
+ Lot 2: 1.942,72 euros (IVA inclòs)"
 
-DEBES hacer:
-1. Extraer: 243.936,00 (presupuesto declarado)
-2. Extraer lotes: 241.840,28 y 1.942,72
-3. SUMAR: 241.840,28 + 1.942,72 = 243.783,00
-4. COMPARAR: 243.936,00 ≠ 243.783,00
-5. DIFERENCIA: 153,00 euros
-6. REPORTAR:
-🔴 ERRORES CRÍTICOS:
-- Incoherencia numérica: Presupuesto declarado (243.936,00 EUR) no coincide con suma de lotes (243.783,00 EUR). Diferencia: 153,00 EUR
-    - Ubicación: Apartado 2.- DADES ECONÒMIQUES
-    - Contexto: PRESSUPOST DE LICITACIÓ - Tabla de lotes
+HAS DE FER:
+1. Verificar que hi ha lots: SÍ (Lot 1, Lot 2)
+2. Extreure pressupost amb IVA: 243.936,00
+3. Extreure lots amb IVA: 241.840,28 i 1.942,72
+4. SUMAR AMB MÀXIMA PRECISIÓ (mantenir TOTS els decimals):
+   241.840,28 + 1.942,72 = 243.783,00
+   ⚠️ NO arrodoneixis! Mantén els 2 decimals exactes
+5. COMPARAR: 243.936,00 ≠ 243.783,00
+6. DIFERÈNCIA: 153,00 euros (MAJOR QUE 0,01 EUR)
+7. REPORTAR EN CATALÀ (perquè diferència > 0,01):
+🔴 ERRORS CRÍTICS:
+- Els números del pressupost no quadren: el total declarat (243.936,00 EUR) no coincideix amb la suma dels lots (243.783,00 EUR). Hi ha una diferència de 153,00 EUR
+    - Text erroni: Pressupost total: 243.936,00 EUR vs Suma de lots: 243.783,00 EUR
+    - Ubicació: Apartat 2.- DADES ECONÒMIQUES
 
-⚠️ EJEMPLO 3 - VALIDACIÓN TABLAS APLICA/NO APLICA CON UBICACIÓN:
+⚠️ EXEMPLE 2B - VALIDACIÓ NUMÈRICA SENSE ERROR (diferència = 0) - EN CATALÀ:
 
-Si encuentras en el texto:
+Si trobes en el text:
+"2.- DADES ECONÒMIQUES
+ PRESSUPOST DE LICITACIÓ: 846.326,48 euros (IVA inclòs)
+ LOTITZACIÓ: Sí
+ Lot 1: 423.163,24 euros (IVA inclòs)
+ Lot 2: 423.163,24 euros (IVA inclòs)"
+
+HAS DE FER:
+1. Verificar que hi ha lots: SÍ (Lot 1, Lot 2)
+2. Extreure pressupost amb IVA: 846.326,48
+3. Extreure lots amb IVA: 423.163,24 i 423.163,24
+4. SUMAR AMB MÀXIMA PRECISIÓ (mantenir TOTS els decimals):
+   423.163,24 + 423.163,24 = 846.326,48
+   ⚠️ NO arrodoneixis! Mantén els 2 decimals exactes
+5. COMPARAR: 846.326,48 == 846.326,48 ✅
+6. DIFERÈNCIA: 0,00 euros (ZERO)
+7. ⚠️ NO REPORTAR RES - Els números coincideixen perfectament
+   NO posis cap error crític ni advertència sobre això
+
+⚠️ EXEMPLE 2B2 - CAS REAL CRÍTIC: SUMA CORRECTA (NO REPORTAR ERROR) - EN CATALÀ:
+
+Si trobes en el text:
+"2.- DADES ECONÒMIQUES
+ PRESSUPOST DE LICITACIÓ: 2.126.315,99 euros (IVA inclòs)
+ Lot 1: 1.986.312,19 euros (IVA inclòs)
+ Lot 2: 140.003,80 euros (IVA inclòs)"
+
+HAS DE FER:
+1. Verificar que hi ha lots: SÍ (Lot 1, Lot 2)
+2. Extreure pressupost amb IVA: 2.126.315,99
+3. Extreure lots amb IVA: 1.986.312,19 i 140.003,80
+4. SUMAR AMB MÀXIMA PRECISIÓ:
+   1.986.312,19
+   +  140.003,80
+   = 2.126.315,99 ✅ CORRECTE!
+   
+   ⚠️⚠️⚠️ MOLT IMPORTANT:
+   - La suma és 2.126.315,99 (amb ,99 al final)
+   - NO és 2.126.316,00
+   - NO arrodoneixis els decimals
+   - Mantén SEMPRE els 2 decimals exactes
+   
+5. COMPARAR: 2.126.315,99 == 2.126.315,99 ✅
+6. DIFERÈNCIA: 0,00 euros (ZERO)
+7. 🛑🛑🛑 NO REPORTAR RES 🛑🛑🛑
+   ❌ NO escriguis "Incoherència numèrica"
+   ❌ NO escriguis "Tot i que els números coincideixen"
+   ❌ NO escriguis "és important verificar"
+   ✅ SIMPLEMENT SALTA aquesta validació
+   
+   Aquest NO és un error! La suma és PERFECTA!
+   Diferència 0,00 = Tot correcte = NO reportar res
+
+⚠️ EXEMPLE 2C - IVA INCLÒS VS IVA NO INCLÒS (NO ÉS ERROR) - EN CATALÀ:
+
+Si trobes en el text:
+"2.- DADES ECONÒMIQUES
+ PRESSUPOST DE LICITACIÓ: 5.720.043,51 euros (IVA inclòs), 4.727.308,69 euros (IVA no inclòs)
+ VALOR GLOBAL ESTIMAT: 4.727.308,69 euros (IVA no inclòs)
+ LOTITZACIÓ: No"
+
+HAS DE FER:
+1. Verificar que hi ha lots: NO (LOTITZACIÓ: No)
+2. ⚠️ NO fer cap validació numèrica
+3. ⚠️ NO comparar 5.720.043,51 amb 4.727.308,69 (són el mateix pressupost amb/sense IVA)
+4. ⚠️ NO REPORTAR RES - No hi ha lots, no hi ha error
+5. Simplement verifica que existeix el pressupost
+
+⚠️ EXEMPLE 2D - PLEC SENSE LOTS (NO VALIDAR) - EN CATALÀ:
+
+Si trobes en el text:
+"2.- DADES ECONÒMIQUES
+ PRESSUPOST DE LICITACIÓ: 12.874.250,88 euros (IVA inclòs)
+ LOTITZACIÓ: No"
+
+HAS DE FER:
+1. Verificar que hi ha lots: NO (LOTITZACIÓ: No)
+2. ⚠️ NO buscar taula de lots
+3. ⚠️ NO fer cap suma
+4. ⚠️ NO REPORTAR cap error numèric
+5. Simplement verifica que existeix el pressupost declarat
+
+⚠️ EXEMPLE 3 - VALIDACIÓ TAULES APLICA/NO APLICA AMB UBICACIÓ - EN CATALÀ:
+
+Si trobes en el text:
 "15.- CRITERIS D'ADJUDICACIÓ
  QUADRE RESUM DE CRITERIS
  1.03 Compromís sobre subcontractació    APLICA    APLICA
@@ -289,69 +687,343 @@ Si encuentras en el texto:
  1.05 Declaracions Ambientals            APLICA    APLICA
  1.06 Utilització de fusta certificada   APLICA"
 
-DEBES hacer:
-1. Identificar tabla con 2 columnas: APLICA | NO APLICA
-2. Contar valores por fila:
-   - Fila 1.03: 2 valores ✅
+HAS DE FER:
+1. Identificar taula amb 2 columnes: APLICA | NO APLICA
+2. Comptar valors per fila:
+   - Fila 1.03: 2 valors ✅
    - Fila 1.04: 1 valor ❌ (falta columna NO APLICA)
-   - Fila 1.05: 2 valores ✅
+   - Fila 1.05: 2 valors ✅
    - Fila 1.06: 1 valor ❌ (falta columna NO APLICA)
-3. REPORTAR:
-🔴 ERRORES CRÍTICOS:
-- Tabla APLICA/NO APLICA incompleta. Filas 1.04 y 1.06 tienen solo 1 valor cuando deberían tener 2
-    - Ubicación: Apartado 15.- CRITERIS D'ADJUDICACIÓ
-    - Contexto: QUADRE RESUM DE CRITERIS - Filas 1.04 (emissions CO2eq) y 1.06 (fusta certificada)
+3. REPORTAR EN CATALÀ:
+🔴 ERRORS CRÍTICS:
+- Taula incompleta: falten valors a les files 1.04 i 1.06 del quadre de criteris
+    - Text erroni: Files 1.04 (emissions CO2eq) i 1.06 (fusta certificada) només tenen 1 valor quan n'haurien de tenir 2
+    - Ubicació: Apartat 15.- CRITERIS D'ADJUDICACIÓ
 
-NO asumas que las tablas están completas. SIEMPRE cuenta los valores por fila.
+NO assumeixis que les taules estan completes. SEMPRE compta els valors per fila.
 
-⚠️ EJEMPLO 4 - DETECCIÓN DE COMENTARIOS DE DESARROLLADORES CON UBICACIÓN:
+🛑🛑🛑 REGLA CRÍTICA SOBRE TAULES APLICA/NO APLICA 🛑🛑🛑
 
-Si encuentras en el texto:
-"12.- CRITERIS DE SOSTENIBILITAT
- Oriol: En cas que apliqui el CO2 (si hi ha valors a la taula ZRM_DM_MAT_CO2 o 
- ZVRM_QDC_MAT_LIC -> Escollir quina de les 2) S'haurà de treure el text en groc."
+Els PDFs convertits a text tenen SALTS DE LÍNIA dins de les cel·les.
+Això és NORMAL i NO és un error.
 
-DEBES hacer:
-1. Detectar nombre + dos puntos: "Oriol:"
-2. Detectar instrucciones técnicas: "S'haurà de treure", "Escollir quina de les 2"
-3. Detectar tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
-4. Detectar referencias a tablas SAP: "si hi ha valors a la taula"
-5. REPORTAR:
-🔴 ERRORES CRÍTICOS:
-- Comentario de desarrollador detectado: "Oriol: En cas que apliqui el CO2..."
-    - Ubicación: Apartado 12.- CRITERIS DE SOSTENIBILITAT
-    - Contexto: Instrucciones técnicas que deben eliminarse. Tags SAP: ZRM_DM_MAT_CO2, ZVRM_QDC_MAT_LIC
+EXEMPLE DE TEXT QUE VE DEL PDF:
+"8.3.1. Oferta econòmica APLICA APLICA
+8.3.2. Aplicació BIM APLICA APLICA
+8.3.3. Comproms subcontractació NO APLICA NO
+APLICA
+8.3.4. Comproms emissions APLICA APLICA
+8.3.6. Comproms fusta certificada NO APLICA NO
+APLICA"
 
-⚠️ EJEMPLO 4 - DETECCIÓN DE CONDICIONES TÉCNICAS SAP:
+ANÀLISI CORRECTA:
+- Fila 8.3.1: "APLICA APLICA" → 2 valors ✅
+- Fila 8.3.2: "APLICA APLICA" → 2 valors ✅
+- Fila 8.3.3: "NO APLICA NO" + (línia següent) "APLICA" → 2 valors ✅
+- Fila 8.3.4: "APLICA APLICA" → 2 valors ✅
+- Fila 8.3.6: "NO APLICA NO" + (línia següent) "APLICA" → 2 valors ✅
 
-Si encuentras:
-"Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000 no treure la taula següent"
+⚠️⚠️⚠️ IMPORTANT: Les files 8.3.3 i 8.3.6 tenen 2 valors!
+El segon "NO APLICA" està dividit: "NO" al final de la línia + "APLICA" a la línia següent.
+Això és un salt de línia del PDF, NO és un error.
 
-DEBES hacer:
-1. Detectar nombre + dos puntos: "Oriol:"
-2. Detectar condición técnica: "Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000"
-3. Detectar tag SAP: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
-4. Detectar instrucción: "no treure la taula"
-5. REPORTAR: "🔴 ERROR CRÍTICO: Comentario de desarrollador con condición técnica SAP
-   - Línea: 'Oriol: Si ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT = 000...'
-   - Tag SAP sin reemplazar: ZVRM_QDC_CLO_LIC-ZZ_NUM_LOT
-   - Este texto debe eliminarse completamente del pliego final"
+❌ NO REPORTAR ERROR per files 8.3.3 o 8.3.6 en aquest cas
+✅ Totes les files tenen 2 valors, tot és CORRECTE
 
-BUSCA ACTIVAMENTE estos patrones en TODO el documento.
+🚨 QUAN SÍ REPORTAR ERROR:
+NOMÉS si una fila té REALMENT només 1 valor (sense que hi hagi res a la línia següent).
+Exemple d'error real:
+"8.3.2. Aplicació BIM APLICA" ← Només 1 "APLICA", falta el segon
+
+⚠️ EXEMPLE 4 - COMENTARIS DE DESENVOLUPADORS - EN CATALÀ:
+
+BUSCA patrons com:
+- "Oriol:" seguit de text
+- "David:" seguit de text
+- "S'haurà de treure"
+- "Escollir"
+- "TODO:"
+
+SI TROBES aquests patrons LITERALMENT en el document → REPORTA ERROR amb aquest format:
+🔴 ERRORS CRÍTICS:
+- Comentari intern que no hauria d'aparèixer al document final
+    - Text erroni: Oriol: Aquí només em treu una fila quan poden haver més
+    - Ubicació: Apartat 24.- ALTRES ESPECIFICITATS I CONDICIONS DEL CONTRACTE
+
+SI NO els trobes → NO reportis res sobre comentaris
+
+⚠️ EXEMPLE 5 - TAGS SAP SENSE REEMPLAÇAR - EN CATALÀ:
+
+BUSCA patrons com:
+- Text que comença per "ZRM_" o "ZVRM_"
+- Tags {B}, {/B}, {I}, {/I}
+- &INCLUDE
+
+SI TROBES aquests patrons → REPORTA amb aquest format:
+
+Per a camps ZRM_ o ZVRM_:
+🔴 ERRORS CRÍTICS:
+- Ubicació: Apartat 6.- GARANTIA PROVISIONAL
+    - Text erroni en el camp. Aquest camp ha de contenir la informació específica corresponent.
+    - Text a revisar: {Z_GAR_PROV}
+
+Per a tags de format {B}, {/B}, {I}, {/I}:
+⚠️ SUGGERIMENTS:
+- Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
+    - Text amb format incorrecte. No ha aplicat negreta. Ha d'eliminar "{B}" i "{/B}" i aplicar negreta al text que hi ha entre aquestes etiquetes.
+    - Text a revisar: {B}annex 11{/B}
+
+- Ubicació: Apartat 17.- DOCUMENTACIÓ QUE ES FACILITARÀ ALS LICITADORS
+    - Text amb format incorrecte. No ha aplicat cursiva. Ha d'eliminar "{I}" i "{/I}" i aplicar cursiva al text que hi ha entre aquestes etiquetes.
+    - Text a revisar: {I}annex 11{/I}
+
+🚨🚨🚨 REGLA CRÍTICA ANTI-ALUCINACIÓ 🚨🚨🚨
+❌ NO reportis camps variables si NO els veus LITERALMENT en el document
+❌ NO inventis exemples
+❌ NO assumeixis que existeixen
+✅ NOMÉS reporta SI els veus EXACTAMENT escrits en el text
+✅ Si NO veus caps → NO mencions res sobre camps variables
 
 ================================================================================
-TEXTO DEL PLIEGO A VALIDAR:
+TEXT DEL PLEC A VALIDAR:
 ================================================================================
 
 ${textForAnalysis}
 
 ================================================================================
-GENERA EL INFORME SIGUIENDO EL FORMATO EXACTO:
-RECUERDA: 
-- VERIFICA TODAS LAS SUMAS Y CÁLCULOS NUMÉRICOS
-- CUENTA LOS VALORES EN CADA FILA DE TABLAS APLICA/NO APLICA
-- BUSCA COMENTARIOS DE DESARROLLADORES (Oriol:, David:, etc.)
-- BUSCA TAGS SAP SIN REEMPLAZAR (ZRM_, ZVRM_, etc.)
+GENERA L'INFORME SEGUINT EL FORMAT EXACTE EN CATALÀ:
+
+⚠️⚠️⚠️ CHECKLIST DE VALIDACIÓ (PRIORIZADO) ⚠️⚠️⚠️
+
+🛑🛑🛑 PASO 0: VERIFICAR EXCLUSIONES OBLIGATORIAS (ANTES DE TODO) 🛑🛑🛑
+
+ANTES de generar el informe, REVISA si has detectado alguno de estos casos:
+
+✋ EXCLUSIÓN 1: ¿Has encontrado advertencias sobre el Apartado 18 (documentación)?
+   → Si SÍ: ELIMINA esa advertencia del informe. NO la incluyas.
+   → Razón: Es información estándar y correcta en todos los pliegos.
+
+✋ EXCLUSIÓN 2: ¿Has encontrado diferencias de presupuesto?
+   → CALCULA: diferencia ÷ importe_menor
+   → Si el resultado es ~0.21 (entre 0.20 y 0.22): ELIMINA ese error del informe. NO lo incluyas.
+   → Razón: Es el IVA (21%), no es un error.
+   → Ejemplo: 87.163,58 ÷ 415.064,68 = 0.21 → ELIMINAR este error
+
+⚠️ SI DETECTAS ESTOS CASOS, NO LOS INCLUYAS EN EL INFORME FINAL ⚠️
+
+🎯 USA EL CONTEXTO RAG COMO REFERENCIA PRINCIPAL
+Si el contexto muestra que todos los pliegos similares tienen X → debe existir.
+Si el contexto muestra que ninguno tiene Y → probablemente no es necesario.
+
+VALIDACIONES CRÍTICAS:
+
+1️⃣ ESTRUCTURA DE APARTADOS (VERIFICACIÓN SUPER-EXHAUSTIVA):
+   
+   🚨🚨🚨 METODOLOGÍA OBLIGATORIA - DETECCIÓN INTELIGENTE 🚨🚨🚨
+   
+   PASO 1: ANALIZA LA ESTRUCTURA DEL CONTEXTO RAG
+   - Mira los 18 pliegos de referencia del contexto RAG
+   - Identifica qué apartados principales tienen (1, 2, 3, 4, 5, 6, 7, 8, 9...)
+   - Aprende la estructura típica: ¿Qué apartados son obligatorios?
+   
+   PASO 2: DETECTA LA SECUENCIA DEL DOCUMENTO ACTUAL
+   - Identifica TODOS los apartados principales del documento (busca patrones "N.-" donde N es número)
+   - Crea una lista ordenada de los apartados que encuentras
+   - Compara con la secuencia esperada según el contexto RAG
+   - Si hay un salto en la numeración → INVESTIGA
+   
+   PASO 3: BUSCA EXHAUSTIVAMENTE EN TODO EL DOCUMENTO
+   🚨🚨🚨 ANTES DE REPORTAR CUALQUIER APARTADO FALTANTE:
+   - Busca el apartado en ABSOLUTAMENTE TODO el documento
+   - Busca variantes: "N.-", "N .-", "N.", "Apartat N", "APARTAT N" (donde N es el número)
+   - Busca en TODAS las páginas, incluyendo anexos, apéndices y tablas
+   - A veces los apartados están en páginas diferentes o con formato distinto
+   - Si lo encuentras en CUALQUIER parte → NO ES ERROR
+   
+   PASO 4: COMPARA CON EL CONTEXTO RAG
+   - Mira los 18 pliegos de referencia: ¿Todos tienen ese apartado?
+   - Si el contexto RAG muestra que algunos pliegos NO tienen ese apartado:
+     → NO ES ERROR, puede ser opcional para este tipo de pliego
+   - Si TODOS los pliegos del contexto tienen ese apartado Y no lo encuentras:
+     → Verifica UNA VEZ MÁS antes de reportar
+   
+   PASO 5: CLASIFICA Y REPORTA
+   🚨 SOLO reporta un apartado faltante si:
+   1. Has verificado que NO existe en NINGUNA parte del documento
+   2. El contexto RAG confirma que es obligatorio
+   3. Hay un salto claro en la numeración
+   
+   → Si cumple las 3 condiciones: 🔴 ERROR CRÍTIC: Falta l'apartat [NÚMERO].- en l'estructura del plec
+   → Si NO cumple alguna condición: NO REPORTAR NADA
+   
+   ⚠️ REGLA ANTI-FALSOS POSITIVOS:
+   - NO inventes apartados faltantes
+   - NO reportes un apartado como faltante si lo encuentras en cualquier parte del documento
+   - SOLO reporta el número EXACTO que falta (no uses ejemplos genéricos)
+
+2️⃣ DATOS ECONÓMICOS (si hay lots):
+   ✓ Suma de lots vs pressupost total
+   🛑 SOLO reportar si diferència > 0,01 EUR
+   🛑 Si diferència ≤ 0,01 EUR → NO REPORTAR RES
+   🛑 Si la diferencia es ~21% (IVA) → NO ES ERROR, son el mismo importe con/sin IVA
+
+3️⃣ TAGS SAP SIN RELLENAR:
+   ✓ {B}, {/B}, {I}, {/I}
+   ✓ ZRM_, ZVRM_
+   ✓ &INCLUDE, <variables>
+   ⚠️ NO inventar si no los ves
+
+4️⃣ COMENTARIOS DE DESARROLLADOR:
+   ✓ "Oriol:", "David:", "Maria:" + instrucciones
+   ✓ "S'haurà de treure", "Escollir", "TODO:"
+
+5️⃣ LOGOS Y VISUALES:
+   ✓ Logo Generalitat en portada
+   ✓ Elementos gráficos correctos
+
+================================================================================
+VALIDACIÓ NUMÈRICA (SIMPLIFICADA):
+================================================================================
+
+Si hi ha lots, calcula: |Pressupost - Suma de lots|
+
+🛑 REGLA ÚNICA: NOMÉS reporta error si diferència > 0,01 EUR Y NO es IVA (21%)
+
+Exemples:
+- Diferència 0,00 EUR → NO reportar res
+- Diferència 0,01 EUR → NO reportar res (redondeo)
+- Diferència 87.163,58 EUR (21% de 415.064,68) → NO reportar res (es IVA)
+- Diferència 153,00 EUR (no es 21%) → SÍ reportar error
+
+================================================================================
+🚨🚨🚨 FILTRO FINAL OBLIGATORIO - ANTES DE GENERAR EL INFORME 🚨🚨🚨
+================================================================================
+
+ANTES de escribir el informe final, APLICA ESTE FILTRO:
+
+1. ¿Tienes algún error/advertencia sobre el Apartado 18 y documentación?
+   → ELIMÍNALO del informe. NO lo escribas.
+
+2. ¿Tienes algún error sobre diferencias de presupuesto?
+   → CALCULA: diferencia ÷ importe_menor
+   → Si resultado ≈ 0.21 (entre 0.20 y 0.22): ELIMÍNALO del informe. NO lo escribas.
+   → Ejemplo: 87.163,58 ÷ 415.064,68 = 0.21 → ELIMINAR
+
+3. Si después de aplicar el filtro NO tienes errores ni advertencias:
+   → Genera un informe vacío con solo la nota final
+   → NO inventes otros errores para rellenar
+
+⚠️ ESTE FILTRO ES OBLIGATORIO - NO LO OMITAS ⚠️
+
+⚠️ NOTA CRÍTICA SOBRE TAULES APLICA/NO APLICA:
+METODOLOGIA DE VALIDACIÓ:
+1. DETECTA EL PATRÓ: Mira les primeres files i compta quantes vegades apareix "APLICA"
+   Exemple: Si files 8.3.1 i 8.3.2 tenen 2 "APLICA" → Patró = 2 columnes
+2. VALIDA CADA FILA: Compta "APLICA" en cada fila i compara amb el patró
+3. IGNORA SALTS DE LÍNIA: "NO APLICA NO\nAPLICA" = 2 valors ✅ (el \n és normal)
+4. REPORTA ERROR: NOMÉS si una fila té menys valors que el patró
+   Exemple: Patró = 2, Fila té 1 → ❌ ERROR "Fila incompleta"
+
+🎯🎯🎯 ORDRE DE PRIORITATS (LLEGEIX AIXÒ AMB ATENCIÓ) 🎯🎯🎯
+
+1. PRIMER: El que has après del CONTEXTO RAG (18 pliegos de referencia)
+   - Mira cómo son los pliegos correctos
+   - Aprende sus patrones y estructura
+   - Si algo es normal en el contexto → NO es un error
+   
+2. SEGON: Les instruccions específiques d'aquest prompt
+
+El CONTEXTO RAG és la font més important. Si el contexto mostra patrons,
+aplica'ls. Si el contexto no menciona algo, probablement no és crític.
+
+🛑🛑🛑 RECORDATORI FINAL ABSOLUT 🛑🛑🛑
+
+❌ PROHIBIT REPORTAR COM A ERROR:
+- Taules APLICA/NO APLICA (els salts de línia són NORMALS)
+- Diferència de 21% (IVA) entre imports
+- Diferència ≤ 0,01 EUR
+- Apartats que no estàs 100% SEGUR que falten
+
+✅ REGLES DE CONSISTÈNCIA:
+- Apartats faltants: SEMPRE error crític o NO reportar (mai advertencia)
+- Taules APLICA/NO APLICA: MAI reportar error (el format amb salts de línia és correcte)
+- Verifica 3 VEGADES el document abans de reportar qualsevol error
+
+🚨 ABANS D'ENVIAR L'INFORME:
+1. Rellegeix el plec una altra vegada
+2. Verifica que cada error que reportes REALMENT existeix
+3. Comprova que no estàs reportant falsos positius
+4. Assegura't que la classificació (crític/advertencia) és consistent
+
+🛑🛑🛑 REGLES FINALS ABSOLUTES (OBLIGATÒRIES) 🛑🛑🛑
+
+REGLA 1 - DIFERÈNCIES NUMÈRIQUES (IVA):
+❌ Si veus dos imports i la diferència és <>=21% → NO ÉS ERROR (és l'IVA)
+❌ Exemple: 502.228,26 EUR (IVA inclòs) vs 415.064,68 EUR (IVA no inclòs) → CORRECTE
+❌ NO reportis "Diferència numèrica en el pressupost" si és l'IVA
+❌ NO reportis "Falta de coherència en el pressupost" si és l'IVA
+→ Si la diferència és aproximadament el 21% del import menor → IGNORA
+
+REGLA 2 - DIFERÈNCIES NUMÈRIQUES (LOTS):
+Si la diferència entre pressupost i suma de lots és ≤ 0,01 EUR:
+→ NO ESCRIGUIS RES sobre això
+→ NO és un error
+→ SALTA aquesta validació completament
+
+REGLA 3 - CAMPS VARIABLES:
+Si NO veus literalment "ZRM_", "ZVRM_", "{B}", "{/B}" en el document:
+→ NO ESCRIGUIS "CAMPS VARIABLES DETECTATS"
+→ NO inventis exemples
+→ NO mencions res sobre camps variables
+
+REGLA 4 - TAULES APLICA/NO APLICA (VALIDACIÓ CONTEXTUAL):
+🚨 METODOLOGIA OBLIGATÒRIA:
+
+PASO 1 - ANALIZA EL PATRÓN DE LA TABLA:
+- Cuenta cuántas filas tienen 1 valor (ej: solo "APLICA" o solo "NO APLICA")
+- Cuenta cuántas filas tienen 2 valores (ej: "APLICA NO APLICA")
+
+PASO 2 - DETERMINA EL FORMATO CORRECTO:
+- Si la MAYORÍA de filas (>70%) tienen 1 valor → El formato correcto es 1 valor por fila
+- Si la MAYORÍA de filas (>70%) tienen 2 valores → El formato correcto es 2 valores por fila
+
+PASO 3 - REPORTA SOLO SI HAY INCONSISTENCIA:
+✅ Ejemplo 1 - NO ES ERROR:
+   Fila 8.3.1: APLICA (1 valor)
+   Fila 8.3.2: NO APLICA (1 valor)
+   Fila 8.3.3: APLICA (1 valor)
+   Fila 8.3.4: APLICA (1 valor)
+   → TODAS tienen 1 valor → FORMATO CORRECTO → NO REPORTAR
+
+✅ Ejemplo 2 - SÍ ES ERROR:
+   Fila 8.3.1: APLICA NO APLICA (2 valores)
+   Fila 8.3.2: APLICA NO APLICA (2 valores)
+   Fila 8.3.3: APLICA (1 valor) ← INCONSISTENTE
+   Fila 8.3.4: APLICA NO APLICA (2 valores)
+   → La mayoría tienen 2 valores, pero 8.3.3 solo tiene 1 → ERROR
+
+❌ NO reportis error si TODAS las filas tienen el mismo formato (1 o 2 valores)
+✅ SÍ reporta error si hay INCONSISTENCIA entre filas (unas tienen 1 y otras tienen 2)
+
+REGLA 5 - APARTATS FALTANTS (MÀXIMA PRECISIÓ):
+🚨 ABANS DE REPORTAR UN APARTAT FALTANT:
+1. Busca l'apartat en ABSOLUTAMENT TOT el document (totes les pàgines, annexos, taules)
+2. Busca variants: "N.-", "N .-", "N.", "Apartat N", "APARTAT N"
+3. Si el trobes en QUALSEVOL part → NO ÉS ERROR
+4. Comprova el context RAG: és obligatori aquest apartat?
+
+✅ NOMÉS reporta si:
+   - NO existeix en CAP part del document
+   - El context RAG confirma que és obligatori
+   - Hi ha un salt clar en la numeració
+
+→ Si compleix les 3 condicions: 🔴 ERROR CRÍTIC: Falta l'apartat [NÚMERO EXACTE].- en l'estructura del plec
+→ Si NO compleix alguna condició: NO REPORTAR RES
+
+❌ NO inventis apartats faltants
+❌ NO reportis apartats que SÍ existeixen al document
+❌ MAI reportis apartats faltants com a advertència
+
 ================================================================================`;
 }
 
@@ -586,14 +1258,16 @@ Para análisis completo, verificar conexión con SAP AI Core.`;
     throw new Error(`Error generando análisis de contexto: ${error.message}`);
   }
 }
-export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null, visualErrors = null) {
+export async function generatePDFWithCorrectionsList(originalPdfPath, customPrompt = null, contextId = null, visualErrors = null, fileName = null) {
   const startTime = Date.now();
   try {
     loggerService.info('PDF-CORRECTION', 'Iniciando generación de PDF con lista de correcciones', { 
       path: originalPdfPath, 
-      contextId 
+      contextId,
+      fileName 
     });
     console.log(`[PDF-CORRECTION] Generando PDF con lista de correcciones...`);
+    console.log(`[PDF-CORRECTION] 📄 fileName recibido en service: "${fileName}"`);
     
     // 1. Extraer texto del PDF original
     const documentData = await processDocument(originalPdfPath, 'application/pdf');
@@ -664,21 +1338,41 @@ RELEVANCIA: ${result.similarity}
       console.log(`[PDF-CORRECTION] ⚠️ customPrompt ignorado - usando prompt de validación estructurado`);
     }
 
-    console.log(`[PDF-CORRECTION] Generando correcciones con SAP AI Core (${correctionPrompt.length} caracteres)...`);
+    console.log(`[PDF-CORRECTION] ========================================`);
+    console.log(`[PDF-CORRECTION] 🤖 LLAMANDO A SAP AI CORE`);
+    console.log(`[PDF-CORRECTION] Prompt length: ${correctionPrompt.length} caracteres`);
+    console.log(`[PDF-CORRECTION] Text length: ${textForAnalysis.length} caracteres`);
+    console.log(`[PDF-CORRECTION] Context ID: ${contextId || 'ninguno'}`);
+    console.log(`[PDF-CORRECTION] RAG Context: ${ragContext ? 'SÍ' : 'NO'}`);
+    console.log(`[PDF-CORRECTION] Visual Errors: ${visualErrors ? 'SÍ' : 'NO'}`);
+    console.log(`[PDF-CORRECTION] ========================================`);
     
     let correctionsList;
     try {
       const client = getAiCoreClient('gpt-4o', { 
-        temperature: 0.2,  // Temperatura muy baja para validación consistente y precisa
+        temperature: 0.1,  // Temperatura muy baja para validación consistente y precisa
         maxTokens: 4000 
       });
+      
+      console.log(`[PDF-CORRECTION] ⏳ Enviando request a SAP AI Core...`);
+      const aiStartTime = Date.now();
+      
       const response = await client.run({
         messages: [{ role: 'user', content: correctionPrompt }],
-        temperature: 0.2,  // Temperatura baja = respuestas más deterministas y precisas
+        temperature: 0.1,  // Temperatura baja = respuestas más deterministas y precisas
         max_tokens: 4000
       });
       
+      const aiDuration = Date.now() - aiStartTime;
+      console.log(`[PDF-CORRECTION] ✅ Respuesta recibida de SAP AI Core en ${aiDuration}ms`);
+      
       correctionsList = response.getContent();
+      
+      console.log(`[PDF-CORRECTION] 📝 Contenido de respuesta:`);
+      console.log(`[PDF-CORRECTION] - Length: ${correctionsList?.length || 0} caracteres`);
+      console.log(`[PDF-CORRECTION] - Primeros 500 caracteres:`);
+      console.log(correctionsList?.substring(0, 500) || '[VACÍO]');
+      console.log(`[PDF-CORRECTION] ========================================`);
       
       if (!correctionsList || correctionsList.trim().length === 0) {
         throw new Error('SAP AI Core devolvió una respuesta vacía');
@@ -687,17 +1381,23 @@ RELEVANCIA: ${result.similarity}
       // Limpiar caracteres mal codificados
       correctionsList = cleanTextEncoding(correctionsList);
       
+      // Filtrar falsos positivos de la IA
+      correctionsList = filterFalsePositives(correctionsList);
+      
+      // Filtrar errores/advertencias prohibidos (Apartado 18, IVA 21%)
+      correctionsList = filterProhibitedErrors(correctionsList);
+      
       loggerService.success('PDF-CORRECTION', 'Correcciones generadas por IA', { 
         length: correctionsList.length 
       });
-      console.log(`[PDF-CORRECTION] Correcciones generadas: ${correctionsList.length} caracteres`);
+      console.log(`[PDF-CORRECTION] ✅ Correcciones procesadas: ${correctionsList.length} caracteres`);
       
     } catch (aiError) {
       loggerService.error('PDF-CORRECTION', 'Error en SAP AI Core', { 
         error: aiError.message,
         status: aiError.status || aiError.code
       });
-      console.error(`[PDF-CORRECTION] Error detallado en SAP AI Core:`, {
+      console.error(`[PDF-CORRECTION] ❌ ERROR en SAP AI Core:`, {
         message: aiError.message,
         status: aiError.status || aiError.code,
         response: aiError.response?.data || 'No response data',
@@ -713,7 +1413,12 @@ RELEVANCIA: ${result.similarity}
     const newPdf = await PDFDocument.create();
     
     // 4. Añadir páginas del informe de validación
-    await addValidationReportPages(newPdf, correctionsList);
+    // Usar fileName recibido como parámetro, o extraerlo del path si no se proporcionó
+    let displayFileName = fileName || path.basename(originalPdfPath);
+    // Quitar extensión si la tiene
+    displayFileName = displayFileName.replace(/\.(pdf|docx?|PDF|DOCX?)$/i, '');
+    console.log(`[PDF-CORRECTION] 📄 Nombre de archivo para PDF: "${displayFileName}"`);
+    await addValidationReportPages(newPdf, correctionsList, displayFileName);
     
     // 6. Generar PDF final
     const finalPdfBytes = await newPdf.save();
@@ -846,10 +1551,11 @@ async function addFileAndContextAnalysisReportPages(pdf, analysisReport, context
 
   yPosition -= 30;
 
-  // Fecha y hora
+  // Fecha y hora (zona horaria Europe/Madrid - UTC+1/UTC+2)
   const now = new Date();
-  const dateStr = now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES');
-  currentPage.drawText(`Generado: ${dateStr}`, {
+  const dateStr = now.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' ' + 
+                  now.toLocaleTimeString('ca-ES', { timeZone: 'Europe/Madrid', hour12: false });
+  currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
     size: 10,
@@ -969,10 +1675,11 @@ async function addContextAnalysisReportPages(pdf, analysisReport, contextId, doc
 
   yPosition -= 30;
 
-  // Fecha y hora
+  // Fecha y hora (zona horaria Europe/Madrid - UTC+1/UTC+2)
   const now = new Date();
-  const dateStr = now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES');
-  currentPage.drawText(`Generado: ${dateStr}`, {
+  const dateStr = now.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' ' + 
+                  now.toLocaleTimeString('ca-ES', { timeZone: 'Europe/Madrid', hour12: false });
+  currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
     size: 10,
@@ -1045,7 +1752,7 @@ async function addContextAnalysisReportPages(pdf, analysisReport, contextId, doc
     }
   }
 }
-async function addValidationReportPages(pdf, validationReport) {
+async function addValidationReportPages(pdf, validationReport, fileName = 'document.pdf') {
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
   
@@ -1061,7 +1768,7 @@ async function addValidationReportPages(pdf, validationReport) {
   let lineCount = 0;
   
   // Título principal
-  currentPage.drawText('INFORME DE VALIDACIÓN DE PLIEGO', {
+  currentPage.drawText('INFORME DE VALIDACIÓ DE PLEC', {
     x: margin,
     y: yPosition,
     size: 18,
@@ -1071,10 +1778,23 @@ async function addValidationReportPages(pdf, validationReport) {
   
   yPosition -= 30;
   
-  // Fecha y hora
+  // Nombre del archivo
+  const cleanFileName = cleanTextForPDF(fileName);
+  currentPage.drawText(`Arxiu: ${cleanFileName}`, {
+    x: margin,
+    y: yPosition,
+    size: 10,
+    font: font,
+    color: rgb(0.3, 0.3, 0.3)
+  });
+  
+  yPosition -= 20;
+  
+  // Fecha y hora (zona horaria Europe/Madrid - UTC+1/UTC+2)
   const now = new Date();
-  const dateStr = now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES');
-  currentPage.drawText(`Generado: ${dateStr}`, {
+  const dateStr = now.toLocaleDateString('ca-ES', { timeZone: 'Europe/Madrid' }) + ' ' + 
+                  now.toLocaleTimeString('ca-ES', { timeZone: 'Europe/Madrid', hour12: false });
+  currentPage.drawText(`Generat: ${dateStr}`, {
     x: margin,
     y: yPosition,
     size: 10,
@@ -1083,7 +1803,7 @@ async function addValidationReportPages(pdf, validationReport) {
   });
   
   yPosition -= 40;
-  lineCount += 4;
+  lineCount += 5;
   
   // Procesar el contenido línea por línea
   const lines = validationReport.split('\n');
@@ -1099,7 +1819,7 @@ async function addValidationReportPages(pdf, validationReport) {
       lineCount = 0;
       
       // Título en nueva página
-      currentPage.drawText('INFORME DE VALIDACIÓN (continuación)', {
+      currentPage.drawText('INFORME DE VALIDACIÓ (continuació)', {
         x: margin,
         y: yPosition,
         size: 16,
@@ -1171,42 +1891,42 @@ function processLineFormatting(line) {
   const textLower = text.toLowerCase();
 
   // Detectar títulos y secciones con múltiples patrones
-  if (text.startsWith('🔴') || text.startsWith('[ERROR CRITICO]') ||
-      text.startsWith('ERRORES CRÍTICOS') || textLower.includes('errores críticos') ||
-      text.startsWith('# ERRORES CRÍTICOS') || text.startsWith('### ERRORES CRÍTICOS')) {
+  if (text.startsWith('🔴') || text.startsWith('[ERROR CRITIC]') ||
+      text.startsWith('ERRORS CRÍTICS') || textLower.includes('errors crítics') ||
+      text.startsWith('# ERRORS CRÍTICS') || text.startsWith('### ERRORS CRÍTICS')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0.8, 0, 0); // Rojo
     // Limpiar marcadores adicionales
-    text = text.replace(/^🔴\s*|^\[ERROR CRITICO\]\s*|^ERRORES CRÍTICOS\s*|^#+\s*ERRORES CRÍTICOS\s*/i, '').trim();
-    if (!text) text = 'ERRORES CRÍTICOS:';
+    text = text.replace(/^🔴\s*|^\[ERROR CRITIC\]\s*|^ERRORS CRÍTICS\s*|^#+\s*ERRORS CRÍTICS\s*/i, '').trim();
+    if (!text) text = 'ERRORS CRÍTICS:';
   } else if (text.startsWith('🟡') || text.startsWith('[ADVERTENCIA]') ||
-             text.startsWith('ADVERTENCIAS') || textLower.includes('advertencias') ||
-             text.startsWith('# ADVERTENCIAS') || text.startsWith('### ADVERTENCIAS')) {
+             text.startsWith('ADVERTENCIES') || textLower.includes('advertencies') ||
+             text.startsWith('# ADVERTENCIES') || text.startsWith('### ADVERTENCIES')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0.8, 0.6, 0); // Naranja
     // Limpiar marcadores adicionales
-    text = text.replace(/^🟡\s*|^\[ADVERTENCIA\]\s*|^ADVERTENCIAS\s*|^#+\s*ADVERTENCIAS\s*/i, '').trim();
-    if (!text) text = 'ADVERTENCIAS:';
-  } else if (text.startsWith('✅') || text.startsWith('[SUGERENCIA]') ||
-             text.startsWith('SUGERENCIAS') || textLower.includes('sugerencias') ||
-             text.startsWith('# SUGERENCIAS') || text.startsWith('### SUGERENCIAS')) {
+    text = text.replace(/^🟡\s*|^\[ADVERTENCIA\]\s*|^ADVERTENCIES\s*|^#+\s*ADVERTENCIES\s*/i, '').trim();
+    if (!text) text = 'ADVERTENCIES:';
+  } else if (text.startsWith('✅') || text.startsWith('[SUGGERENCIA]') ||
+             text.startsWith('SUGGERENCIA') || textLower.includes('suggerencia') ||
+             text.startsWith('# SUGGERENCIA') || text.startsWith('### SUGGERENCIES')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0, 0.6, 0); // Verde
     // Limpiar marcadores adicionales
-    text = text.replace(/^✅\s*|^\[SUGERENCIA\]\s*|^SUGERENCIAS\s*|^#+\s*SUGERENCIAS\s*/i, '').trim();
+    text = text.replace(/^✅\s*|^\[SUGERENCIA\]\s*|^SUGERENCIES\s*|^#+\s*SUGERENCIES\s*/i, '').trim();
     if (!text) text = 'SUGERENCIAS:';
-  } else if (text.startsWith('📋') || text.startsWith('[CAMPOS VARIABLES]') ||
-             text.startsWith('CAMPOS VARIABLES') || textLower.includes('campos variables') ||
-             text.startsWith('# CAMPOS VARIABLES') || text.startsWith('### CAMPOS VARIABLES')) {
+  } else if (text.startsWith('📋') || text.startsWith('[CAMPS VARIABLES]') ||
+             text.startsWith('CAMPS VARIABLES') || textLower.includes('camps variables') ||
+             text.startsWith('# CAMPS VARIABLES') || text.startsWith('### CAMPS VARIABLES')) {
     isBold = true;
     fontSize = 14;
     color = rgb(0, 0, 0.8); // Azul
     // Limpiar marcadores adicionales
-    text = text.replace(/^📋\s*|^\[CAMPOS VARIABLES\]\s*|^CAMPOS VARIABLES\s*|^#+\s*CAMPOS VARIABLES\s*/i, '').trim();
-    if (!text) text = 'CAMPOS VARIABLES DETECTADOS:';
+    text = text.replace(/^📋\s*|^\[CAMPS VARIABLES\]\s*|^CAMPS VARIABLES\s*|^#+\s*CAMPS VARIABLES\s*/i, '').trim();
+    if (!text) text = 'CAMPS VARIABLES DETECTATS:';
   } else if (text.startsWith('===') || text.includes('================') ||
              text.startsWith('---') || text.includes('----------')) {
     // Separadores - hacer más pequeños
@@ -1218,8 +1938,7 @@ function processLineFormatting(line) {
     isBold = true;
     fontSize = 13;
     color = rgb(0.7, 0, 0); // Rojo más claro
-  } else if (textLower.startsWith('advertencia') || textLower.includes('cuidado') ||
-             textLower.includes('revisar')) {
+  } else if (textLower.startsWith('advertencia') || textLower.includes('cuidado')) {
     // Detectar líneas que mencionan advertencias
     fontSize = 13;
     color = rgb(0.7, 0.5, 0); // Naranja más claro
@@ -1231,30 +1950,39 @@ function processLineFormatting(line) {
   }
 
   // Detectar "Ubicación:" y "Contexto:" con formato especial
-  if (text.includes('- Ubicación:') || text.includes('- Ubicacion:')) {
-    indent = 40;
+  if (text.includes('- Ubicació:') || text.includes('- Ubicacio:')) {
+    indent = 20;
     fontSize = 11;
     color = rgb(0, 0, 0); // Negro normal
-    isBold = false;
-  } else if (text.includes('- Contexto:')) {
-    indent = 40;
+    isBold = true;
+  } else if (text.includes('- Context:')) {
+    indent = 60;
     fontSize = 11;
     color = rgb(0.4, 0.4, 0.4); // Gris oscuro
-    isBold = false;
+    isBold = true;
   }
+
+    // Detectar "NOTA IMPORTANT" con formato especial
+  if (text.includes('NOTA IMPORTANT: ')) {
+    indent = 0;
+    fontSize = 9;
+    color = rgb(0.4, 0.4, 0.4); // Gris oscuro
+    isBold = true;
+  }
+
   // Detectar elementos de lista (errores principales) - NEGRITA
-  else if (text.startsWith('- ') && !text.includes('Ubicación:') && !text.includes('Contexto:')) {
-    indent = 20;
-    isBold = true; // Errores en negrita
+  else if (text.startsWith('- ') && !text.includes('Ubicació:') && !text.includes('Context:')) {
+    indent = 40;
+    isBold = false; // Errores en negrita
     fontSize = 12;
   } else if (text.startsWith('• ') || text.startsWith('· ') ||
       /^\d+\.\s/.test(text) || /^[a-zA-Z]\.\s/.test(text)) {
-    indent = 20;
+    indent = 40;
   } else if (text.startsWith('  - ') || text.startsWith('  • ') || text.startsWith('  · ') ||
              /^  \d+\.\s/.test(text) || /^  [a-zA-Z]\.\s/.test(text)) {
     indent = 40;
   } else if (text.startsWith('    - ') || text.startsWith('    • ') || text.startsWith('    · ')) {
-    indent = 60;
+    indent = 40;
   }
 
   return { text, isBold, fontSize, color, indent };
@@ -1288,6 +2016,71 @@ function cleanTextForPDF(text) {
     // Normalizar espacios múltiples
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/**
+ * Filtra falsos positivos de la respuesta de la IA
+ * Elimina errores que no deberían reportarse
+ */
+function filterFalsePositives(text) {
+  if (!text) return text;
+  
+  const lines = text.split('\n');
+  const filteredLines = [];
+  let skipNextLines = 0;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const lowerLine = line.toLowerCase();
+    
+    // Saltar líneas si estamos en modo skip
+    if (skipNextLines > 0) {
+      skipNextLines--;
+      continue;
+    }
+    
+    // Filtrar errores de diferencia 0,00 o 0,01 EUR
+    if (lowerLine.includes('diferència de 0,00') || 
+        lowerLine.includes('diferencia de 0,00') ||
+        lowerLine.includes('diferència de 0,01') ||
+        lowerLine.includes('diferencia de 0,01') ||
+        (lowerLine.includes('incoherència numèrica') && 
+         (lowerLine.includes('0,00 eur') || lowerLine.includes('0,01 eur')))) {
+      console.log(`[FILTER] ❌ Eliminando falso positivo de diferencia 0,00/0,01: ${line.substring(0, 80)}...`);
+      // Saltar las siguientes líneas que son parte del mismo error (ubicación, context, etc.)
+      skipNextLines = 4;
+      continue;
+    }
+    
+    // Filtrar campos variables inventados si no hay evidencia real
+    if ((lowerLine.includes('camps variables detectats') || 
+         lowerLine.includes('campos variables detectados')) &&
+        (lowerLine.includes('zrm_dm_mat_co2') || 
+         lowerLine.includes('zvrm_qdc_mat_lic') ||
+         lowerLine.includes('{b}') || 
+         lowerLine.includes('{/b}'))) {
+      // Verificar si es un ejemplo inventado (no hay contexto real)
+      const nextLine = lines[i + 1] || '';
+      if (!nextLine.includes('Ubicació') && !nextLine.includes('Ubicación')) {
+        console.log(`[FILTER] ❌ Eliminando campos variables posiblemente inventados: ${line.substring(0, 80)}...`);
+        continue;
+      }
+    }
+    
+    // Filtrar errores de tablas APLICA/NO APLICA con saltos de línea (8.3.3, 8.3.6)
+    if ((lowerLine.includes('taula aplica/no aplica') || 
+         lowerLine.includes('tabla aplica/no aplica')) &&
+        (lowerLine.includes('8.3.3') || lowerLine.includes('8.3.6')) &&
+        lowerLine.includes('salt')) {
+      console.log(`[FILTER] ❌ Eliminando falso positivo de tabla con salto de línea: ${line.substring(0, 80)}...`);
+      skipNextLines = 4;
+      continue;
+    }
+    
+    filteredLines.push(line);
+  }
+  
+  return filteredLines.join('\n');
 }
 
 /**
@@ -1715,6 +2508,7 @@ async function createPDFFromText(text, originalPdfPath) {
       font: font,
       color: rgb(0, 0, 0)
     });
+
     
     yPosition -= lineHeight;
     lineCount++;

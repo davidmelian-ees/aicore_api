@@ -181,6 +181,17 @@ class SQLiteVectorStore {
         addedAt: new Date().toISOString(),
         contentLength: document.content.length
       });
+      
+      // Validar que el JSON se puede parsear correctamente (test de ida y vuelta)
+      try {
+        const testParse = JSON.parse(embeddingJson);
+        if (!validateEmbedding(testParse)) {
+          throw new Error('Embedding no se puede serializar/deserializar correctamente');
+        }
+      } catch (parseError) {
+        console.error(`[SQLITE-VECTOR] ❌ Error validando serialización de embedding para ${document.id}:`, parseError);
+        throw new Error(`Embedding no se puede serializar correctamente: ${parseError.message}`);
+      }
 
       // Insertar en base de datos
       const stmt = this.db.prepare(`
@@ -199,7 +210,26 @@ class SQLiteVectorStore {
         document.metadata?.chunkIndex || 0
       );
 
-      console.log(`[SQLITE-VECTOR] ✅ Documento agregado: ${document.id}`);
+      // Verificar que se guardó correctamente
+      const verifyStmt = this.db.prepare('SELECT embedding FROM documents WHERE id = ?');
+      const verifyRow = verifyStmt.get(document.id);
+      
+      if (!verifyRow || !verifyRow.embedding) {
+        throw new Error('Documento no se guardó correctamente en la base de datos');
+      }
+      
+      // Verificar que se puede leer correctamente
+      try {
+        const verifyEmbedding = JSON.parse(verifyRow.embedding);
+        if (!validateEmbedding(verifyEmbedding)) {
+          throw new Error('Embedding guardado no es válido al leerlo');
+        }
+      } catch (verifyError) {
+        console.error(`[SQLITE-VECTOR] ❌ Error verificando embedding guardado para ${document.id}:`, verifyError);
+        throw new Error(`Embedding guardado no se puede leer: ${verifyError.message}`);
+      }
+
+      console.log(`[SQLITE-VECTOR] ✅ Documento agregado y verificado: ${document.id}`);
 
       return {
         id: document.id,
@@ -245,6 +275,19 @@ class SQLiteVectorStore {
       for (const row of rows) {
         try {
           const embedding = JSON.parse(row.embedding);
+          
+          // Validar que el embedding parseado sea válido
+          if (!validateEmbedding(embedding)) {
+            console.warn(`[SQLITE-VECTOR] ⚠️ Embedding inválido para ${row.id}: no es un array válido de números`);
+            continue;
+          }
+          
+          // Validar dimensiones coincidentes
+          if (embedding.length !== queryEmbedding.length) {
+            console.warn(`[SQLITE-VECTOR] ⚠️ Dimensión incompatible para ${row.id}: query=${queryEmbedding.length}, stored=${embedding.length}`);
+            continue;
+          }
+          
           const similarity = calculateCosineSimilarity(queryEmbedding, embedding);
           
           if (similarity >= (filters.minSimilarity || 0.1)) {
@@ -256,7 +299,7 @@ class SQLiteVectorStore {
             });
           }
         } catch (error) {
-          console.warn(`[SQLITE-VECTOR] ⚠️ Error procesando embedding para ${row.id}`);
+          console.warn(`[SQLITE-VECTOR] ⚠️ Error procesando embedding para ${row.id}:`, error.message);
         }
       }
 
@@ -465,6 +508,304 @@ class SQLiteVectorStore {
         message: error.message,
         checkedAt: new Date().toISOString()
       };
+    }
+  }
+
+  /**
+   * Diagnostica embeddings corruptos en la base de datos
+   * @param {string} contextId - ID del contexto a diagnosticar (opcional)
+   * @returns {Object} - Reporte de diagnóstico
+   */
+  diagnoseEmbeddings(contextId = null) {
+    this._ensureInitialized();
+
+    try {
+      console.log('[SQLITE-VECTOR] 🔍 Iniciando diagnóstico de embeddings...');
+      
+      let sql = 'SELECT id, embedding, LENGTH(embedding) as embedding_length FROM documents';
+      const params = [];
+      
+      if (contextId) {
+        sql += ' WHERE context_id = ?';
+        params.push(contextId);
+      }
+      
+      const stmt = this.db.prepare(sql);
+      const rows = stmt.all(...params);
+      
+      const report = {
+        totalDocuments: rows.length,
+        validEmbeddings: 0,
+        invalidEmbeddings: 0,
+        corruptedIds: [],
+        embeddingSizes: {
+          min: Infinity,
+          max: 0,
+          avg: 0
+        },
+        dimensionGroups: {} // Agrupar por dimensión
+      };
+      
+      let totalSize = 0;
+      
+      for (const row of rows) {
+        try {
+          // Intentar parsear el embedding
+          const embedding = JSON.parse(row.embedding);
+          
+          // Validar el embedding
+          if (validateEmbedding(embedding)) {
+            report.validEmbeddings++;
+            const size = embedding.length;
+            totalSize += size;
+            
+            if (size < report.embeddingSizes.min) report.embeddingSizes.min = size;
+            if (size > report.embeddingSizes.max) report.embeddingSizes.max = size;
+            
+            // Agrupar por dimensión
+            if (!report.dimensionGroups[size]) {
+              report.dimensionGroups[size] = {
+                count: 0,
+                ids: []
+              };
+            }
+            report.dimensionGroups[size].count++;
+            if (report.dimensionGroups[size].ids.length < 5) {
+              report.dimensionGroups[size].ids.push(row.id);
+            }
+          } else {
+            report.invalidEmbeddings++;
+            report.corruptedIds.push({
+              id: row.id,
+              reason: 'Embedding no es un array válido de números',
+              embeddingLength: row.embedding_length
+            });
+          }
+        } catch (error) {
+          report.invalidEmbeddings++;
+          report.corruptedIds.push({
+            id: row.id,
+            reason: error.message,
+            embeddingLength: row.embedding_length
+          });
+        }
+      }
+      
+      if (report.validEmbeddings > 0) {
+        report.embeddingSizes.avg = Math.round(totalSize / report.validEmbeddings);
+      }
+      
+      console.log('[SQLITE-VECTOR] 📊 Diagnóstico completado:');
+      console.log(`  - Total documentos: ${report.totalDocuments}`);
+      console.log(`  - Embeddings válidos: ${report.validEmbeddings}`);
+      console.log(`  - Embeddings inválidos: ${report.invalidEmbeddings}`);
+      console.log(`  - Dimensión promedio: ${report.embeddingSizes.avg}`);
+      console.log(`  - Rango dimensiones: ${report.embeddingSizes.min} - ${report.embeddingSizes.max}`);
+      
+      // Mostrar grupos por dimensión
+      console.log('  - Grupos por dimensión:');
+      Object.entries(report.dimensionGroups).forEach(([dim, data]) => {
+        const modelType = dim === '384' ? '(fallback local)' : dim === '1536' ? '(SAP AI Core)' : '';
+        console.log(`    * ${dim}D: ${data.count} chunks ${modelType}`);
+      });
+      
+      if (report.corruptedIds.length > 0) {
+        console.log(`  - IDs corruptos: ${report.corruptedIds.slice(0, 5).map(c => c.id).join(', ')}${report.corruptedIds.length > 5 ? '...' : ''}`);
+      }
+      
+      return report;
+      
+    } catch (error) {
+      console.error('[SQLITE-VECTOR] ❌ Error en diagnóstico:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Repara embeddings corruptos regenerándolos
+   * @param {Array<string>} documentIds - IDs de documentos a reparar (opcional, si no se proporciona repara todos)
+   * @returns {Object} - Resultado de la reparación
+   */
+  async repairEmbeddings(documentIds = null) {
+    this._ensureInitialized();
+
+    try {
+      console.log('[SQLITE-VECTOR] 🔧 Iniciando reparación de embeddings...');
+      
+      // Si no se proporcionan IDs, diagnosticar primero para encontrar los corruptos
+      if (!documentIds) {
+        const diagnosis = this.diagnoseEmbeddings();
+        documentIds = diagnosis.corruptedIds.map(c => c.id);
+      }
+      
+      if (documentIds.length === 0) {
+        console.log('[SQLITE-VECTOR] ✅ No hay embeddings que reparar');
+        return { repaired: 0, failed: 0 };
+      }
+      
+      console.log(`[SQLITE-VECTOR] 🔧 Reparando ${documentIds.length} embeddings...`);
+      
+      const result = { repaired: 0, failed: 0, errors: [] };
+      
+      for (const docId of documentIds) {
+        try {
+          // Obtener el documento
+          const stmt = this.db.prepare('SELECT content FROM documents WHERE id = ?');
+          const row = stmt.get(docId);
+          
+          if (!row) {
+            result.failed++;
+            result.errors.push({ id: docId, error: 'Documento no encontrado' });
+            continue;
+          }
+          
+          // Regenerar embedding
+          console.log(`[SQLITE-VECTOR] 🔄 Regenerando embedding para ${docId}...`);
+          const newEmbedding = await generateEmbedding(row.content);
+          
+          // Validar el nuevo embedding
+          if (!validateEmbedding(newEmbedding)) {
+            result.failed++;
+            result.errors.push({ id: docId, error: 'Nuevo embedding inválido' });
+            continue;
+          }
+          
+          // Actualizar en la base de datos
+          const updateStmt = this.db.prepare('UPDATE documents SET embedding = ? WHERE id = ?');
+          updateStmt.run(JSON.stringify(newEmbedding), docId);
+          
+          result.repaired++;
+          console.log(`[SQLITE-VECTOR] ✅ Embedding reparado: ${docId}`);
+          
+        } catch (error) {
+          result.failed++;
+          result.errors.push({ id: docId, error: error.message });
+          console.error(`[SQLITE-VECTOR] ❌ Error reparando ${docId}:`, error.message);
+        }
+      }
+      
+      console.log(`[SQLITE-VECTOR] 🏁 Reparación completada: ${result.repaired} reparados, ${result.failed} fallidos`);
+      
+      return result;
+      
+    } catch (error) {
+      console.error('[SQLITE-VECTOR] ❌ Error en reparación:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Normaliza todos los embeddings a la misma dimensión (SAP AI Core)
+   * Regenera embeddings que tengan dimensión diferente a la esperada
+   * @param {number} targetDimension - Dimensión objetivo (por defecto 1536 para SAP AI Core)
+   * @returns {Object} - Resultado de la normalización
+   */
+  async normalizeEmbeddings(targetDimension = 1536) {
+    this._ensureInitialized();
+
+    try {
+      console.log(`[SQLITE-VECTOR] 🔄 Normalizando embeddings a dimensión ${targetDimension}...`);
+      
+      // Diagnosticar para encontrar embeddings con dimensión incorrecta
+      const diagnosis = this.diagnoseEmbeddings();
+      
+      // Encontrar todos los embeddings que no tienen la dimensión objetivo
+      const toNormalize = [];
+      for (const [dim, data] of Object.entries(diagnosis.dimensionGroups)) {
+        if (parseInt(dim) !== targetDimension) {
+          console.log(`[SQLITE-VECTOR] 📊 Encontrados ${data.count} embeddings con dimensión ${dim} (necesitan normalización)`);
+          
+          // Obtener todos los IDs con esta dimensión
+          const stmt = this.db.prepare('SELECT id FROM documents');
+          const rows = stmt.all();
+          
+          for (const row of rows) {
+            try {
+              const embStmt = this.db.prepare('SELECT embedding FROM documents WHERE id = ?');
+              const embRow = embStmt.get(row.id);
+              const embedding = JSON.parse(embRow.embedding);
+              
+              if (embedding.length === parseInt(dim)) {
+                toNormalize.push(row.id);
+              }
+            } catch (error) {
+              console.warn(`[SQLITE-VECTOR] ⚠️ Error verificando ${row.id}:`, error.message);
+            }
+          }
+        }
+      }
+      
+      if (toNormalize.length === 0) {
+        console.log(`[SQLITE-VECTOR] ✅ Todos los embeddings ya tienen dimensión ${targetDimension}`);
+        return { 
+          normalized: 0, 
+          failed: 0, 
+          message: `Todos los embeddings ya tienen la dimensión correcta (${targetDimension}D)` 
+        };
+      }
+      
+      console.log(`[SQLITE-VECTOR] 🔧 Normalizando ${toNormalize.length} embeddings...`);
+      
+      const result = { normalized: 0, failed: 0, errors: [] };
+      
+      for (const docId of toNormalize) {
+        try {
+          // Obtener el documento
+          const stmt = this.db.prepare('SELECT content, embedding FROM documents WHERE id = ?');
+          const row = stmt.get(docId);
+          
+          if (!row) {
+            result.failed++;
+            result.errors.push({ id: docId, error: 'Documento no encontrado' });
+            continue;
+          }
+          
+          const oldEmbedding = JSON.parse(row.embedding);
+          console.log(`[SQLITE-VECTOR] 🔄 Normalizando ${docId} (${oldEmbedding.length}D → ${targetDimension}D)...`);
+          
+          // Regenerar embedding con SAP AI Core
+          const newEmbedding = await generateEmbedding(row.content);
+          
+          // Validar el nuevo embedding
+          if (!validateEmbedding(newEmbedding)) {
+            result.failed++;
+            result.errors.push({ id: docId, error: 'Nuevo embedding inválido' });
+            continue;
+          }
+          
+          if (newEmbedding.length !== targetDimension) {
+            result.failed++;
+            result.errors.push({ 
+              id: docId, 
+              error: `Embedding generado tiene dimensión ${newEmbedding.length}, esperada ${targetDimension}` 
+            });
+            continue;
+          }
+          
+          // Actualizar en la base de datos
+          const updateStmt = this.db.prepare('UPDATE documents SET embedding = ? WHERE id = ?');
+          updateStmt.run(JSON.stringify(newEmbedding), docId);
+          
+          result.normalized++;
+          
+          if (result.normalized % 10 === 0) {
+            console.log(`[SQLITE-VECTOR] 📊 Progreso: ${result.normalized}/${toNormalize.length} normalizados`);
+          }
+          
+        } catch (error) {
+          result.failed++;
+          result.errors.push({ id: docId, error: error.message });
+          console.error(`[SQLITE-VECTOR] ❌ Error normalizando ${docId}:`, error.message);
+        }
+      }
+      
+      console.log(`[SQLITE-VECTOR] 🏁 Normalización completada: ${result.normalized} normalizados, ${result.failed} fallidos`);
+      
+      return result;
+      
+    } catch (error) {
+      console.error('[SQLITE-VECTOR] ❌ Error en normalización:', error);
+      throw error;
     }
   }
 }

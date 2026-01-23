@@ -161,6 +161,32 @@ export async function listContexts() {
 }
 
 /**
+ * Obtiene el primer contexto disponible (el que tenga más documentos)
+ * @returns {Promise<string|null>} - ID del primer contexto disponible o null
+ */
+export async function getFirstAvailableContext() {
+  try {
+    const allContexts = await listContexts();
+    
+    if (!allContexts || allContexts.length === 0) {
+      console.log('[RAG] ⚠️ No hay contextos disponibles');
+      return null;
+    }
+    
+    // Ordenar por número de documentos (descendente) y tomar el primero
+    const sortedContexts = allContexts.sort((a, b) => (b.documentCount || 0) - (a.documentCount || 0));
+    const firstContext = sortedContexts[0];
+    
+    console.log(`[RAG] 📌 Primer contexto disponible: ${firstContext.id} (${firstContext.documentCount || 0} documentos)`);
+    return firstContext.id;
+    
+  } catch (error) {
+    console.error('[RAG] ❌ Error obteniendo primer contexto:', error);
+    return null;
+  }
+}
+
+/**
  * Obtiene información de un contexto específico
  * @param {string} contextId - ID del contexto
  * @returns {Promise<Object|null>} - Información del contexto o null si no existe
@@ -236,6 +262,45 @@ export async function deleteContext(contextId) {
   } catch (error) {
     console.error('[RAG] Error eliminando contexto:', error);
     throw new Error(`Error eliminando contexto: ${error.message}`);
+  }
+}
+
+/**
+ * Limpia todos los documentos de un contexto sin eliminar el contexto
+ * @param {string} contextId - ID del contexto
+ * @returns {Promise<Object>} - Resultado de la limpieza
+ */
+export async function clearContextDocuments(contextId) {
+  await initializeContexts();
+  const context = contexts.get(contextId);
+  if (!context) {
+    return { cleared: false, contextId, reason: 'Contexto no encontrado' };
+  }
+  
+  try {
+    console.log(`[RAG] 🧹 Limpiando documentos del contexto: ${contextId}`);
+    
+    // Eliminar todos los documentos del contexto
+    const store = await getVectorStore();
+    const documents = await store.getDocumentsByContext(contextId);
+    
+    console.log(`[RAG] Encontrados ${documents.length} documentos para eliminar`);
+    
+    for (const doc of documents) {
+      await store.deleteDocument(doc.documentId);
+    }
+    
+    console.log(`[RAG] ✅ Documentos eliminados del contexto: ${context.name} (${contextId})`);
+    
+    return {
+      cleared: true,
+      contextId,
+      documentsDeleted: documents.length
+    };
+    
+  } catch (error) {
+    console.error('[RAG] Error limpiando documentos del contexto:', error);
+    throw new Error(`Error limpiando documentos: ${error.message}`);
   }
 }
 
@@ -388,11 +453,28 @@ export async function searchContext(query, options = {}) {
       results = store.search(queryEmbedding, topK * 2, minSimilarity);
     }
     
-    // Filtrar por contexto
+    // Filtrar por contexto (CON FALLBACK A DEFAULT)
     if (contextId && contextId !== 'all') {
-      results = results.filter(result => 
-        result.metadata?.contextId === contextId
-      );
+      console.log(`[RAG] Filtrando por contextId: ${contextId}`);
+      const originalResults = [...results];
+      
+      // Primero intentar filtrar por el contextId específico
+      results = results.filter(result => {
+        const resultContextId = result.metadata?.contextId || 'default';
+        return resultContextId === contextId;
+      });
+      
+      console.log(`[RAG] ✅ Resultados con contextId específico: ${results.length} chunks`);
+      
+      // Si no hay resultados con el contextId específico, usar también 'default'
+      if (results.length === 0) {
+        console.log(`[RAG] ⚠️ No hay resultados con contextId: ${contextId}, incluyendo contexto 'default'...`);
+        results = originalResults.filter(result => {
+          const resultContextId = result.metadata?.contextId || 'default';
+          return resultContextId === contextId || resultContextId === 'default';
+        });
+        console.log(`[RAG] ✅ Resultados incluyendo 'default': ${results.length} chunks`);
+      }
     }
     
     // Filtrar por documento específico si se especifica

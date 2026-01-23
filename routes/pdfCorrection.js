@@ -14,6 +14,8 @@ import pdfVisualAnalyzer from '../services/pdfVisualAnalyzer.js';
 import { highlightErrorsInPDF, parseErrorsFromAIResponse } from '../services/pdfHighlightService.js';
 import { storeErrorsForPliego, getErrorsForPliego, generateAggregatedReport, formatAggregatedReport, deleteErrorsForPliego, clearAllErrors } from '../services/pliegoErrorsService.js';
 import loggerService from '../services/loggerService.js';
+import { convertDocxToPdf, convertDocxBufferToPdf, isDocxFile, detectFileTypeFromBuffer } from '../services/docToPdfConverter.js';
+import validacionService from '../services/validacionService.js';
 
 const router = express.Router();
 
@@ -37,10 +39,13 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
+    const isPdf = file.mimetype === 'application/pdf';
+    const isDocx = isDocxFile(file.mimetype, file.originalname);
+    
+    if (isPdf || isDocx) {
       cb(null, true);
     } else {
-      cb(new Error('Solo se permiten archivos PDF'), false);
+      cb(new Error('Solo se permiten archivos PDF, DOC o DOCX'), false);
     }
   },
   limits: {
@@ -52,101 +57,260 @@ const upload = multer({
 /**
  * POST /api/pdf-correction/generate-list
  * Genera un PDF con el contenido original + lista de correcciones
- * Soporta dos formatos:
- * 1. Multipart/form-data con campo 'pdf' (archivo)
- * 2. JSON con campo 'pdfBase64' (string base64)
+ * Soporta tres formatos:
+ * 1. Multipart/form-data con campo 'pdf' (archivo PDF o DOC/DOCX)
+ * 2. JSON con campo 'pdfBase64' (string base64 de PDF o DOC/DOCX)
+ * 
+ * Los archivos DOC/DOCX se convierten automáticamente a PDF antes de procesarse.
+ * La detección del tipo de archivo se hace por magic bytes, no por extensión.
+ * 
+ * MEJORAS:
+ * - Soporte completo para DOC/DOCX (mejor detección de errores en formato Word)
+ * - Análisis visual automático del documento
+ * - Almacenamiento automático en base de datos de errores
+ * - Logging detallado para debugging
+ * - Limpieza automática de archivos temporales
  */
 router.post('/generate-list', upload.single('pdf'), async (req, res) => {
+  const startTime = Date.now();
   let tempFilePath = null;
+  let convertedPdfPath = null;
   
   try {
-    // Determinar origen del PDF: archivo o base64
+    // Determinar origen del documento: archivo o base64
     let pdfPath;
     let fileName;
+    let fileSize = 0;
 
     if (req.file) {
       // Caso 1: Archivo subido via multipart/form-data
-      pdfPath = req.file.path;
       fileName = req.file.originalname;
-      loggerService.info('PDF-CORRECTION-API', 'Archivo PDF recibido', { fileName, size: req.file.size });
-      console.log(`[PDF-CORRECTION] Procesando archivo: ${fileName}`);
+      fileSize = req.file.size;
+      
+      // Verificar si es un archivo DOC/DOCX que necesita conversión
+      if (isDocxFile(req.file.mimetype, req.file.originalname)) {
+        loggerService.info('PDF-CORRECTION-API', 'Archivo DOC/DOCX recibido', { fileName, size: fileSize });
+        console.log(`[PDF-CORRECTION] 📄 Convirtiendo DOC/DOCX a PDF: ${fileName}`);
+        
+        // Convertir DOCX a PDF
+        const pdfBuffer = await convertDocxToPdf(req.file.path);
+        
+        // Guardar PDF convertido temporalmente
+        const uploadDir = 'uploads/pdf-corrections';
+        await fs.mkdir(uploadDir, { recursive: true });
+        
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        convertedPdfPath = path.join(uploadDir, `converted-${uniqueSuffix}.pdf`);
+        await fs.writeFile(convertedPdfPath, pdfBuffer);
+        
+        pdfPath = convertedPdfPath;
+        fileName = fileName.replace(/\.(docx?|DOCX?)$/, '.pdf');
+        
+        loggerService.info('PDF-CORRECTION-API', 'DOC/DOCX convertido a PDF', { fileName, size: pdfBuffer.length });
+        console.log(`[PDF-CORRECTION] ✅ Conversión completada: ${fileName} (${pdfBuffer.length} bytes)`);
+      } else {
+        // Es un PDF normal
+        pdfPath = req.file.path;
+        loggerService.info('PDF-CORRECTION-API', 'Archivo PDF recibido', { fileName, size: fileSize });
+        console.log(`[PDF-CORRECTION] 📄 Procesando PDF: ${fileName} (${fileSize} bytes)`);
+      }
     } else if (req.body.pdfBase64) {
-      // Caso 2: PDF en base64
-      console.log(`[PDF-CORRECTION] Procesando PDF desde base64`);
+      // Caso 2: Documento en base64 (PDF o DOC/DOCX)
+      console.log(`[PDF-CORRECTION] 📦 Procesando documento desde base64`);
       
       // Crear archivo temporal desde base64
       const uploadDir = 'uploads/pdf-corrections';
       await fs.mkdir(uploadDir, { recursive: true });
       
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      tempFilePath = path.join(uploadDir, `pdf-base64-${uniqueSuffix}.pdf`);
       
-      // Decodificar base64 y escribir archivo
-      const pdfBuffer = Buffer.from(req.body.pdfBase64, 'base64');
-      await fs.writeFile(tempFilePath, pdfBuffer);
+      // Decodificar base64
+      const fileBuffer = Buffer.from(req.body.pdfBase64, 'base64');
+      fileSize = fileBuffer.length;
       
-      pdfPath = tempFilePath;
-      fileName = req.body.fileName || `documento-${uniqueSuffix}.pdf`;
-      loggerService.info('PDF-CORRECTION-API', 'PDF base64 recibido y guardado', { fileName, size: pdfBuffer.length });
-      console.log(`[PDF-CORRECTION] PDF base64 guardado temporalmente: ${tempFilePath}`);
+      // Detectar tipo de archivo por magic bytes
+      const fileType = detectFileTypeFromBuffer(fileBuffer);
+      console.log(`[PDF-CORRECTION] 🔍 Tipo de archivo detectado: ${fileType}`);
+      
+      if (fileType === 'docx' || fileType === 'doc') {
+        // Es un DOC/DOCX, convertir a PDF
+        loggerService.info('PDF-CORRECTION-API', 'DOC/DOCX base64 recibido', { size: fileSize });
+        console.log(`[PDF-CORRECTION] 📄 Convirtiendo DOC/DOCX base64 a PDF...`);
+        
+        const pdfBuffer = await convertDocxBufferToPdf(fileBuffer);
+        
+        // Guardar PDF convertido temporalmente
+        convertedPdfPath = path.join(uploadDir, `converted-base64-${uniqueSuffix}.pdf`);
+        await fs.writeFile(convertedPdfPath, pdfBuffer);
+        
+        pdfPath = convertedPdfPath;
+        fileName = req.body.fileName ? req.body.fileName.replace(/\.(docx?|DOCX?)$/, '.pdf') : `documento-${uniqueSuffix}.pdf`;
+        
+        loggerService.info('PDF-CORRECTION-API', 'DOC/DOCX base64 convertido a PDF', { fileName, size: pdfBuffer.length });
+        console.log(`[PDF-CORRECTION] ✅ Conversión base64 completada: ${fileName}`);
+      } else if (fileType === 'pdf') {
+        // Es un PDF normal
+        tempFilePath = path.join(uploadDir, `pdf-base64-${uniqueSuffix}.pdf`);
+        await fs.writeFile(tempFilePath, fileBuffer);
+        
+        pdfPath = tempFilePath;
+        fileName = req.body.fileName || `documento-${uniqueSuffix}.pdf`;
+        loggerService.info('PDF-CORRECTION-API', 'PDF base64 recibido y guardado', { fileName, size: fileSize });
+        console.log(`[PDF-CORRECTION] 📄 PDF base64 guardado: ${fileName}`);
+      } else {
+        // Tipo de archivo no soportado
+        throw new Error(`Tipo de archivo no soportado. Se esperaba PDF, DOC o DOCX pero se detectó: ${fileType}`);
+      }
     } else {
-      loggerService.warn('PDF-CORRECTION-API', 'Request sin PDF');
+      loggerService.warn('PDF-CORRECTION-API', 'Request sin archivo');
       return res.status(400).json({
         success: false,
-        error: 'Debes proporcionar un archivo PDF (campo "pdf") o un string base64 (campo "pdfBase64")'
+        error: 'Debes proporcionar un archivo PDF/DOC/DOCX (campo "pdf") o un string base64 (campo "pdfBase64")'
       });
     }
 
+    // Extraer parámetros de la solicitud
     const pliegoId = req.body.pliegoId || `PLIEGO_${Date.now()}`;
-    const contextId = req.body.contextId || null;
-    const customPrompt = req.body.customPrompt || req.body.prompt || null; // Soportar ambos nombres
+    // Si no se especifica contextId o viene vacío, usar el primer contexto disponible
+    let contextId = req.body.contextId;
+    if (!contextId || contextId.trim() === '' || contextId === 'default') {
+      // Obtener el primer contexto disponible de la BD
+      const { getFirstAvailableContext } = await import('../services/ragService.js');
+      const firstContext = await getFirstAvailableContext();
+      contextId = firstContext || '09a6c72e-9c6f-4448-8ac7-d22d1c13e90b'; // Fallback al contexto conocido
+      console.log(`[PDF-CORRECTION] ℹ️ No se especificó contextId, usando: ${contextId}`);
+    }
+    const customPrompt = req.body.customPrompt || req.body.prompt || null;
     const username = req.username || req.body.username || 'anonymous';
+    const skipVisualAnalysis = req.body.skipVisualAnalysis === 'true' || req.body.skipVisualAnalysis === true;
+
+    // 🧹 LIMPIEZA AUTOMÁTICA: Eliminar validaciones expiradas (>3 días)
+    console.log(`[PDF-CORRECTION] 🧹 Limpiando validaciones expiradas...`);
+    const eliminados = await validacionService.limpiarValidacionesExpiradas();
+    if (eliminados > 0) {
+      console.log(`[PDF-CORRECTION] ✅ Eliminadas ${eliminados} validaciones expiradas`);
+    }
 
     loggerService.info('PDF-VALIDATION', `Iniciando validación de pliego: ${pliegoId}`, {
       username,
       fileName,
       contextId,
-      pliegoId
+      pliegoId,
+      fileSize
     });
 
-    // 1. Primero ejecutar análisis visual
-    console.log(`[PDF-CORRECTION] Ejecutando análisis visual del PDF...`);
-    const visualAnalysis = await pdfVisualAnalyzer.analyzeAll(pdfPath);
+    let visualAnalysis = null;
+    let visualReport = null;
+
+    // 1. Análisis visual (opcional, puede deshabilitarse para mayor velocidad)
+    if (!skipVisualAnalysis) {
+      console.log(`[PDF-CORRECTION] 🔍 Ejecutando análisis visual del documento...`);
+      try {
+        visualAnalysis = await pdfVisualAnalyzer.analyzeAll(pdfPath);
+        visualReport = pdfVisualAnalyzer.generateVisualErrorsReport(visualAnalysis);
+        console.log(`[PDF-CORRECTION] ✅ Análisis visual completado`);
+      } catch (visualError) {
+        console.warn(`[PDF-CORRECTION] ⚠️ Error en análisis visual (continuando sin él):`, visualError.message);
+        // Continuar sin análisis visual
+      }
+    } else {
+      console.log(`[PDF-CORRECTION] ⏭️ Análisis visual omitido (skipVisualAnalysis=true)`);
+    }
     
-    // 2. Generar reporte de errores visuales para pasarlo a la IA
-    const visualReport = pdfVisualAnalyzer.generateVisualErrorsReport(visualAnalysis);
-    
-    // 3. Ejecutar análisis de IA incluyendo los errores visuales como contexto
-    console.log(`[PDF-CORRECTION] Ejecutando análisis de IA con errores visuales como contexto...`);
+    // 2. Ejecutar análisis de IA con contexto visual (si existe)
+    console.log(`[PDF-CORRECTION] 🤖 Ejecutando análisis de IA...`);
+    console.log(`[PDF-CORRECTION] 📄 fileName recibido: "${fileName}"`);
     const aiResult = await generatePDFWithCorrectionsList(
       pdfPath,
       customPrompt,
       contextId,
-      visualReport // Pasar errores visuales a la IA
+      visualReport, // Pasar errores visuales a la IA (puede ser null)
+      fileName // Pasar el nombre del archivo original
     );
 
-    // 4. Almacenar errores en la base de datos
-    console.log(`[PDF-CORRECTION] Almacenando errores para pliego: ${pliegoId}...`);
+    console.log(`[PDF-CORRECTION] 📊 Resultado del análisis:`);
+    console.log(`[PDF-CORRECTION] - Success: ${aiResult.success}`);
+    console.log(`[PDF-CORRECTION] - correctionsList length: ${aiResult.correctionsList?.length || 0}`);
+    console.log(`[PDF-CORRECTION] - correctionsList preview:`, aiResult.correctionsList?.substring(0, 200));
+
+    if (!aiResult.success) {
+      throw new Error('Error en análisis de IA: ' + (aiResult.error || 'Unknown error'));
+    }
+
+    // 3. Almacenar errores en la base de datos
+    console.log(`[PDF-CORRECTION] 💾 Almacenando errores para pliego: ${pliegoId}...`);
+    console.log(`[PDF-CORRECTION] 📝 correctionsList a almacenar:`, aiResult.correctionsList?.substring(0, 300));
+    
     const storeResult = await storeErrorsForPliego(
       pliegoId,
       aiResult.correctionsList,
       {
         fileName: fileName,
         contextId: contextId,
-        username: username
+        username: username,
+        fileSize: fileSize
       }
     );
     console.log(`[PDF-CORRECTION] ✅ Almacenados: ${storeResult.criticalErrors} errores críticos, ${storeResult.warnings} advertencias`);
+
+    const processingTime = Date.now() - startTime;
 
     loggerService.success('PDF-VALIDATION', `Validación completada: ${pliegoId}`, {
       username,
       pliegoId,
       criticalErrors: storeResult.criticalErrors,
       warnings: storeResult.warnings,
-      fileName
+      fileName,
+      processingTime: `${processingTime}ms`
     });
 
-    // 5. El resultado ya incluye los errores visuales procesados por la IA
+    // 💾 GUARDAR VALIDACIÓN: Documento + Informe enlazados (3 días)
+    console.log(`[PDF-CORRECTION] 💾 Guardando validación enlazada...`);
+    let validacionGuardada = null;
+    try {
+      // Preparar documento para guardar
+      const documentoBuffer = await fs.readFile(pdfPath);
+      const documento = {
+        buffer: documentoBuffer,
+        originalname: fileName,
+        mimetype: 'application/pdf',
+        size: documentoBuffer.length
+      };
+      
+      // Preparar informe de validación
+      const informeValidacion = {
+        correctionsList: aiResult.correctionsList,
+        criticalErrors: storeResult.criticalErrors,
+        warnings: storeResult.warnings,
+        visualAnalysis: visualAnalysis,
+        metadata: {
+          pliegoId: pliegoId,
+          fileName: fileName,
+          fileSize: fileSize,
+          processingTime: processingTime,
+          timestamp: new Date().toISOString()
+        }
+      };
+      
+      // Guardar en BD de validaciones
+      validacionGuardada = await validacionService.guardarValidacion(
+        username,
+        documento,
+        informeValidacion,
+        aiResult.pdfBuffer, // PDF del informe
+        contextId
+      );
+      
+      console.log(`[PDF-CORRECTION] ✅ Validación guardada: ${validacionGuardada.id}`);
+      console.log(`[PDF-CORRECTION] ⏰ Expira: ${validacionGuardada.fecha_expiracion}`);
+    } catch (saveError) {
+      console.warn(`[PDF-CORRECTION] ⚠️ Error guardando validación (continuando):`, saveError.message);
+      // No bloquear el flujo si falla el guardado
+    }
+
+    // 4. Preparar respuesta con metadata adicional
+    const pdfBufferSize = aiResult.pdfBuffer.length;
+    
     const combinedResult = {
       ...aiResult,
       visualAnalysis: visualAnalysis,
@@ -155,45 +319,81 @@ router.post('/generate-list', upload.single('pdf'), async (req, res) => {
         stored: true,
         criticalErrors: storeResult.criticalErrors,
         warnings: storeResult.warnings
+      },
+      metadata: {
+        fileName: fileName,
+        fileSize: fileSize,
+        pdfSize: pdfBufferSize,  // Tamaño del PDF generado
+        processingTime: processingTime,
+        timestamp: new Date().toISOString()
       }
     };
 
-    // Configurar headers para descarga
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="correcciones-${fileName}"`,
-      'Content-Length': combinedResult.pdfBuffer.length
-    });
-
-    // Limpiar archivo temporal
-    const fileToClean = req.file?.path || tempFilePath;
-    if (fileToClean) {
+    // Limpiar archivos temporales
+    const filesToClean = [
+      req.file?.path,
+      tempFilePath,
+      convertedPdfPath
+    ].filter(Boolean);
+    
+    for (const fileToClean of filesToClean) {
       try {
         await fs.unlink(fileToClean);
-        console.log(`[PDF-CORRECTION] Archivo temporal limpiado: ${fileToClean}`);
+        console.log(`[PDF-CORRECTION] 🗑️ Archivo temporal limpiado: ${path.basename(fileToClean)}`);
       } catch (cleanupError) {
-        console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError.message);
+        console.warn('[PDF-CORRECTION] ⚠️ Error limpiando archivo temporal:', cleanupError.message);
       }
     }
 
+    console.log(`[PDF-CORRECTION] ✅ Proceso completado en ${processingTime}ms`);
+    
+    // Configurar headers para descarga (comportamiento original)
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="correcciones-${fileName}"`,
+      'Content-Length': pdfBufferSize,
+      'fileSize': pdfBufferSize.toString(),  // ← Header fileSize para SAP
+      'X-File-Size': pdfBufferSize,
+      'X-File-Name': fileName,
+      'X-Pliego-Id': pliegoId,
+      'X-Critical-Errors': storeResult.criticalErrors,
+      'X-Warnings': storeResult.warnings,
+      'X-Validacion-Id': validacionGuardada?.id || '',
+      'X-Validacion-Expira': validacionGuardada?.fecha_expiracion || ''
+    });
+    
+    console.log(`[PDF-CORRECTION] 📄 Enviando PDF directo con header fileSize: ${pdfBufferSize}`);
     res.send(combinedResult.pdfBuffer);
 
   } catch (error) {
-    console.error('[PDF-CORRECTION] Error en generate-list:', error);
+    const processingTime = Date.now() - startTime;
+    console.error(`[PDF-CORRECTION] ❌ Error en generate-list (${processingTime}ms):`, error);
     
-    // Limpiar archivo temporal en caso de error
-    const fileToClean = req.file?.path || tempFilePath;
-    if (fileToClean) {
+    loggerService.error('PDF-VALIDATION', 'Error en validación', {
+      error: error.message,
+      stack: error.stack,
+      processingTime: `${processingTime}ms`
+    });
+    
+    // Limpiar archivos temporales en caso de error
+    const filesToClean = [
+      req.file?.path,
+      tempFilePath,
+      convertedPdfPath
+    ].filter(Boolean);
+    
+    for (const fileToClean of filesToClean) {
       try {
         await fs.unlink(fileToClean);
       } catch (cleanupError) {
-        console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError.message);
+        console.warn('[PDF-CORRECTION] ⚠️ Error limpiando archivo temporal:', cleanupError.message);
       }
     }
 
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
+      processingTime: processingTime
     });
   }
 });
@@ -418,13 +618,61 @@ router.get('/health', (req, res) => {
     service: 'PDF Correction Service',
     status: 'healthy',
     timestamp: new Date().toISOString(),
+    supportedFormats: ['PDF', 'DOC', 'DOCX'],
+    features: [
+      'Conversión automática DOC/DOCX a PDF',
+      'Análisis visual de documentos',
+      'Detección de errores con IA',
+      'Subrayado de errores en amarillo',
+      'Almacenamiento en base de datos',
+      'Generación de reportes'
+    ],
     endpoints: {
-      generateList: 'POST /api/pdf-correction/generate-list',
+      generateList: {
+        method: 'POST',
+        path: '/api/pdf-correction/generate-list',
+        description: 'Genera PDF con lista de correcciones (soporta PDF/DOC/DOCX)',
+        params: {
+          pdf: 'Archivo (multipart) o pdfBase64 (string)',
+          pliegoId: 'ID del pliego (opcional)',
+          contextId: 'ID del contexto RAG (opcional)',
+          customPrompt: 'Prompt personalizado (opcional)',
+          skipVisualAnalysis: 'Omitir análisis visual para mayor velocidad (opcional)'
+        },
+        response: {
+          type: 'Binary PDF (application/pdf)',
+          headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Length': 'number (tamaño del PDF)',
+            'fileSize': 'number (tamaño en bytes - para SAP)',
+            'X-File-Size': 'number (tamaño en bytes)',
+            'X-File-Name': 'string (nombre del archivo)',
+            'X-Pliego-Id': 'string (ID del pliego)',
+            'X-Critical-Errors': 'number (errores críticos)',
+            'X-Warnings': 'number (advertencias)'
+          }
+        }
+      },
+      highlightErrors: {
+        method: 'POST',
+        path: '/api/pdf-correction/highlight-errors',
+        description: 'Subraya errores en amarillo (soporta PDF/DOC/DOCX)',
+        params: {
+          pdf: 'Archivo (multipart)',
+          pliegoId: 'ID del pliego (opcional)',
+          contextId: 'ID del contexto RAG (opcional)'
+        }
+      },
       generateListFromContext: 'POST /api/pdf-correction/generate-list-from-context',
       applyCorrections: 'POST /api/pdf-correction/apply-corrections',
       generateCorrections: 'POST /api/pdf-correction/generate-corrections',
       testWorkflow: 'POST /api/pdf-correction/test-workflow',
-      testAiCore: 'GET /api/pdf-correction/test-ai-core'
+      testAiCore: 'GET /api/pdf-correction/test-ai-core',
+      getErrors: 'GET /api/pdf-correction/errors/:pliegoId',
+      deleteErrors: 'DELETE /api/pdf-correction/errors/:pliegoId',
+      clearAllErrors: 'DELETE /api/pdf-correction/errors',
+      getRawDatabase: 'GET /api/pdf-correction/errors/database/raw',
+      aggregatedReport: 'GET /api/pdf-correction/report/aggregated?lastN=5'
     }
   });
 });
@@ -518,9 +766,11 @@ router.get('/test-ai-core', async (req, res) => {
 /**
  * POST /api/pdf-correction/highlight-errors
  * Subraya errores detectados en amarillo sobre el PDF original
+ * Soporta archivos PDF, DOC y DOCX (se convierten automáticamente)
  */
 router.post('/highlight-errors', upload.single('pdf'), async (req, res) => {
   const startTime = Date.now();
+  let convertedPdfPath = null;
   
   try {
     console.log('[PDF-CORRECTION] Iniciando subrayado de errores...');
@@ -528,17 +778,42 @@ router.post('/highlight-errors', upload.single('pdf'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        error: 'No se proporcionó ningún archivo PDF'
+        error: 'No se proporcionó ningún archivo (PDF/DOC/DOCX)'
       });
     }
     
-    const pdfPath = req.file.path;
+    let pdfPath;
+    let fileName = req.file.originalname;
     const contextId = req.body.contextId || null;
     const pliegoId = req.body.pliegoId || `PLIEGO_${Date.now()}`;
     
-    console.log(`[PDF-CORRECTION] Archivo recibido: ${req.file.originalname}`);
+    console.log(`[PDF-CORRECTION] Archivo recibido: ${fileName}`);
     console.log(`[PDF-CORRECTION] Pliego ID: ${pliegoId}`);
     console.log(`[PDF-CORRECTION] Contexto: ${contextId || 'ninguno'}`);
+    
+    // Verificar si es un archivo DOC/DOCX que necesita conversión
+    if (isDocxFile(req.file.mimetype, req.file.originalname)) {
+      console.log(`[PDF-CORRECTION] Archivo DOC/DOCX detectado, convirtiendo a PDF...`);
+      
+      // Convertir DOCX a PDF
+      const pdfBuffer = await convertDocxToPdf(req.file.path);
+      
+      // Guardar PDF convertido temporalmente
+      const uploadDir = 'uploads/pdf-corrections';
+      await fs.mkdir(uploadDir, { recursive: true });
+      
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      convertedPdfPath = path.join(uploadDir, `converted-highlight-${uniqueSuffix}.pdf`);
+      await fs.writeFile(convertedPdfPath, pdfBuffer);
+      
+      pdfPath = convertedPdfPath;
+      fileName = fileName.replace(/\.(docx?|DOCX?)$/, '.pdf');
+      
+      console.log(`[PDF-CORRECTION] ✅ Conversión completada: ${fileName}`);
+    } else {
+      // Es un PDF normal
+      pdfPath = req.file.path;
+    }
     
     // 1. Primero, detectar errores con la IA (reutilizamos la función existente)
     console.log('[PDF-CORRECTION] Paso 1: Detectando errores con IA...');
@@ -561,7 +836,7 @@ router.post('/highlight-errors', upload.single('pdf'), async (req, res) => {
       pliegoId,
       detectionResult.correctionsList,
       {
-        fileName: req.file.originalname,
+        fileName: fileName,
         contextId: contextId
       }
     );
@@ -572,38 +847,46 @@ router.post('/highlight-errors', upload.single('pdf'), async (req, res) => {
     const errors = parseErrorsFromAIResponse(detectionResult.correctionsList);
     console.log(`[PDF-CORRECTION] ${errors.length} errores parseados`);
     
-    // 3. Subrayar errores en el PDF
-    console.log('[PDF-CORRECTION] Paso 3: Subrayando errores en PDF...');
+    // 4. Subrayar errores en el PDF
+    console.log('[PDF-CORRECTION] Paso 4: Subrayando errores en PDF...');
     const highlightedPdfBuffer = await highlightErrorsInPDF(pdfPath, errors);
     
-    // 4. Guardar PDF subrayado
-    const outputFilename = `highlighted-${Date.now()}-${req.file.originalname}`;
+    // 5. Guardar PDF subrayado
+    const outputFilename = `highlighted-${Date.now()}-${fileName}`;
     const outputPath = path.join('uploads/pdf-corrections', outputFilename);
     await fs.writeFile(outputPath, highlightedPdfBuffer);
     
     console.log(`[PDF-CORRECTION] PDF subrayado guardado: ${outputPath}`);
     
-    // 5. Limpiar archivo original
-    try {
-      await fs.unlink(pdfPath);
-    } catch (cleanupError) {
-      console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError);
+    // 6. Limpiar archivos temporales
+    const filesToClean = [
+      req.file?.path,
+      convertedPdfPath
+    ].filter(Boolean);
+    
+    for (const fileToClean of filesToClean) {
+      try {
+        await fs.unlink(fileToClean);
+        console.log(`[PDF-CORRECTION] Archivo temporal limpiado: ${fileToClean}`);
+      } catch (cleanupError) {
+        console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError.message);
+      }
     }
     
     const processingTime = Date.now() - startTime;
     
-    // 6. Devolver PDF subrayado
+    // 7. Devolver PDF subrayado
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${outputFilename}"`);
     res.send(highlightedPdfBuffer);
     
-    console.log(`[PDF-CORRECTION] Subrayado completado en ${processingTime}ms`);
+    console.log(`[PDF-CORRECTION] ✅ Subrayado completado en ${processingTime}ms`);
     
     // Limpiar archivo de salida después de enviarlo
     setTimeout(async () => {
       try {
         await fs.unlink(outputPath);
-        console.log('[PDF-CORRECTION] Archivo temporal limpiado');
+        console.log('[PDF-CORRECTION] Archivo de salida limpiado');
       } catch (cleanupError) {
         console.warn('[PDF-CORRECTION] Error limpiando archivo de salida:', cleanupError);
       }
@@ -612,10 +895,15 @@ router.post('/highlight-errors', upload.single('pdf'), async (req, res) => {
   } catch (error) {
     console.error('[PDF-CORRECTION] Error en highlight-errors:', error);
     
-    // Limpiar archivo temporal en caso de error
-    if (req.file?.path) {
+    // Limpiar archivos temporales en caso de error
+    const filesToClean = [
+      req.file?.path,
+      convertedPdfPath
+    ].filter(Boolean);
+    
+    for (const fileToClean of filesToClean) {
       try {
-        await fs.unlink(req.file.path);
+        await fs.unlink(fileToClean);
       } catch (cleanupError) {
         console.warn('[PDF-CORRECTION] Error limpiando archivo temporal:', cleanupError);
       }
@@ -624,7 +912,7 @@ router.post('/highlight-errors', upload.single('pdf'), async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message,
-      message: 'Error subrayando errores en PDF'
+      message: 'Error subrayando errores en documento'
     });
   }
 });
@@ -809,6 +1097,529 @@ router.get('/errors/database/raw', async (req, res) => {
       error: 'Error leyendo base de datos',
       message: error.message
     });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones
+ * Lista validaciones del usuario (no expiradas)
+ */
+router.get('/validaciones', async (req, res) => {
+  try {
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 📋 Obteniendo validaciones para usuario: ${username}`);
+    
+    const validaciones = validacionService.obtenerValidaciones(username);
+    
+    res.json({
+      success: true,
+      total: validaciones.length,
+      validaciones: validaciones
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo validaciones:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id
+ * Obtiene validación completa (documento + informe)
+ */
+router.get('/validaciones/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 🔍 Obteniendo validación: ${id}`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Validación no encontrada o expirada' 
+      });
+    }
+    
+    res.json({
+      success: true,
+      validacion: validacion
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo validación:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id/documento
+ * Descarga el documento original
+ * Query params: formato=download|base64 (default: download)
+ */
+router.get('/validaciones/:id/documento', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    const formato = req.query.formato || 'download';
+    
+    console.log(`[PDF-CORRECTION] 📥 Descargando documento de validación: ${id} (formato: ${formato})`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Documento no encontrado o expirado' 
+      });
+    }
+    
+    const { documento_original, documento_nombre, documento_tipo } = validacion;
+    
+    // OPCIÓN A: Descargar archivo
+    if (formato === 'download') {
+      res.setHeader('Content-Type', documento_tipo);
+      res.setHeader('Content-Disposition', `attachment; filename="${documento_nombre}"`);
+      res.send(documento_original);
+    }
+    
+    // OPCIÓN B: Devolver como base64
+    else if (formato === 'base64') {
+      const base64 = documento_original.toString('base64');
+      res.json({
+        success: true,
+        documentBase64: `data:${documento_tipo};base64,${base64}`,
+        fileName: documento_nombre,
+        mimeType: documento_tipo,
+        size: documento_original.length
+      });
+    }
+    
+    else {
+      res.status(400).json({
+        success: false,
+        error: 'Formato no válido. Use "download" o "base64"'
+      });
+    }
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error descargando documento:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id/informe-pdf
+ * Descarga el informe de validación en PDF
+ */
+router.get('/validaciones/:id/informe-pdf', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 📄 Descargando informe PDF de validación: ${id}`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion || !validacion.informe_pdf) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Informe PDF no encontrado o expirado' 
+      });
+    }
+    
+    const { informe_pdf, documento_nombre } = validacion;
+    const nombrePdf = documento_nombre.replace(/\.[^/.]+$/, '') + '_informe.pdf';
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${nombrePdf}"`);
+    res.send(informe_pdf);
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error descargando informe PDF:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/pdf-correction/validaciones/:id
+ * Elimina una validación específica
+ */
+router.delete('/validaciones/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 🗑️ Eliminando validación: ${id}`);
+    
+    const eliminado = await validacionService.eliminarValidacion(id, username);
+    
+    if (!eliminado) {
+      return res.status(404).json({
+        success: false,
+        error: 'Validación no encontrada'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Validación eliminada correctamente'
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error eliminando validación:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/stats
+ * Obtiene estadísticas del servicio de validaciones
+ */
+router.get('/validaciones/stats', async (req, res) => {
+  try {
+    console.log('[PDF-CORRECTION] 📊 Obteniendo estadísticas de validaciones...');
+    
+    const stats = validacionService.getStats();
+    
+    res.json({
+      success: true,
+      stats: stats
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo estadísticas:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ================================================================================
+// ENDPOINTS DE VALIDACIONES (Sistema de retención 3 días)
+// ================================================================================
+
+/**
+ * GET /api/pdf-correction/validaciones
+ * Lista validaciones del usuario (no expiradas)
+ */
+router.get('/validaciones', async (req, res) => {
+  try {
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 📋 Obteniendo validaciones para usuario: ${username}`);
+    
+    const validaciones = validacionService.obtenerValidaciones(username);
+    
+    res.json({
+      success: true,
+      total: validaciones.length,
+      validaciones: validaciones
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo validaciones:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id
+ * Obtiene validación completa (documento + informe)
+ */
+router.get('/validaciones/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 🔍 Obteniendo validación: ${id}`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Validación no encontrada o expirada' 
+      });
+    }
+    
+    res.json({
+      success: true,
+      validacion: validacion
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo validación:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id/documento
+ * Descarga el documento original
+ * Query params: formato=download|base64 (default: download)
+ */
+router.get('/validaciones/:id/documento', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    const formato = req.query.formato || 'download';
+    
+    console.log(`[PDF-CORRECTION] 📥 Descargando documento de validación: ${id} (formato: ${formato})`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Documento no encontrado o expirado' 
+      });
+    }
+    
+    const { documento_original, documento_nombre, documento_tipo } = validacion;
+    
+    // OPCIÓN A: Descargar archivo
+    if (formato === 'download') {
+      res.setHeader('Content-Type', documento_tipo);
+      res.setHeader('Content-Disposition', `attachment; filename="${documento_nombre}"`);
+      res.send(documento_original);
+    }
+    
+    // OPCIÓN B: Devolver como base64
+    else if (formato === 'base64') {
+      const base64 = documento_original.toString('base64');
+      res.json({
+        success: true,
+        documentBase64: `data:${documento_tipo};base64,${base64}`,
+        fileName: documento_nombre,
+        mimeType: documento_tipo,
+        size: documento_original.length
+      });
+    }
+    
+    else {
+      res.status(400).json({
+        success: false,
+        error: 'Formato no válido. Use "download" o "base64"'
+      });
+    }
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error descargando documento:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones/:id/informe-pdf
+ * Descarga el informe de validación en PDF
+ */
+router.get('/validaciones/:id/informe-pdf', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 📄 Descargando informe PDF de validación: ${id}`);
+    
+    const validacion = await validacionService.obtenerValidacion(id, username);
+    
+    if (!validacion || !validacion.informe_pdf) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Informe PDF no encontrado o expirado' 
+      });
+    }
+    
+    const { informe_pdf, documento_nombre } = validacion;
+    const nombrePdf = documento_nombre.replace(/\.[^/.]+$/, '') + '_informe.pdf';
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${nombrePdf}"`);
+    res.send(informe_pdf);
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error descargando informe PDF:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/pdf-correction/validaciones/:id
+ * Elimina una validación específica
+ */
+router.delete('/validaciones/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.username || req.query.username || 'anonymous';
+    
+    console.log(`[PDF-CORRECTION] 🗑️ Eliminando validación: ${id}`);
+    
+    const eliminado = await validacionService.eliminarValidacion(id, username);
+    
+    if (!eliminado) {
+      return res.status(404).json({
+        success: false,
+        error: 'Validación no encontrada'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Validación eliminada correctamente'
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error eliminando validación:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones-stats
+ * Obtiene estadísticas del servicio de validaciones
+ */
+router.get('/validaciones-stats', async (req, res) => {
+  try {
+    console.log('[PDF-CORRECTION] 📊 Obteniendo estadísticas de validaciones...');
+    
+    const stats = validacionService.getStats();
+    
+    res.json({
+      success: true,
+      stats: stats
+    });
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error obteniendo estadísticas:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/pdf-correction/validaciones-download-zip
+ * Descarga todas las validaciones en un archivo ZIP
+ */
+router.get('/validaciones-download-zip', async (req, res) => {
+  try {
+    console.log('[PDF-CORRECTION] 📦 Generando ZIP de validaciones...');
+    
+    const archiver = (await import('archiver')).default;
+    const validacionesPath = path.resolve('./data/validaciones');
+    
+    // Verificar que existe la carpeta
+    try {
+      await fs.access(validacionesPath);
+    } catch {
+      return res.status(404).json({
+        success: false,
+        error: 'No existe la carpeta de validaciones'
+      });
+    }
+    
+    // Leer contenido de la carpeta
+    const items = await fs.readdir(validacionesPath, { withFileTypes: true });
+    const folders = items.filter(item => item.isDirectory());
+    
+    if (folders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'No hay validaciones almacenadas'
+      });
+    }
+    
+    // Configurar respuesta para descarga
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `validaciones_${timestamp}.zip`;
+    
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    
+    // Crear archivo ZIP
+    const archive = archiver('zip', {
+      zlib: { level: 9 } // Máxima compresión
+    });
+    
+    // Manejar errores del archiver
+    archive.on('error', (err) => {
+      console.error('[PDF-CORRECTION] ❌ Error creando ZIP:', err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          error: err.message
+        });
+      }
+    });
+    
+    // Pipe al response
+    archive.pipe(res);
+    
+    // Añadir cada carpeta de validación al ZIP
+    for (const folder of folders) {
+      const folderPath = path.join(validacionesPath, folder.name);
+      archive.directory(folderPath, folder.name);
+      console.log(`[PDF-CORRECTION] 📁 Añadiendo: ${folder.name}`);
+    }
+    
+    // También añadir la base de datos si existe
+    const dbPath = path.resolve('./data/validaciones.db');
+    try {
+      await fs.access(dbPath);
+      archive.file(dbPath, { name: 'validaciones.db' });
+      console.log('[PDF-CORRECTION] 📁 Añadiendo: validaciones.db');
+    } catch {
+      // La base de datos no existe, continuar sin ella
+    }
+    
+    // Finalizar el archivo
+    await archive.finalize();
+    
+    console.log(`[PDF-CORRECTION] ✅ ZIP generado: ${filename} (${folders.length} validaciones)`);
+    
+  } catch (error) {
+    console.error('[PDF-CORRECTION] ❌ Error generando ZIP:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
   }
 });
 

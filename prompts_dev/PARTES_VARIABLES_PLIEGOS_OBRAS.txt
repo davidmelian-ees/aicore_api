@@ -1,0 +1,180 @@
+================================================================================
+PARTES VARIABLES DE PLIEGOS DE OBRAS - CONOCIMIENTO CRÍTICO
+================================================================================
+
+⚠️⚠️⚠️ SUPER IMPORTANTE ⚠️⚠️⚠️
+Esta información aplica SOLO para PLIEGOS DE OBRAS.
+Estas son las partes que VARÍAN entre diferentes pliegos y donde debes concentrar
+tu atención para detectar errores específicos de cada proyecto.
+
+================================================================================
+PARTES VARIABLES QUE REQUIEREN VALIDACIÓN ESPECÍFICA
+================================================================================
+
+1️⃣ TÍTULO DEL PLIEGO
+   - Cada pliego de obras tiene un título único
+   - Describe el proyecto específico
+   - Debe ser coherente con el contenido del documento
+   - Verifica que el título coincida con:
+     * El objeto del contrato (Apartado 1)
+     * La descripción de las obras
+     * El expediente mencionado
+
+2️⃣ APARTADOS DEL 1 AL 27 (CONTENIDO VARIABLE)
+   - Estructura: Los 27 apartados deben existir
+   - Contenido: El contenido de cada apartado VARÍA según el proyecto
+   - Validación específica por apartado:
+   
+   APARTADO 1 - OBJECTE DEL CONTRACTE:
+   ✓ Descripción específica de las obras del proyecto
+   ✓ Departamento aprobador
+   ✓ Clave del expediente (única por proyecto)
+   ✓ CPV específico del tipo de obra
+   
+   APARTADO 2 - DADES ECONÒMIQUES:
+   ✓ Presupuesto específico del proyecto
+   ✓ Valor estimado
+   ✓ Justificación del importe
+   ✓ Si hay lotes: importes específicos por lote
+   
+   APARTADO 3 - TERMINI D'EXECUCIÓ:
+   ✓ Plazo específico del proyecto (varía según complejidad)
+   
+   APARTADO 4 - EXISTÈNCIA DE CRÈDIT:
+   ✓ Partida presupuestaria específica
+   ✓ Organismo pagador
+   
+   APARTADO 9 - REQUISITS D'APTITUD (SOLVÈNCIA):
+   ✓ Clasificación específica según tipo de obra
+   ✓ Grupo, Subgrupo, Categoría (varía por proyecto)
+   ✓ Ejemplos comunes:
+     - Grupo C (Edificaciones)
+     - Grupo G (Viales)
+     - Grupo E (Hidráulicas)
+     - Grupo I (Instalaciones)
+   
+   APARTADO 10 - LOTITZACIÓ:
+   ✓ Puede ser "Sí" o "No" según el proyecto
+   ✓ Si hay lotes: número y descripción específica
+   
+   APARTADO 15 - CRITERIS D'ADJUDICACIÓ:
+   ✓ Criterios específicos del proyecto
+   ✓ Ponderaciones pueden variar
+   
+   APARTADO 18 - DOCUMENTACIÓ A PRESENTAR:
+   ✓ Cuadro de Características ESPECÍFICO del proyecto
+   ✓ Apartados que APLICAN/NO APLICAN varían por proyecto
+   
+   APARTADO 21 - REVISIÓ DE PREUS:
+   ✓ Fórmula específica según tipo de obra
+   
+   APARTADOS 1-27 RESTANTES:
+   ✓ Contenido adaptado al proyecto específico
+   ✓ Referencias a anexos específicos
+   ✓ Condiciones particulares del proyecto
+
+3️⃣ ANNEX NÚM. 5 (VARIABLE POR PROYECTO)
+   ⚠️⚠️⚠️ REGLA CRÍTICA ANTI-ALUCINACIÓN ⚠️⚠️⚠️
+   
+   SOLO reporta campos variables SI Y SOLO SI:
+   1. Los VES EXPLÍCITAMENTE en el documento
+   2. Están LITERALMENTE escritos en el Annex 5
+   3. Puedes CITAR la página exacta donde aparecen
+   
+   ❌ PROHIBIDO ABSOLUTAMENTE:
+   - Inventar campos que "podrían" existir
+   - Asumir campos basándote en otros pliegos
+   - Mencionar ejemplos como ZVRM_QDC_MAT_LIC o ZRM_DM_MAT_CO2 si NO están en el documento
+   - Reportar campos "comunes" o "típicos"
+   
+   ✅ SOLO SI VES CAMPOS EN EL DOCUMENTO:
+   - Verifica que estén en Apartado 15 Y en Annex 5
+   - Cita la página exacta donde aparecen
+   - Verifica que tengan descripción clara
+   - Verifica que tengan tipo de dato especificado
+   
+   ✅ SI NO HAY CAMPOS VARIABLES:
+   - Reporta: "No se detectaron campos variables en este pliego"
+   - NO inventes ejemplos
+   - NO menciones campos de otros pliegos del proyecto
+
+4️⃣ ANNEX NÚM. 7 (VARIABLE POR PROYECTO)
+   - Título: "MESA DE CONTRACTACIÓ I COMISSIÓ TÈCNICA"
+   - Contenido: Composición específica para el proyecto
+   - Validación:
+     ✓ Verifica que existe el Annex 7
+     ✓ Verifica que se menciona en el Apartado 14
+     ✓ Composición de la mesa específica del proyecto
+     ✓ Nombres de los miembros (pueden variar)
+
+================================================================================
+PARTES FIJAS VS PARTES VARIABLES
+================================================================================
+
+PARTES FIJAS (NO VARÍAN ENTRE PROYECTOS):
+- Estructura de 27 apartados
+- Formato general del documento
+- Referencias a normativa (LCSP, etc.)
+- Procedimiento de licitación (generalmente Abierto)
+- Garantías estándar (5% definitiva, NO provisional)
+- Periodo de garantía (2 años)
+
+PARTES VARIABLES (ESPECÍFICAS DE CADA PROYECTO):
+- Título del pliego
+- Contenido de apartados 1-27
+- Annex 5 (contenido específico)
+- Annex 7 (composición específica)
+- Presupuestos y plazos
+- Clasificación empresarial requerida
+- Criterios de adjudicación y ponderaciones
+- Cuadro de Características (Apartado 18)
+
+================================================================================
+INSTRUCCIONES DE VALIDACIÓN PARA PARTES VARIABLES
+================================================================================
+
+⚠️ AL VALIDAR PARTES VARIABLES:
+
+1. NO asumas contenido estándar
+2. Verifica coherencia interna:
+   - Título ↔ Objeto del contrato
+   - Presupuesto ↔ Clasificación requerida
+   - Plazos ↔ Complejidad de las obras
+   - Lotes ↔ Clasificación por lote
+
+3. Verifica referencias cruzadas:
+   - Apartado 14 → Annex 7
+   - Apartado 15 → Annex 8A y 8B
+   - Apartado 18 → Cuadro de Características
+
+4. Detecta incoherencias específicas:
+   - Título no coincide con objeto
+   - Clasificación inadecuada para el tipo de obra
+   - Presupuesto no justificado
+   - Plazos irreales
+   - Lotes mal definidos
+
+5. Presta MÁXIMA atención a:
+   - Apartado 1 (Objeto)
+   - Apartado 2 (Datos económicos)
+   - Apartado 9 (Clasificación)
+   - Apartado 18 (Cuadro de Características)
+   - Annex 5 y Annex 7
+
+================================================================================
+ERRORES COMUNES EN PARTES VARIABLES
+================================================================================
+
+🔴 ERROR: Título genérico o no descriptivo
+🔴 ERROR: Clasificación empresarial incorrecta para el tipo de obra
+🔴 ERROR: Presupuesto sin justificación
+🔴 ERROR: Cuadro de Características incompleto o genérico
+🔴 ERROR: Annex 5 o Annex 7 faltantes
+🔴 ERROR: Referencias a anexos que no existen
+🔴 ERROR: Incoherencia entre título y objeto del contrato
+🔴 ERROR: Plazos no realistas para el tipo de obra
+🔴 ERROR: Lotes mal definidos o sin clasificación específica
+
+================================================================================
+FIN DE PARTES VARIABLES DE PLIEGOS DE OBRAS
+================================================================================

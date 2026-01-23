@@ -25,7 +25,7 @@ from typing import List, Dict, Optional
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class ContextUploader:
-    def __init__(self, base_url: str = "https://ai_core_api.cfapps.eu10-005.hana.ondemand.com", bearer_token: str = None):
+    def __init__(self, base_url: str = "http://localhost:4000", bearer_token: str = None):
         self.base_url = base_url.rstrip('/')
         self.upload_endpoint = f"{self.base_url}/api/rag/upload"
         self.session = requests.Session()
@@ -114,7 +114,7 @@ class ContextUploader:
                     self.upload_endpoint,
                     files=files,
                     data=data,
-                    timeout=10
+                    timeout=60  # 10 minutos para documentos grandes con rate limiting
                 )
                 
                 if response.status_code == 200:
@@ -151,9 +151,10 @@ class ContextUploader:
     def test_connection(self) -> bool:
         """Prueba la conexión con el servidor."""
         try:
-            health_url = f"{self.base_url}/api/rag/health"
+            health_url = f"{self.base_url}/health"
             response = self.session.get(health_url, timeout=5)
             
+            print(health_url)
             if response.status_code == 200:
                 print(f"Conexion exitosa con {self.base_url}")
                 return True
@@ -245,8 +246,8 @@ def main():
     
     parser.add_argument(
         '--url', 
-        default='https://ai_core_api.cfapps.eu10-005.hana.ondemand.com',
-        help='URL base del servidor (default: Cloud Foundry)'
+        default='http://localhost:4000',
+        help='URL base del servidor (default: localhost:4000)'
     )
     
     parser.add_argument(
@@ -257,8 +258,8 @@ def main():
     
     parser.add_argument(
         '--context',
-        default='PLIEGOS_DESARROLLO',
-        help='Contexto por defecto (default: PLIEGOS_DESARROLLO)'
+        default='default',
+        help='Contexto por defecto (default: default)'
     )
     
     parser.add_argument(

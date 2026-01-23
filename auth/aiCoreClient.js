@@ -16,8 +16,8 @@ let client;
  */
 export function getAiCoreClient(model = "gpt-4o", options = {}) {
   const {
-    temperature = 0.2, // Temperatura baja para validación consistente
-    maxTokens = 4000
+    temperature = 0.1, // Temperatura MUY baja para validación consistente (0.1 = casi determinista)
+    maxTokens = 30000
   } = options;
   
   if (!client) {

@@ -30,41 +30,57 @@ function getEmbeddingClient(model = "text-embedding-3-small") {
  * @param {string} model - Modelo de embeddings (opcional)
  * @returns {Promise<Array<number>>} - Vector de embedding
  */
-export async function generateEmbedding(text, model = "text-embedding-3-small") {
+export async function generateEmbedding(text, model = "text-embedding-3-small", retries = 3) {
   // Validar que el input sea un string
   if (typeof text !== 'string') {
     throw new Error(`generateEmbedding espera un string, recibió: ${typeof text}. Valor: ${JSON.stringify(text)}`);
   }
   
-  try {
-    const client = getEmbeddingClient(model);
-    
-    // Normalizar el texto
-    const normalizedText = text.trim().replace(/\s+/g, ' ');
-    
-    if (!normalizedText) {
-      throw new Error("El texto no puede estar vacío");
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const client = getEmbeddingClient(model);
+      
+      // Normalizar el texto
+      const normalizedText = text.trim().replace(/\s+/g, ' ');
+      
+      if (!normalizedText) {
+        throw new Error("El texto no puede estar vacío");
+      }
+      
+      if (attempt > 1) {
+        console.log(`[EMBEDDINGS] Reintento ${attempt}/${retries} para texto de ${normalizedText.length} caracteres`);
+      } else {
+        console.log(`[EMBEDDINGS] Generando embedding para texto de ${normalizedText.length} caracteres`);
+      }
+      
+      // Intentar generar embedding usando SAP AI Core
+      const response = await client.run({
+        input: normalizedText
+      });
+      
+      // Extraer el vector de embedding
+      const embedding = response.getEmbedding();
+      
+      console.log(`[EMBEDDINGS] ✅ Embedding generado con SAP AI Core: dimensión ${embedding.length}`);
+      
+      return embedding;
+      
+    } catch (error) {
+      const isRateLimit = error.message.includes('429') || error.message.includes('TooManyRequest');
+      
+      if (isRateLimit && attempt < retries) {
+        // Backoff exponencial: 5s, 10s, 20s
+        const waitTime = 5000 * Math.pow(2, attempt - 1);
+        console.warn(`[EMBEDDINGS] ⚠️ Rate limit alcanzado (429). Esperando ${waitTime/1000}s antes de reintentar...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        continue;
+      }
+      
+      console.error("[EMBEDDINGS] ❌ ERROR CRÍTICO con SAP AI Core:", error.message);
+      
+      // NO USAR FALLBACK - Fallar explícitamente para forzar 1536D
+      throw new Error(`SAP AI Core falló después de ${attempt} intentos: ${error.message}. Aumenta los límites en SAP BTP.`);
     }
-    
-    console.log(`[EMBEDDINGS] Generando embedding para texto de ${normalizedText.length} caracteres`);
-    
-    // Intentar generar embedding usando SAP AI Core
-    const response = await client.run({
-      input: normalizedText
-    });
-    
-    // Extraer el vector de embedding
-    const embedding = response.getEmbedding();
-    
-    console.log(`[EMBEDDINGS] Embedding generado con SAP AI Core: dimensión ${embedding.length}`);
-    
-    return embedding;
-    
-  } catch (error) {
-    console.error("[EMBEDDINGS] Error con SAP AI Core, usando fallback local:", error.message);
-    
-    // Fallback: generar embedding local
-    return generateLocalEmbedding(text);
   }
 }
 
@@ -80,21 +96,21 @@ export async function generateEmbeddings(texts, model = "text-embedding-3-small"
     
     const embeddings = [];
     
-    // Procesar en lotes para evitar límites de rate
-    const batchSize = 10;
+    // Procesar de UNO EN UNO para evitar rate limiting de SAP AI Core
+    const batchSize = 1;
     for (let i = 0; i < texts.length; i += batchSize) {
       const batch = texts.slice(i, i + batchSize);
       
-      console.log(`[EMBEDDINGS] Procesando lote ${Math.floor(i/batchSize) + 1}/${Math.ceil(texts.length/batchSize)}`);
+      console.log(`[EMBEDDINGS] Procesando ${i + 1}/${texts.length}`);
       
       const batchPromises = batch.map(text => generateEmbedding(text, model));
       const batchEmbeddings = await Promise.all(batchPromises);
       
       embeddings.push(...batchEmbeddings);
       
-      // Pequeña pausa entre lotes para evitar rate limiting (solo si no es fallback local)
+      // Pausa de 500ms entre cada embedding (120 embeddings/minuto)
       if (i + batchSize < texts.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
     

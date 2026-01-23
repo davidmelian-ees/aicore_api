@@ -18,6 +18,7 @@ default-env.json
 *.docx
 *.xlsx
 *.xls
+*.env
 
 # Entorno virtual Python
 venv_upload/
@@ -29,3 +30,16 @@ venv_upload/
 # Logs
 *.log
 logs/
+
+# Tests y cobertura
+coverage/
+*.lcov
+.nyc_output/
+
+# Bases de datos SQLite (pueden ser muy grandes)
+data/rag_vectors.db
+data/rag_vectors.db-shm
+data/rag_vectors.db-wal
+*.db
+*.db-shm
+*.db-wal
